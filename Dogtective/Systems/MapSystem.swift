@@ -8,8 +8,8 @@
 import SpriteKit
 
 
-// MARK: - Layouting System
-// will contains the setup about the avatar, background, and nodes
+// MARK: - Map System
+// will contains the setup about the map, map position
 extension GameScene {
     // TODO: Implementing the setup of the layout
 }
