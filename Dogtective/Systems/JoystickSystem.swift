@@ -34,7 +34,6 @@ extension GameScene {
         let location = touch.location(in: cam)
         if entity.joystickUI != nil {
             clampingJoystick(entity, location: location)
-            movePlayer()
         }
     }
     

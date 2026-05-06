@@ -40,4 +40,8 @@ class GameScene: SKScene {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         releaseJoystick()
     }
+    
+    override func update(_ currentTime: TimeInterval) {
+        movePlayer()
+    }
 }

@@ -21,6 +21,25 @@ extension GameScene {
         playerEntity.position.x += dx * playerEntity.playerSpeed
         playerEntity.position.y += dy * playerEntity.playerSpeed
         
+        if dx != 0 || dy != 0 {
+            if dx > 0 {
+                playerEntity.xScale = 1
+            } else {
+                playerEntity.xScale = -1
+            }
+            
+             if playerEntity.playerInfo?.state != .moving {
+                 playerEntity.removeAllActions()
+                 playerEntity.movingPlayerState()
+             }
+         } else {
+             if playerEntity.playerInfo?.state != .idle {
+                 playerEntity.removeAllActions()
+                 playerEntity.idlePlayerState()
+             }
+         }
+
+        
         cameraFollowPlayer()
     }
 }
