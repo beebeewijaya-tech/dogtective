@@ -12,14 +12,16 @@ import SpriteKit
 // when pulling joystick based on finger, clamping joystick
 extension GameScene {
     func setupJoystick() {
+        guard let cam = cam else { return }
         guard let entity = joystickEntity else { return }
-        addChild(entity)
+        cam.addChild(entity)
     }
     
     func touchJoystick(touch: UITouch) {
         guard let entity = joystickEntity else { return }
+        guard let cam = cam else { return }
 
-        let location = touch.location(in: self)
+        let location = touch.location(in: cam)
         if entity.base.contains(location) {
             entity.joystickUI = touch
         }
@@ -27,10 +29,12 @@ extension GameScene {
     
     func moveJoystickKnob(touch: UITouch) {
         guard let entity = joystickEntity else { return }
+        guard let cam = cam else { return }
         
-        let location = touch.location(in: self)
+        let location = touch.location(in: cam)
         if entity.joystickUI != nil {
             clampingJoystick(entity, location: location)
+            movePlayer()
         }
     }
     

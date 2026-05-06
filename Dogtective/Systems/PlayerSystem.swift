@@ -21,5 +21,7 @@ extension GameScene {
         addChild(entity)
         
         entity.idlePlayerState()
+        
+        cameraFollowPlayer()
     }
 }

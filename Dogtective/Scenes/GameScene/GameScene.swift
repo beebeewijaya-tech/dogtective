@@ -11,12 +11,15 @@ import GameplayKit
 class GameScene: SKScene {
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
+    var cam: SKCameraNode?
     
     override func didMove(to view: SKView) {
         // when the scene is first loaded
         self.playerEntity = PlayerEntity(playerInfo: PlayerInfo())
-        self.joystickEntity = JoystickEntity()
+        self.joystickEntity = JoystickEntity(sceneSize: size)
         
+        self.setupBackground()
+        self.setupCamera()
         self.setupPlayer()
         self.setupJoystick()
     }
