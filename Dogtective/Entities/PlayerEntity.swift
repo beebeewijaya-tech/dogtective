@@ -22,6 +22,7 @@ class PlayerEntity: SKSpriteNode {
     var playerInfo: PlayerInfo?
     var playerIdleAtlas = SKTextureAtlas(named: "player_idle")
     var playerIdleFrames: [SKTexture] = []
+    var playerSpeed: CGFloat = 0.05 // TODO: tune it
     
     
     init(playerInfo: PlayerInfo?) {
