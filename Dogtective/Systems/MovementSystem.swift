@@ -38,7 +38,6 @@ extension GameScene {
                  playerEntity.idlePlayerState()
              }
          }
-
         
         cameraFollowPlayer()
     }
