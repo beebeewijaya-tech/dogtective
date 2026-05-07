@@ -23,8 +23,27 @@ struct GameScreen: View {
             }
             .ignoresSafeArea(.all)
             
-            
-            // TODO: Implementing HUD
+                        
+            VStack {
+                HStack(alignment: .top) {
+                    // minimap
+                    Image("minimap")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                    Spacer()
+                    
+                    // settings & bagpack
+                    GameMenu()
+                }
+                Spacer()
+                HStack {
+                    Spacer()
+                    // action menu
+                    GameActionButton()
+                }
+            }
+            .padding(.vertical, 20)
         }
     }
 }
