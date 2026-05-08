@@ -41,4 +41,18 @@ extension GameScene {
         
         cameraFollowPlayer()
     }
+    
+    func setMapPosition() {
+        guard let playerEntity = playerEntity else { return }
+        
+        if playerEntity.position.x > 1000 && playerEntity.position.y > 1000 {
+            minimapStateViewModel?.setState(.park)
+        } else if playerEntity.position.x > 1000 && playerEntity.position.y < 1000 {
+            minimapStateViewModel?.setState(.central)
+        } else if playerEntity.position.x < 1000 && playerEntity.position.y > 1000 {
+            minimapStateViewModel?.setState(.house)
+        } else if playerEntity.position.x < 1000 && playerEntity.position.y < 1000 {
+            minimapStateViewModel?.setState(.police)
+        }
+    }
 }

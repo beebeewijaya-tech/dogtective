@@ -12,6 +12,7 @@ class GameScene: SKScene {
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var cam: SKCameraNode?
+    var minimapStateViewModel: MinimapStateViewModel?
     
     override func didMove(to view: SKView) {
         // when the scene is first loaded
@@ -32,7 +33,6 @@ class GameScene: SKScene {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let location = touch.location(in: self)
             moveJoystickKnob(touch: touch)
         }
     }
@@ -43,5 +43,6 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         movePlayer()
+        setMapPosition()
     }
 }

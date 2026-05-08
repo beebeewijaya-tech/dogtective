@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainScreen: View {
     @StateObject var pageStateViewModel: PageStateViewModel = PageStateViewModel()
+    @StateObject var minimapStateViewModel: MinimapStateViewModel = MinimapStateViewModel()
     
     var body: some View {
         VStack {
@@ -17,6 +18,7 @@ struct MainScreen: View {
                 HomeScreen()
             case .game:
                 GameScreen()
+                    .environmentObject(minimapStateViewModel)
             }
         }
         .environmentObject(pageStateViewModel)
