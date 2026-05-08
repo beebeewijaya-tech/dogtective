@@ -9,9 +9,11 @@ import SwiftUI
 import SpriteKit
 
 struct GameScreen: View {
+    @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     
     func makeScene(size: CGSize) -> SKScene {
         let scene = GameScene(size: size)
+        scene.minimapStateViewModel = minimapStateViewModel
         return scene
     }
     
@@ -27,7 +29,7 @@ struct GameScreen: View {
             VStack {
                 HStack(alignment: .top) {
                     // minimap
-                    Image("minimap")
+                    Image(minimapStateViewModel.state.minimapState)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
