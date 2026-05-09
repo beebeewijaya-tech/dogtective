@@ -20,6 +20,8 @@ extension GameScene {
     func touchJoystick(touch: UITouch) {
         guard let entity = joystickEntity else { return }
         guard let cam = cam else { return }
+        
+        print("LOCATION: ", touch.location(in: self))
 
         let location = touch.location(in: cam)
         if entity.base.contains(location) {

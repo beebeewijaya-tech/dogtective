@@ -12,27 +12,43 @@ import SpriteKit
 // will contains the setup about the map, map position
 extension GameScene {
     func setupBackground() {
-        let gridSize: CGFloat = 4000
-        let cellSize: CGFloat = 100
-        let path = CGMutablePath()
-        let half = gridSize / 2
-        let steps = Int(gridSize / cellSize)
-
-        for i in 0...steps {
-            let x = -half + CGFloat(i) * cellSize
-            path.move(to: CGPoint(x: x, y: -half))
-            path.addLine(to: CGPoint(x: x, y: half))
+        let backgroundTexture = SKTexture(imageNamed: "map_district")
+        let background = SKSpriteNode(texture: backgroundTexture)
+        background.size = CGSize(width: 3634, height: 1449)
+        background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        addChild(background)
+        
+        
+        // TODO: fix and think to render this somewhere else
+        setupFire()
+        setupFoodStallSmoke()
+        setupLampLight()
+    }
+    
+    func setupFire() {
+        if let fire = SKEmitterNode(fileNamed: "BonFire") {
+            fire.position = bonfirePosition
+            fire.particleSize = CGSize(width: 100, height: 100)
+            addChild(fire)
         }
-        for i in 0...steps {
-            let y = -half + CGFloat(i) * cellSize
-            path.move(to: CGPoint(x: -half, y: y))
-            path.addLine(to: CGPoint(x: half, y: y))
+    }
+    
+    
+    func setupFoodStallSmoke() {
+        for pos in self.foodStallPosition {
+            if let smoke = SKEmitterNode(fileNamed: "FoodStallSmoke") {
+                smoke.position = pos
+                addChild(smoke)
+            }
         }
-
-        let grid = SKShapeNode(path: path)
-        grid.strokeColor = UIColor.green.withAlphaComponent(0.2)
-        grid.lineWidth = 1
-        grid.zPosition = -0.5
-        addChild(grid)
+    }
+    
+    func setupLampLight() {
+        for pos in self.lampLightPosition {
+            if let lamp = SKEmitterNode(fileNamed: "Lamp") {
+                lamp.position = pos
+                addChild(lamp)
+            }
+        }
     }
 }

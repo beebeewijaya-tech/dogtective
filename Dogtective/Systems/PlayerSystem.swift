@@ -16,7 +16,7 @@ extension GameScene {
         let width = entity.playerIdleFrames.first?.size().width ?? 0
         let height = entity.playerIdleFrames.first?.size().height ?? 0
 
-        entity.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        entity.position = foodStallPosition.first!
         entity.size = CGSize(width: width, height: height)
         addChild(entity)
         
