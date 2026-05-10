@@ -23,6 +23,14 @@ extension GameScene {
         setupFire()
         setupFoodStallSmoke()
         setupLampLight()
+        setupBigTrees()
+    }
+
+    func setupBigTrees() {
+        for pos in self.bigTreePositions {
+            let tree = BigTreeEntity(position: pos)
+            addChild(tree)
+        }
     }
     
     func setupFire() {

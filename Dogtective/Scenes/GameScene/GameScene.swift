@@ -30,6 +30,10 @@ class GameScene: SKScene {
         CGPoint(x: 499, y: 522),
         CGPoint(x: 1796, y: 231),
     ]
+    var bigTreePositions: [CGPoint] = [
+        CGPoint(x: -445, y: 285),
+        CGPoint(x: -876, y: -419),
+    ]
     
     override func didMove(to view: SKView) {
         // when the scene is first loaded
