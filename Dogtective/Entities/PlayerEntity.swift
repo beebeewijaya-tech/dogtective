@@ -68,11 +68,11 @@ class PlayerEntity: SKSpriteNode {
     func movingPlayerState() {
         // moving animation after frame injected
         playerInfo?.state = .moving
-        animatePlayer(frames: playerMoveFrames, timePerFrame: 0.0417)
+        animatePlayer(frames: playerMoveFrames, timePerFrame: 1.0/30.0)
     }
 
     
-    func animatePlayer(frames: [SKTexture], timePerFrame: TimeInterval = 0.01) {
+    func animatePlayer(frames: [SKTexture], timePerFrame: TimeInterval = 1.0/30.0) {
         // animatePlayer will run animation given the frames
         self.removeAllActions()
         let animate = SKAction.animate(with: frames, timePerFrame: timePerFrame)

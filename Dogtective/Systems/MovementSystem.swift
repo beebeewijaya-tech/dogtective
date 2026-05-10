@@ -17,9 +17,11 @@ extension GameScene {
         
         let dx = joystickEntity.knob.position.x - joystickEntity.base.position.x
         let dy = joystickEntity.knob.position.y - joystickEntity.base.position.y
-        
-        playerEntity.position.x += dx * playerEntity.playerSpeed
-        playerEntity.position.y += dy * playerEntity.playerSpeed
+
+        // Velocity-based: physics solver resolves obstacle collisions.
+        // playerSpeed (per-frame factor) * 60 ≈ per-second velocity.
+        let speedScale = playerEntity.playerSpeed * 60
+        playerEntity.physicsBody?.velocity = CGVector(dx: dx * speedScale, dy: dy * speedScale)
         
         if dx != 0 || dy != 0 {
             if dx > 0 {
