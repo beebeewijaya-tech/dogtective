@@ -16,6 +16,7 @@ extension GameScene {
         let background = SKSpriteNode(texture: backgroundTexture)
         background.size = CGSize(width: 3634, height: 1449)
         background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        background.zPosition = -1000
         addChild(background)
         
         
@@ -23,6 +24,15 @@ extension GameScene {
         setupFire()
         setupFoodStallSmoke()
         setupLampLight()
+        setupBigTrees()
+    }
+
+    func setupBigTrees() {
+        for pos in self.bigTreePositions {
+            let tree = BigTreeEntity(position: pos)
+            addChild(tree)
+            bigTreeEntities.append(tree)
+        }
     }
     
     func setupFire() {

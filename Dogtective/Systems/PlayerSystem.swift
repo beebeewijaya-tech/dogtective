@@ -19,9 +19,19 @@ extension GameScene {
         entity.position = foodStallPosition.first!
         entity.size = CGSize(width: width, height: height)
         addChild(entity)
-        
+
+        // Player physics body 
+        let bodyWidth = width * 0.4
+        let bodyHeight = height * 0.2
+        let bodyOffset = CGPoint(x: 0, y: -height * 0.35)
+        CollisionSystem.applyDynamicBody(
+            to: entity,
+            shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
+            offset: bodyOffset
+        )
+
         entity.idlePlayerState()
-        
+
         cameraFollowPlayer()
     }
 }

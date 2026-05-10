@@ -30,9 +30,18 @@ class GameScene: SKScene {
         CGPoint(x: 499, y: 522),
         CGPoint(x: 1796, y: 231),
     ]
+    var bigTreePositions: [CGPoint] = [
+        CGPoint(x: -445, y: 285),
+        CGPoint(x: -876, y: -419),
+    ]
     
+    // for entities collision
+    // TODO: maybe making different approach, so thers not soo much separate array (ex. bigTreeEntities, lampEnt, etc)
+    var bigTreeEntities: [BigTreeEntity] = []
+
     override func didMove(to view: SKView) {
         // when the scene is first loaded
+        self.physicsWorld.gravity = .zero
         self.playerEntity = PlayerEntity(playerInfo: PlayerInfo())
         self.joystickEntity = JoystickEntity(sceneSize: size)
         
@@ -61,5 +70,12 @@ class GameScene: SKScene {
     override func update(_ currentTime: TimeInterval) {
         movePlayer()
         setMapPosition()
+        applyYSort()
+    }
+
+    func applyYSort() {
+        var nodes: [SKNode] = bigTreeEntities
+        if let player = playerEntity { nodes.append(player) }
+        YSortSystem.apply(to: nodes)
     }
 }
