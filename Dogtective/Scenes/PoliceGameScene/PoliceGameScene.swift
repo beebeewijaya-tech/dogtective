@@ -8,38 +8,50 @@
 import SpriteKit
 
 class PoliceGameScene: SKScene {
-
+    // MARK: - Player related
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var bg = SKSpriteNode(imageNamed: "map_police")
     var minimapStateViewModel: MinimapStateViewModel?
+    var movementSystem: MovementSystem?
+    var ysortSystem: YSortSystem?
+
     
+    // MARK: - Entity for NPC
     var police1: PoliceEntity?
     var police2: PoliceEntity?
-    
     var npc6: NPCEntity?
     var npc7: NPCEntity?
     var npc10: NPCEntity?
     
+    // MARK: - Property
+    private var lastUpdateTime: TimeInterval = 0
+
+    
     override func didMove(to view: SKView) {
         self.physicsWorld.gravity = .zero
         
-        playerEntity = PlayerEntity(playerInfo: PlayerInfo())
-        joystickEntity = JoystickEntity(sceneSize: size)
+        // register entity or property
+        self.playerEntity = PlayerEntity()
+        self.joystickEntity = JoystickEntity(sceneSize: size)
         
-        setupBackground()
-        setupPlayer()
-        setupCollisions()
-        setupJoystick()
-        setupNPCs()
-        setupPolice()
+        // register system
+        self.movementSystem = MovementSystem(joystickEntity: joystickEntity, playerEntity: playerEntity)
+        self.ysortSystem = YSortSystem()
+        
+        self.setupBackground()
+        self.setupPlayer()
+        self.setupCollisions()
+        self.setupJoystick()
+        self.setupNPCs()
+        self.setupPolice()
     }
     
     func setupBackground() {
-        let scale = min(size.width/bg.size.width, size.height/bg.size.height)
+        let scale = min(size.width / bg.size.width, size.height / bg.size.height)
         bg.setScale(scale)
         bg.position = CGPoint(x: size.width/2, y: size.height/2)
-        bg.zPosition = -1
+        bg.zPosition = -10000
         addChild(bg)
     }
     
@@ -56,7 +68,10 @@ class PoliceGameScene: SKScene {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        movePlayer()
+        let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
+        movementSystem?.update(deltaTime: dt)
+        ysortSystem?.update(deltaTime: dt)
     }
 }
 

@@ -20,9 +20,8 @@ enum CollisionShape {
     case circle(CGFloat)
 }
 
-enum CollisionSystem {
-    static func applyStaticBody(
-        to node: SKNode,
+extension SKNode {
+    func applyStaticBody(
         shape: CollisionShape,
         offset: CGPoint = .zero,
         category: UInt32 = PhysicsCategory.obstacle,
@@ -37,11 +36,10 @@ enum CollisionSystem {
         body.categoryBitMask = category
         body.collisionBitMask = collidesWith
         body.contactTestBitMask = collidesWith
-        node.physicsBody = body
+        self.physicsBody = body
     }
 
-    static func applyDynamicBody(
-        to node: SKNode,
+    func applyDynamicBody(
         shape: CollisionShape,
         offset: CGPoint = .zero,
         category: UInt32 = PhysicsCategory.player,
@@ -57,10 +55,10 @@ enum CollisionSystem {
         body.categoryBitMask = category
         body.collisionBitMask = collidesWith
         body.contactTestBitMask = collidesWith
-        node.physicsBody = body
+        self.physicsBody = body
     }
 
-    private static func makeBody(shape: CollisionShape, offset: CGPoint) -> SKPhysicsBody {
+    private func makeBody(shape: CollisionShape, offset: CGPoint) -> SKPhysicsBody {
         switch shape {
         case .rectangle(let size):
             return SKPhysicsBody(rectangleOf: size, center: offset)
