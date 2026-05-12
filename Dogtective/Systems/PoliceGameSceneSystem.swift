@@ -128,6 +128,19 @@ extension PoliceGameScene {
             addChild(n10)
         }
     }
+     func apply(to nodes: [SKNode], offset: CGFloat = 0) {
+           for node in nodes {
+               node.zPosition = -sortY(for: node) + offset
+           }
+       }
+
+       // Sort by visual base (feet) so anchor differences don't break ordering.
+       func sortY(for node: SKNode) -> CGFloat {
+           if let sprite = node as? SKSpriteNode {
+               return sprite.position.y - sprite.size.height * sprite.anchorPoint.y
+           }
+           return node.position.y
+       }
     
     func applyYSort() {
         var nodes: [SKNode] = []
@@ -138,7 +151,7 @@ extension PoliceGameScene {
         if let n7 = npc7 { nodes.append(n7) }
         if let n10 = npc10 { nodes.append(n10) }
         
-        YSortSystem.apply(to: nodes)
+        apply(to: nodes)
     }
     
     func handleMove(_ touches: Set<UITouch>) {
