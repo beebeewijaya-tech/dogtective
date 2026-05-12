@@ -15,6 +15,7 @@ class PoliceGameScene: SKScene {
     var minimapStateViewModel: MinimapStateViewModel?
     var movementSystem: MovementSystem?
     var ysortSystem: YSortSystem?
+    var joystickSystem: JoystickSystem?
 
     
     // MARK: - Entities for NPC
@@ -40,12 +41,13 @@ class PoliceGameScene: SKScene {
         // register system
         self.movementSystem = MovementSystem(joystickEntity: joystickEntity, playerEntity: playerEntity)
         self.ysortSystem = YSortSystem()
+        self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, scene: self)
         
         self.setupBackground()
         self.setupPlayer()
-        self.setupJoystick()
         self.setupNPCs()
         self.setupCollisions()
+        self.setupJoystick()
     }
     
     func setupBackground() {
@@ -57,15 +59,22 @@ class PoliceGameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleTouches(touches)
+        guard let touch = touches.first else { return }
+        guard let joystickSystem = joystickSystem else { return }
+        print("Location ", touch.location(in: self))
+        joystickSystem.touchJoystick(touch: touch)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleMove(touches)
+        guard let joystickSystem = joystickSystem else { return }
+
+        for touch in touches {
+            joystickSystem.moveJoystickKnob(touch: touch)
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleEnd()
+        joystickSystem?.releaseJoystick()
     }
     
     override func update(_ currentTime: TimeInterval) {
