@@ -24,14 +24,18 @@ extension GameScene {
         setupFire()
         setupFoodStallSmoke()
         setupLampLight()
-        setupBigTrees()
+        setupObstacles()
     }
 
-    func setupBigTrees() {
-        for pos in self.bigTreePositions {
-            let tree = BigTreeEntity(position: pos)
-            addChild(tree)
-            bigTreeEntities.append(tree)
+    func setupObstacles() {
+        let configs: [ObstacleConfig] = [
+            .bigTree(at: CGPoint(x: -445, y: 285)),
+            .bigTree(at: CGPoint(x: -876, y: -419)),
+        ]
+        for cfg in configs {
+            let obs = ObstacleEntity(config: cfg)
+            register(obs)
+            if let node = obs.node { addChild(node) }
         }
     }
     

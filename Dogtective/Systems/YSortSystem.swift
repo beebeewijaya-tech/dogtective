@@ -2,24 +2,23 @@
 //  YSortSystem.swift
 //  Dogtective
 //
-//  Created by Fikrah Damar Huda on 10/05/26.
+//  Created by Fikrah Damar Huda on 11/05/26.
 //
 
-import SpriteKit
+import GameplayKit
 
-struct YSortSystem {
-    // Set zPosition based on world Y so lower-Y nodes draw above higher-Y nodes. Use for nodes that share the gameplay plane (player, tree bottoms, NPCs, dll).
-    static func apply(to nodes: [SKNode], offset: CGFloat = 0) {
-        for node in nodes {
-            node.zPosition = -sortY(for: node) + offset
-        }
+final class YSortSystem {
+    private let system = GKComponentSystem(componentClass: YSortComponent.self)
+
+    func register(_ entity: GKEntity) {
+        system.addComponent(foundIn: entity)
     }
 
-    // Sort by visual base (feet) so anchor differences don't break ordering.
-    private static func sortY(for node: SKNode) -> CGFloat {
-        if let sprite = node as? SKSpriteNode {
-            return sprite.position.y - sprite.size.height * sprite.anchorPoint.y
-        }
-        return node.position.y
+    func remove(_ entity: GKEntity) {
+        system.removeComponent(foundIn: entity)
+    }
+
+    func update(deltaTime: TimeInterval) {
+        system.update(deltaTime: deltaTime)
     }
 }
