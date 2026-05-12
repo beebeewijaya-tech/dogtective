@@ -12,7 +12,7 @@ struct GameScreen: View {
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     
     func makeScene(size: CGSize) -> SKScene {
-        let scene = GameScene(size: size)
+        let scene = PoliceGameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         return scene
     }

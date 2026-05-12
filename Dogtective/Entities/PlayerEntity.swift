@@ -41,7 +41,7 @@ class PlayerEntity: BaseEntity {
     }
     
     
-    // MARK: Make getter for better use rather than to CASTING everytime
+    // MARK: - Make getter for better use rather than to CASTING everytime
     var spriteNode: SKSpriteNode? {
         node as? SKSpriteNode
     }
