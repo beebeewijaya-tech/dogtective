@@ -6,54 +6,53 @@
 //
 
 import SpriteKit
+import GameplayKit
+
+class MovementSystem: GKComponentSystem<MovementComponent> {
+    var joystickEntity: JoystickEntity? // TODO: move to real entity
+    var playerEntity: PlayerEntity?
+    
+    init(joystickEntity: JoystickEntity?, playerEntity: PlayerEntity?) {
+        self.joystickEntity = joystickEntity
+        self.playerEntity = playerEntity
+        super.init(componentClass: MovementComponent.self)
+    }
+    
+    override func update(deltaTime seconds: TimeInterval) {
+        guard let playerEntity = playerEntity else { return }
+        guard let playerNode = playerEntity.spriteNode else { return }
+        guard let joystickEntity = joystickEntity else { return }
+        
+        let dx = joystickEntity.knob.position.x - joystickEntity.base.position.x
+        let dy = joystickEntity.knob.position.y - joystickEntity.base.position.y
+        
+        playerEntity.movement?.velocity = CGVector(dx: dx, dy: dy)
+        if dx != 0 || dy != 0 {
+            playerNode.xScale = dx > 0 ? 1 : -1
+            playerEntity.animation?.playAnimation(state: .moving)
+        } else {
+            playerEntity.animation?.playAnimation(state: .idle)
+        }
+        
+        playerEntity.update(deltaTime: seconds) // will run the movement
+    }
+}
 
 
 // MARK: - Movement System
 // implementing the movement of the player
 extension GameScene {
-    func movePlayer() {
-        guard let playerEntity = playerEntity else { return }
-        guard let joystickEntity = joystickEntity else { return }
-        
-        let dx = joystickEntity.knob.position.x - joystickEntity.base.position.x
-        let dy = joystickEntity.knob.position.y - joystickEntity.base.position.y
-
-        // Velocity-based: physics solver resolves obstacle collisions.
-        // playerSpeed (per-frame factor) * 60 ≈ per-second velocity.
-        let speedScale = playerEntity.playerSpeed * 60
-        playerEntity.physicsBody?.velocity = CGVector(dx: dx * speedScale, dy: dy * speedScale)
-        
-        if dx != 0 || dy != 0 {
-            if dx > 0 {
-                playerEntity.xScale = 1
-            } else {
-                playerEntity.xScale = -1
-            }
-            
-             if playerEntity.playerInfo?.state != .moving {
-                 playerEntity.removeAllActions()
-                 playerEntity.movingPlayerState()
-             }
-         } else {
-             if playerEntity.playerInfo?.state != .idle {
-                 playerEntity.removeAllActions()
-                 playerEntity.idlePlayerState()
-             }
-         }
-        
-        cameraFollowPlayer()
-    }
-    
     func setMapPosition() {
         guard let playerEntity = playerEntity else { return }
-        
-        if playerEntity.position.x > 1000 && playerEntity.position.y > 1000 {
+        guard let playerNode = playerEntity.node else { return }
+
+        if playerNode.position.x > 1000 && playerNode.position.y > 1000 {
             minimapStateViewModel?.setState(.park)
-        } else if playerEntity.position.x > 1000 && playerEntity.position.y < 1000 {
+        } else if playerNode.position.x > 1000 && playerNode.position.y < 1000 {
             minimapStateViewModel?.setState(.central)
-        } else if playerEntity.position.x < 1000 && playerEntity.position.y > 1000 {
+        } else if playerNode.position.x < 1000 && playerNode.position.y > 1000 {
             minimapStateViewModel?.setState(.house)
-        } else if playerEntity.position.x < 1000 && playerEntity.position.y < 1000 {
+        } else if playerNode.position.x < 1000 && playerNode.position.y < 1000 {
             minimapStateViewModel?.setState(.police)
         }
     }

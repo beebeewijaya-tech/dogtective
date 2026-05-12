@@ -11,14 +11,42 @@ import SpriteKit
 // MARK: - Map System
 // will contains the setup about the map, map position
 extension GameScene {
+    func addEntity(_ entity: BaseEntity, position: CGPoint?) {
+        guard let node = entity.node else { return }
+        if position != nil {
+            // if position provided
+            node.position = position!
+        }
+        addChild(node)
+    }
+    
+    func setupPlayer() {
+        guard let playerEntity = playerEntity else { return }
+        guard let node = playerEntity.spriteNode else { return }
+        register(playerEntity)
+        addEntity(playerEntity, position: foodStallPosition.first!)
+
+        // Player physics body
+        let bodyWidth = node.size.width * 0.4
+        let bodyHeight = node.size.height * 0.2
+        let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
+        node.applyDynamicBody(
+            shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
+            offset: bodyOffset
+        )
+        
+        playerEntity.animation?.playAnimation(state: .idle)
+        cameraFollowPlayer()
+    }
+    
+    
     func setupBackground() {
         let backgroundTexture = SKTexture(imageNamed: "map_district")
         let background = SKSpriteNode(texture: backgroundTexture)
         background.size = CGSize(width: 3634, height: 1449)
         background.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        background.zPosition = -1000
+        background.zPosition = -10000
         addChild(background)
-        
         
         // TODO: fix and think to render this somewhere else
         setupFire()
@@ -35,7 +63,7 @@ extension GameScene {
         for cfg in configs {
             let obs = ObstacleEntity(config: cfg)
             register(obs)
-            if let node = obs.node { addChild(node) }
+            addEntity(obs, position: cfg.position)
         }
     }
     
