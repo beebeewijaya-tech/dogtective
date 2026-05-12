@@ -35,16 +35,14 @@ class PhysicsBodyComponent: GKComponent {
     //  Attach the configured body to a target node (usually the bottom sprite).
     func attach(to node: SKNode) {
         if isDynamic {
-            CollisionSystem.applyDynamicBody(
-                to: node,
+            node.applyDynamicBody(
                 shape: shape,
                 offset: offset,
                 category: category,
                 collidesWith: collidesWith
             )
         } else {
-            CollisionSystem.applyStaticBody(
-                to: node,
+            node.applyStaticBody(
                 shape: shape,
                 offset: offset,
                 category: category,
