@@ -24,7 +24,7 @@ extension GameScene {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.spriteNode else { return }
         register(playerEntity)
-        addEntity(playerEntity, position: foodStallPosition.first!)
+        addEntity(playerEntity, position: CGPoint(x: -769, y: 34))
 
         // Player physics body
         let bodyWidth = node.size.width * 0.4
