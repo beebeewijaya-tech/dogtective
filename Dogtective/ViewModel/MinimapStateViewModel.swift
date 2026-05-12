@@ -31,6 +31,7 @@ class MinimapStateViewModel: ObservableObject {
     @Published var state: MinimapState = .police
     
     func setState(_ state: MinimapState) {
+        guard self.state != state else { return }
         self.state = state
     }
 }
