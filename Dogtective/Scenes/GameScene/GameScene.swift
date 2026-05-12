@@ -30,25 +30,27 @@ class GameScene: SKScene {
         CGPoint(x: 499, y: 522),
         CGPoint(x: 1796, y: 231),
     ]
-    var bigTreePositions: [CGPoint] = [
-        CGPoint(x: -445, y: 285),
-        CGPoint(x: -876, y: -419),
-    ]
     
-    // for entities collision
-    // TODO: maybe making different approach, so thers not soo much separate array (ex. bigTreeEntities, lampEnt, etc)
-    var bigTreeEntities: [BigTreeEntity] = []
+    var entities: [BaseEntity] = []
+    let ysortSystem = YSortSystem()
+    private var lastUpdateTime: TimeInterval = 0
 
     override func didMove(to view: SKView) {
         // when the scene is first loaded
         self.physicsWorld.gravity = .zero
         self.playerEntity = PlayerEntity(playerInfo: PlayerInfo())
         self.joystickEntity = JoystickEntity(sceneSize: size)
-        
+
         self.setupBackground()
         self.setupCamera()
         self.setupPlayer()
         self.setupJoystick()
+    }
+
+    // Add an entity to the world: track it, register its components with each system.
+    func register(_ entity: BaseEntity) {
+        entities.append(entity)
+        ysortSystem.register(entity)
     }
     
     
@@ -68,14 +70,19 @@ class GameScene: SKScene {
     }
     
     override func update(_ currentTime: TimeInterval) {
+        let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
+
         movePlayer()
         setMapPosition()
-        applyYSort()
-    }
 
-    func applyYSort() {
-        var nodes: [SKNode] = bigTreeEntities
-        if let player = playerEntity { nodes.append(player) }
-        YSortSystem.apply(to: nodes)
+        ysortSystem.update(deltaTime: dt)
+
+        // sort manually until (cuz player still use legacy not ecs)
+        // TODO: beebee refact later
+        if let player = playerEntity {
+            let bottomY = player.position.y - player.size.height * player.anchorPoint.y
+            player.zPosition = -bottomY
+        }
     }
 }
