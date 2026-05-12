@@ -18,7 +18,8 @@ extension GameScene {
     
     func cameraFollowPlayer() {
         guard let playerEntity = playerEntity else { return }
+        guard let node = playerEntity.node else { return }
         guard let cam = cam else { return }
-        cam.position = playerEntity.position
+        cam.position = node.position
     }
 }
