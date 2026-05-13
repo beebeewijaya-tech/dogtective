@@ -15,6 +15,7 @@ class GameScene: SKScene {
     var minimapStateViewModel: MinimapStateViewModel?
     var movementSystem: MovementSystem?
     var ysortSystem: YSortSystem?
+    var joystickSystem: JoystickSystem?
 
     
     // TODO: think better way to put global variable
@@ -45,12 +46,15 @@ class GameScene: SKScene {
         self.playerEntity = PlayerEntity()
         self.joystickEntity = JoystickEntity(sceneSize: size)
         
+        // setup camera
+        self.setupCamera()
+        
         // register system
         self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
         self.ysortSystem = YSortSystem()
+        self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
 
         self.setupBackground()
-        self.setupCamera()
         self.setupPlayer()
         self.setupJoystick()
     }
@@ -64,17 +68,21 @@ class GameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return } // if any touch event occurs
-        touchJoystick(touch: touch)
+        guard let joystickSystem = joystickSystem else { return }
+        print("Location ", touch.location(in: self))
+        joystickSystem.touchJoystick(touch: touch)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let joystickSystem = joystickSystem else { return }
         for touch in touches {
-            moveJoystickKnob(touch: touch)
+            joystickSystem.moveJoystickKnob(touch: touch)
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        releaseJoystick()
+        guard let joystickSystem = joystickSystem else { return }
+        joystickSystem.releaseJoystick()
     }
     
     override func update(_ currentTime: TimeInterval) {
