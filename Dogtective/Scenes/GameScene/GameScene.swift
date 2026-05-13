@@ -16,6 +16,7 @@ class GameScene: SKScene {
     var movementSystem: MovementSystem?
     var ysortSystem: YSortSystem?
     var joystickSystem: JoystickSystem?
+    var chunkManager: ChunkManager?
 
     
     // TODO: think better way to put global variable
@@ -40,16 +41,10 @@ class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         // when the scene is first loaded
-        
-        // register entity or property
         self.physicsWorld.gravity = .zero
         self.playerEntity = PlayerEntity()
         self.joystickEntity = JoystickEntity(sceneSize: size)
-        
-        // setup camera
         self.setupCamera()
-        
-        // register system
         self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
         self.ysortSystem = YSortSystem()
         self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
@@ -92,5 +87,8 @@ class GameScene: SKScene {
         cameraFollowPlayer()
         setMapPosition()
         ysortSystem?.update(deltaTime: dt)
+        if let cam = self.cam {
+            chunkManager?.update(cameraPosition: cam.position)
+        }
     }
 }
