@@ -29,7 +29,6 @@ class PoliceGameScene: SKScene {
     
     // MARK: - Property
     private var lastUpdateTime: TimeInterval = 0
-
     
     override func didMove(to view: SKView) {
         self.physicsWorld.gravity = .zero
