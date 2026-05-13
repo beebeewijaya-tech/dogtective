@@ -88,54 +88,8 @@ extension PoliceGameScene {
         addChild(wallBottom)
     }
     
-    // MARK: - JoyStick Section
-    // TODO: Fix and move the joystick into the ECS
     func setupJoystick() {
-        guard let entity = joystickEntity else { return }
-        
-        entity.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        entity.zPosition = 100
-        
-        if entity.parent == nil {
-            addChild(entity)
-        }
-    }
-    
-    func handleTouches(_ touches: Set<UITouch>) {
-        guard let touch = touches.first, let joy = joystickEntity else { return }
-        
-        let locationInScene = touch.location(in: self)
-        print("LOC: ", touch.location(in: self))
-
-        let locInJoy = touch.location(in: joy)
-        
-        if joy.base.contains(locInJoy) {
-            joy.joystickUI = touch
-        }
-    }
-    
-    func handleMove(_ touches: Set<UITouch>) {
-        
-        guard let joy = joystickEntity, let touch = joy.joystickUI as? UITouch else { return }
-        
-        let loc = touch.location(in: joy)
-        
-        let dx = loc.x - joy.base.position.x
-        let dy = loc.y - joy.base.position.y
-        let dist = hypot(dx, dy)
-        
-        if dist > joy.maxRadius {
-            joy.knob.position = CGPoint(
-                x: joy.base.position.x + (dx/dist)*joy.maxRadius,
-                y: joy.base.position.y + (dy/dist)*joy.maxRadius
-            )
-        } else {
-            joy.knob.position = loc
-        }
-    }
-    
-    func handleEnd() {
-        joystickEntity?.joystickUI = nil
-        joystickEntity?.knob.position = joystickEntity?.base.position ?? .zero
+        guard let joystickSystem = joystickSystem else { return }
+        joystickSystem.setupJoystick()
     }
 }

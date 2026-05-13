@@ -11,13 +11,17 @@ import SpriteKit
 // MARK: - Map System
 // will contains the setup about the map, map position
 extension GameScene {
-    func addEntity(_ entity: BaseEntity, position: CGPoint?) {
+    func addEntity(_ entity: BaseEntity, position: CGPoint?, cam: SKCameraNode? = nil) {
         guard let node = entity.node else { return }
         if position != nil {
             // if position provided
             node.position = position!
         }
-        addChild(node)
+        if cam != nil {
+            cam?.addChild(node)
+        } else {
+            addChild(node)
+        }
     }
     
     func setupPlayer() {
@@ -39,7 +43,11 @@ extension GameScene {
         cameraFollowPlayer()
     }
     
-    
+    func setupJoystick() {
+        guard let joystickSystem = joystickSystem else { return }
+        joystickSystem.setupJoystick()
+    }
+        
     func setupBackground() {
         let backgroundTexture = SKTexture(imageNamed: "map_district")
         let background = SKSpriteNode(texture: backgroundTexture)
