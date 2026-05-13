@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LevelScreen: View {
+    @EnvironmentObject var pageStateViewModel: PageStateViewModel
     @Environment(\.dismiss) var dismiss
     
     @State private var isMusicOn = true
@@ -177,6 +178,7 @@ struct LevelScreen: View {
 // MARK: - Level Detail Overlay
 
 struct LevelDetailOverlay: View {
+    @EnvironmentObject var pageStateViewModel: PageStateViewModel
     let data: LevelData
     var onClose: () -> Void
     
@@ -188,7 +190,7 @@ struct LevelDetailOverlay: View {
                 .onTapGesture {
                     onClose()
                 }
-        
+            
             HStack(spacing: 40) {
                 
                 // MARK: - Poster Section
@@ -223,11 +225,14 @@ struct LevelDetailOverlay: View {
                         .fixedSize(horizontal: false, vertical: true)
                     
                     Text(data.description)
-                        .font(.custom("AvenirNext-Medium", size: 16))
                         .foregroundColor(.white.opacity(0.9))
                         .frame(maxWidth: 320, alignment: .leading)
                     
                     Button(action: {
+                        pageStateViewModel.selectedLevel = data.id
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            pageStateViewModel.state = .loading
+                        }
                         print("Investigating level \(data.id)")
                     }) {
                         Image("investigateButton")
