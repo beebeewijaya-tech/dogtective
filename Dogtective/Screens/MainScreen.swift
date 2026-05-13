@@ -10,6 +10,7 @@ import SwiftUI
 struct MainScreen: View {
     @StateObject var pageStateViewModel: PageStateViewModel = PageStateViewModel()
     @StateObject var minimapStateViewModel: MinimapStateViewModel = MinimapStateViewModel()
+    @StateObject var dialogStateViewModel: DialogStateViewModel = DialogStateViewModel()
     
     var body: some View {
         VStack {
@@ -23,6 +24,7 @@ struct MainScreen: View {
             case .game:
                 GameScreen()
                     .environmentObject(minimapStateViewModel)
+                    .environmentObject(dialogStateViewModel)
             }
         }
         .environmentObject(pageStateViewModel)

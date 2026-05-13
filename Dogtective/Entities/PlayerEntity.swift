@@ -9,7 +9,7 @@ import SpriteKit
 import GameplayKit
 
 enum PlayerState {
-    case idle, moving
+    case idle, moving, chat
 }
 
 struct PlayerInfo {
