@@ -15,7 +15,11 @@ struct MainScreen: View {
         VStack {
             switch pageStateViewModel.state {
             case .home:
+                HomeScreen()
+            case .level:
                 LevelScreen()
+            case .loading:
+                LoadingScreen()
             case .game:
                 GameScreen()
                     .environmentObject(minimapStateViewModel)
