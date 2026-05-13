@@ -18,7 +18,7 @@ struct HomeScreen: View {
             
             Text("Home, click me to navigate")
                 .onTapGesture {
-                    pageStateViewModel.setState(.game)
+                    pageStateViewModel.setState(.level)
                 }
         }
     }

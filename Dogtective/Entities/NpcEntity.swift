@@ -21,15 +21,31 @@ enum NpcType {
 }
 
 class NpcEntity: BaseEntity {
+    var name: String
     var npcIdleAtlas: SKTextureAtlas
     var position: CGPoint
+    var dialog: [Dialog]
     
-    init(id: Int, type: NpcType, position: CGPoint) {
+    
+    // MARK: - atlas
+    let bubbleAtlas = SKTextureAtlas(named: "icon_bubble")
+    
+    init(id: Int, name: String, type: NpcType, position: CGPoint, dialog: [Dialog]) {
         self.npcIdleAtlas = SKTextureAtlas(named: "\(type.name)_\(id)_idle")
         self.position = position
+        self.dialog = dialog
+        self.name = name
         
         let node = SKSpriteNode(texture: npcIdleAtlas.textureNamed("\(type.name)\(id)-idle_00"))
         node.size = CGSize(width: 57, height: 75)
+        
+        // chat bubble node
+        let bubbleNode = SKSpriteNode(texture: bubbleAtlas.textureNamed("icon-bubble_00"))
+        bubbleNode.size = CGSize(width: 70, height: 40  )
+        bubbleNode.name = "bubble"
+        bubbleNode.isHidden = true
+        
+        node.addChild(bubbleNode)
         super.init(node: node)
         
         let npcIdleTextures = (0...59).map { i in
@@ -37,8 +53,14 @@ class NpcEntity: BaseEntity {
             return self.npcIdleAtlas.textureNamed(textureName)
         }
         
+        let bubbleTextures = (0...59).map { i in
+            let textureName = String(format: "icon-bubble_%02d", i)
+            return self.bubbleAtlas.textureNamed(textureName)
+        }
+        
         // MARK: - prepare components
-        addComponent(AnimationComponent(idleFrames: npcIdleTextures, walkingFrames: []))
+        addComponent(AnimationComponent(idleFrames: npcIdleTextures, walkingFrames: [], bubbleFrames: bubbleTextures))
+        addComponent(DialogComponent(dialog: dialog))
     }
     
     // MARK: - Make getter for better use rather than to CASTING everytime
