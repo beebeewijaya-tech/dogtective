@@ -11,6 +11,8 @@ import SwiftUI
 enum PageState {
     case home
     case game
+    case level
+    case loading
 }
 
 class PageStateViewModel: ObservableObject {
