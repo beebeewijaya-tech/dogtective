@@ -6,6 +6,7 @@
 //
 
 import SpriteKit
+import GameplayKit
 
 enum PlayerState {
     case idle, moving
@@ -18,65 +19,39 @@ struct PlayerInfo {
 }
 
 
-class PlayerEntity: SKSpriteNode {
-    var playerInfo: PlayerInfo?
-    var playerIdleAtlas = SKTextureAtlas(named: "player_idle")
-    var playerIdleFrames: [SKTexture] = []
-    
-    var playerMoveAtlas = SKTextureAtlas(named: "player_walking")
-    var playerMoveFrames: [SKTexture] = []
-    
-    var playerSpeed: CGFloat = 0.05 // TODO: tune it
-    
-    
-    init(playerInfo: PlayerInfo?) {
-        self.playerInfo = playerInfo
-        let firstFrame = playerIdleAtlas.textureNamed("mrbones-idle_00") // for first render or default
-        
-        super.init(
-            texture: playerInfo?.texture ?? firstFrame,
-            color: .clear,
-            size: .zero
-        )
-        
-        prepareMovingFrames()
-        prepareIdleFrames()
-    }
-    
-    // MARK: - Idle animation
-    func prepareIdleFrames() {
-        // player idle injecting preparation frame
-        
-        for i in 1...62 {
-            playerIdleFrames.append(playerIdleAtlas.textureNamed(String(format: "mrbones-idle_%02d", i)))
-        }
-    }
-    func idlePlayerState() {
-        // run animation after frames injected
-        playerInfo?.state = .idle
-        animatePlayer(frames: playerIdleFrames)
-    }
-    
-    // MARK: - Movement animation
-    func prepareMovingFrames() {
-        // player moving injecting preparation frame
-        
-        for i in 1...23 {
-            playerMoveFrames.append(playerMoveAtlas.textureNamed(String(format: "mrbones-walking_%02d", i)))
-        }
-    }
-    func movingPlayerState() {
-        // moving animation after frame injected
-        playerInfo?.state = .moving
-        animatePlayer(frames: playerMoveFrames, timePerFrame: 1.0/30.0)
-    }
+class PlayerEntity: BaseEntity {
+    let playerIdleAtlas = SKTextureAtlas(named: "player_idle")
+    let playerMoveAtlas = SKTextureAtlas(named: "player_walking")
+    let playerSpeed: CGFloat = 0.05 // TODO: tune it
 
+    init() {
+        let firstFrame = playerIdleAtlas.textureNamed("mrbones-idle_00") // for first render or default
+        let node = SKSpriteNode(texture: firstFrame)
+        node.size = CGSize(width: 57, height: 75)
+        super.init(node: node)
+        
+        let playerIdleFrames = (0...61).map { playerIdleAtlas.textureNamed(String(format: "mrbones-idle_%02d", $0))}
+        let playerMoveFrames = (0...26).map { playerMoveAtlas.textureNamed(String(format: "mrbones-walking_%02d", $0))}
+        let speedScale = self.playerSpeed * 60
+        
+        // MARK: - prepare components
+        addComponent(AnimationComponent(idleFrames: playerIdleFrames, walkingFrames: playerMoveFrames))
+        addComponent(MovementComponent(speed: speedScale))
+        addComponent(YSortComponent())
+    }
     
-    func animatePlayer(frames: [SKTexture], timePerFrame: TimeInterval = 1.0/30.0) {
-        // animatePlayer will run animation given the frames
-        self.removeAllActions()
-        let animate = SKAction.animate(with: frames, timePerFrame: timePerFrame)
-        self.run(SKAction.repeatForever(animate))
+    
+    // MARK: - Make getter for better use rather than to CASTING everytime
+    var spriteNode: SKSpriteNode? {
+        node as? SKSpriteNode
+    }
+    
+    var animation: AnimationComponent? {
+        component(ofType: AnimationComponent.self)
+    }
+    
+    var movement: MovementComponent? {
+        component(ofType: MovementComponent.self)
     }
     
     required init?(coder aDecoder: NSCoder) {

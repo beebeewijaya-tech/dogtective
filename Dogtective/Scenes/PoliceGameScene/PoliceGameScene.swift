@@ -8,132 +8,98 @@
 import SpriteKit
 
 class PoliceGameScene: SKScene {
-
+    // MARK: - Player related
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var bg = SKSpriteNode(imageNamed: "map_police")
     var minimapStateViewModel: MinimapStateViewModel?
+    var movementSystem: MovementSystem?
+    var ysortSystem: YSortSystem?
+    var joystickSystem: JoystickSystem?
+
     
-    var police1: PoliceEntity?
-    var police2: PoliceEntity?
+    // MARK: - Entities for NPC
+    var npcs: [NpcEntity] = [
+        NpcEntity(id: 1, type: .police, position: CGPoint(x: 322.0, y: 184.3333282470703)),
+        NpcEntity(id: 2, type: .police, position: CGPoint(x: 375.3333435058594, y: 228.0)),
+        NpcEntity(id: 6, type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539)),
+        NpcEntity(id: 7, type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031)),
+        NpcEntity(id: 10, type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062)),
+    ]
     
-    var npc6: NPCEntity?
-    var npc7: NPCEntity?
-    var npc10: NPCEntity?
+    // MARK: - Property
+    private var lastUpdateTime: TimeInterval = 0
+
     
     override func didMove(to view: SKView) {
         self.physicsWorld.gravity = .zero
         
-        playerEntity = PlayerEntity(playerInfo: PlayerInfo())
-        joystickEntity = JoystickEntity(sceneSize: size)
+        // register entity or property
+        self.playerEntity = PlayerEntity()
+        self.joystickEntity = JoystickEntity(sceneSize: size)
         
-        setupBackground()
-        setupPlayer()
-        setupCollisions()
-        setupJoystick()
-        setupNPCs()
-        setupPolice()
+        // register system
+        self.movementSystem = MovementSystem(joystickEntity: joystickEntity, playerEntity: playerEntity)
+        self.ysortSystem = YSortSystem()
+        self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, scene: self)
+        
+        self.setupBackground()
+        self.setupPlayer()
+        self.setupNPCs()
+        self.setupCollisions()
+        self.setupJoystick()
     }
     
     func setupBackground() {
-        let scale = min(size.width/bg.size.width, size.height/bg.size.height)
+        let scale = min(size.width / bg.size.width, size.height / bg.size.height)
         bg.setScale(scale)
         bg.position = CGPoint(x: size.width/2, y: size.height/2)
-        bg.zPosition = -1
+        bg.zPosition = -10000
         addChild(bg)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleTouches(touches)
+        guard let touch = touches.first else { return }
+        guard let joystickSystem = joystickSystem else { return }
+        print("Location ", touch.location(in: self))
+        joystickSystem.touchJoystick(touch: touch)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleMove(touches)
+        guard let joystickSystem = joystickSystem else { return }
+
+        for touch in touches {
+            joystickSystem.moveJoystickKnob(touch: touch)
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        handleEnd()
+        joystickSystem?.releaseJoystick()
     }
     
     override func update(_ currentTime: TimeInterval) {
-        movePlayer()
-    }
-}
-
-
-class PoliceEntity: SKSpriteNode {
-    var policeIdleAtlas: SKTextureAtlas
-    var policeIdleFrames: [SKTexture] = []
-    var policeType: Int
-    
-    init(type: Int) {
-        self.policeType = type
-        let atlasName = "police_\(type)_idle"
-        self.policeIdleAtlas = SKTextureAtlas(named: atlasName)
-
-        let firstFrameName = "police\(type)-idle_00"
-        let firstFrame = policeIdleAtlas.textureNamed(firstFrameName)
+        let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
+        movementSystem?.update(deltaTime: dt)
+        ysortSystem?.update(deltaTime: dt)
         
-        super.init(texture: firstFrame, color: .clear, size: firstFrame.size())
-        
-        prepareIdleFrames()
-        playIdleAnimation()
+        // TODO: for now will do this to transition on the gamescene
+        checkSceneTransition()
     }
     
-    func prepareIdleFrames() {
-
-        for i in 0...59 {
-
-            let textureName = String(format: "police\(policeType)-idle_%02d", i)
-            let texture = policeIdleAtlas.textureNamed(textureName)
-            policeIdleFrames.append(texture)
+    func checkSceneTransition() {
+        guard let playerEntity = playerEntity else { return }
+        guard let node = playerEntity.node else { return }
+        
+        let door = CGPoint(x: 437.3, y: 289.6)
+        let dx = node.position.x - door.x
+        let dy = node.position.y - door.y
+        let distance = hypot(dx, dy)
+        
+        if distance < 30 {
+            let nextScene = GameScene(size: size)
+            nextScene.minimapStateViewModel = minimapStateViewModel
+            view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
         }
-    }
-    
-    func playIdleAnimation() {
-        self.removeAllActions()
-        let animate = SKAction.animate(with: policeIdleFrames, timePerFrame: 1.0/30.0)
-        self.run(SKAction.repeatForever(animate))
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-class NPCEntity: SKSpriteNode {
-    var npcAtlas: SKTextureAtlas
-    var npcFrames: [SKTexture] = []
-    var npcID: Int
-    
-    init(id: Int) {
-        self.npcID = id
-        self.npcAtlas = SKTextureAtlas(named: "npc_\(id)_idle")
-
-        let firstFrameName = "npc\(id)-idle_00"
-        let firstFrame = npcAtlas.textureNamed(firstFrameName)
-        
-        super.init(texture: firstFrame, color: .clear, size: firstFrame.size())
-        
-        prepareAnimation()
-        playAnimation()
-    }
-    
-    func prepareAnimation() {
-        
-        for i in 0...59 {
-            let textureName = String(format: "npc\(npcID)-idle_%02d", i)
-            npcFrames.append(npcAtlas.textureNamed(textureName))
-        }
-    }
-    
-    func playAnimation() {
-        self.removeAllActions()
-        let animate = SKAction.animate(with: npcFrames, timePerFrame: 1.0/30.0)
-        self.run(SKAction.repeatForever(animate))
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError()
     }
 }

@@ -6,68 +6,59 @@
 //
 
 import SpriteKit
+import GameplayKit
 
-
-// MARK: - Joystick business logic
-// when pulling joystick based on finger, clamping joystick
-extension GameScene {
-    func setupJoystick() {
-        guard let cam = cam else { return }
-        guard let entity = joystickEntity else { return }
-        cam.addChild(entity)
+class JoystickSystem: GKComponentSystem<JoystickComponent> {
+    var cam: SKCameraNode?
+    var joystickEntity: JoystickEntity?
+    var scene: SKScene?
+    
+    init(joystickEntity: JoystickEntity?, cam: SKCameraNode? = nil, scene: SKScene? = nil) {
+        self.cam = cam
+        self.scene = scene
+        self.joystickEntity = joystickEntity
+        super.init(componentClass: JoystickComponent.self)
+    }
+    
+    private func location(for touch: UITouch) -> CGPoint {
+        if let cam = cam { return touch.location(in: cam) }
+        if let node = joystickEntity?.node { return touch.location(in: node) }
+        return .zero
     }
     
     func touchJoystick(touch: UITouch) {
-        guard let entity = joystickEntity else { return }
-        guard let cam = cam else { return }
+        guard let joystickEntity = joystickEntity else { return }
         
-        print("LOCATION: ", touch.location(in: self))
-
-        let location = touch.location(in: cam)
-        if entity.base.contains(location) {
-            entity.joystickUI = touch
+        let location = location(for: touch)
+        if joystickEntity.base.contains(location) {
+            joystickEntity.joystickUI = touch
         }
     }
     
     func moveJoystickKnob(touch: UITouch) {
-        guard let entity = joystickEntity else { return }
-        guard let cam = cam else { return }
-        
-        let location = touch.location(in: cam)
-        if entity.joystickUI != nil {
-            clampingJoystick(entity, location: location)
+        guard let joystickEntity = joystickEntity else { return }
+        let location = location(for: touch)
+        if joystickEntity.joystickUI != nil {
+            joystickEntity.joystickComponent?.clampingJoystick(location: location)
         }
     }
     
     func releaseJoystick() {
-        guard let entity = joystickEntity else { return }
-        
-        entity.joystickUI = nil
-        entity.knob.position = entity.base.position
+        guard let joystickEntity = joystickEntity else { return }
+        joystickEntity.joystickUI = nil
+        joystickEntity.joystickComponent?.release()
     }
     
-    
-    func clampingJoystick(_ entity: JoystickEntity, location: CGPoint) {
-        // getting gap of finger and joystick base
-        let dx = location.x - entity.base.position.x
-        let dy = location.y - entity.base.position.y
-        let distance = hypot(dx, dy) // get diagonal length gap
-    
+    func setupJoystick() {
+        guard let joystickEntity = joystickEntity else { return }
+        guard let node = joystickEntity.node else { return }
         
-        // if the finger inside the circle follow finger, if outside circle go to max edge
-        if distance > entity.maxRadius {
-            // if your finger is outside of the joystick circle
-            // goal is to get (dx, dy) direction - where your finger at
-            // reduce the size / length
-            
-            let offsetX = (dx / distance) * entity.maxRadius // what is max offset horizontally
-            let offsetY = (dy / distance) * entity.maxRadius // what is max offset vertically
-            
-            // calculate from the base + offset, to get the edge of circle
-            entity.knob.position = CGPoint(x: entity.base.position.x + offsetX, y: entity.base.position.y + offsetY)
+        if let cam = cam {
+            cam.addChild(node)
         } else {
-            // if the diagonal gap still inside the circle
-            entity.knob.position = location
+            guard let scene = scene else { return }
+            node.position = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
+            scene.addChild(node)
         }
     }
 }

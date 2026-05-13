@@ -13,6 +13,10 @@ class GameScene: SKScene {
     var joystickEntity: JoystickEntity?
     var cam: SKCameraNode?
     var minimapStateViewModel: MinimapStateViewModel?
+    var movementSystem: MovementSystem?
+    var ysortSystem: YSortSystem?
+    var joystickSystem: JoystickSystem?
+
     
     // TODO: think better way to put global variable
     var bonfirePosition = CGPoint(x: 1692, y: 456)
@@ -32,17 +36,25 @@ class GameScene: SKScene {
     ]
     
     var entities: [BaseEntity] = []
-    let ysortSystem = YSortSystem()
     private var lastUpdateTime: TimeInterval = 0
 
     override func didMove(to view: SKView) {
         // when the scene is first loaded
+        
+        // register entity or property
         self.physicsWorld.gravity = .zero
-        self.playerEntity = PlayerEntity(playerInfo: PlayerInfo())
+        self.playerEntity = PlayerEntity()
         self.joystickEntity = JoystickEntity(sceneSize: size)
+        
+        // setup camera
+        self.setupCamera()
+        
+        // register system
+        self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
+        self.ysortSystem = YSortSystem()
+        self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
 
         self.setupBackground()
-        self.setupCamera()
         self.setupPlayer()
         self.setupJoystick()
     }
@@ -50,39 +62,35 @@ class GameScene: SKScene {
     // Add an entity to the world: track it, register its components with each system.
     func register(_ entity: BaseEntity) {
         entities.append(entity)
-        ysortSystem.register(entity)
+        ysortSystem?.register(entity)
     }
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return } // if any touch event occurs
-        touchJoystick(touch: touch)
+        guard let joystickSystem = joystickSystem else { return }
+        print("Location ", touch.location(in: self))
+        joystickSystem.touchJoystick(touch: touch)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let joystickSystem = joystickSystem else { return }
         for touch in touches {
-            moveJoystickKnob(touch: touch)
+            joystickSystem.moveJoystickKnob(touch: touch)
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        releaseJoystick()
+        guard let joystickSystem = joystickSystem else { return }
+        joystickSystem.releaseJoystick()
     }
     
     override func update(_ currentTime: TimeInterval) {
         let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
         lastUpdateTime = currentTime
-
-        movePlayer()
+        movementSystem?.update(deltaTime: dt)
+        cameraFollowPlayer()
         setMapPosition()
-
-        ysortSystem.update(deltaTime: dt)
-
-        // sort manually until (cuz player still use legacy not ecs)
-        // TODO: beebee refact later
-        if let player = playerEntity {
-            let bottomY = player.position.y - player.size.height * player.anchorPoint.y
-            player.zPosition = -bottomY
-        }
+        ysortSystem?.update(deltaTime: dt)
     }
 }
