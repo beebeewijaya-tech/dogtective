@@ -30,7 +30,8 @@ extension PoliceGameScene {
         let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
         node.applyDynamicBody(
             shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
-            offset: bodyOffset
+            offset: bodyOffset,
+            collidesWith: PhysicsCategory.obstacle | PhysicsCategory.npc
         )
         
         playerEntity.animation?.playAnimation(state: .idle)
@@ -41,12 +42,12 @@ extension PoliceGameScene {
             guard let node = npc.spriteNode else { continue }
             addEntity(npc, position: npc.position)
             
-            let bodyWidth = node.size.width * 0.4
-            let bodyHeight = node.size.height * 0.2
             let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
             node.applyStaticBody(
-                shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
-                offset: bodyOffset
+                shape: .circle(node.size.width * 0.7),
+                offset: bodyOffset,
+                category: PhysicsCategory.npc,
+                collidesWith: PhysicsCategory.player
             )
             
             npc.animation?.playAnimation(state: .idle)

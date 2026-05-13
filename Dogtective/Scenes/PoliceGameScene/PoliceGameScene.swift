@@ -7,24 +7,32 @@
 
 import SpriteKit
 
-class PoliceGameScene: SKScene {
+class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Player related
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var bg = SKSpriteNode(imageNamed: "map_police")
-    var minimapStateViewModel: MinimapStateViewModel?
     var movementSystem: MovementSystem?
     var ysortSystem: YSortSystem?
     var joystickSystem: JoystickSystem?
 
+    // MARK: - ViewModel
+    var minimapStateViewModel: MinimapStateViewModel?
+    var dialogStateViewModel: DialogStateViewModel?
+    
+    
+    // MARK: - Local Property
+    private var activeNpc: NpcEntity?
+    
     
     // MARK: - Entities for NPC
+    // TODO: fix the dialog to use from story
     var npcs: [NpcEntity] = [
-        NpcEntity(id: 1, type: .police, position: CGPoint(x: 322.0, y: 184.3333282470703)),
-        NpcEntity(id: 2, type: .police, position: CGPoint(x: 375.3333435058594, y: 228.0)),
-        NpcEntity(id: 6, type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539)),
-        NpcEntity(id: 7, type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031)),
-        NpcEntity(id: 10, type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062)),
+        NpcEntity(id: 1, name: "Max Holloway", type: .police, position: CGPoint(x: 322.0, y: 184.3333282470703), dialog: DialogUtils.dummyPoliceDialogs()),
+        NpcEntity(id: 2, name: "Gideon Vance", type: .police, position: CGPoint(x: 375.3333435058594, y: 228.0), dialog: DialogUtils.dummyPoliceDialogs()),
+        NpcEntity(id: 6, name: "Jon Jones", type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539), dialog: DialogUtils.dummyDialogs()),
+        NpcEntity(id: 7, name: "Mario Balotelli", type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031), dialog: DialogUtils.dummyDialogs()),
+        NpcEntity(id: 10, name: "King Zharif", type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062), dialog: DialogUtils.dummyDialogs()),
     ]
     
     // MARK: - Property
@@ -47,6 +55,9 @@ class PoliceGameScene: SKScene {
         self.setupNPCs()
         self.setupCollisions()
         self.setupJoystick()
+        
+        
+        physicsWorld.contactDelegate = self
     }
     
     func setupBackground() {
@@ -86,6 +97,41 @@ class PoliceGameScene: SKScene {
         checkSceneTransition()
     }
     
+    
+    // MARK: - Collisions check
+    func didBegin(_ contact: SKPhysicsContact) {
+        guard let dialogStateViewModel = dialogStateViewModel else { return }
+        
+        let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
+        switch mask {
+        case [PhysicsCategory.player, PhysicsCategory.npc]:
+            let npc = contact.bodyA.categoryBitMask == PhysicsCategory.npc ? contact.bodyA : contact.bodyB
+            activeNpc?.animation?.removeBubbleChat()
+            activeNpc = npcs.first { $0.node == npc.node }
+            activeNpc?.animation?.playBubbleChat()
+            dialogStateViewModel.setState(.bubble)
+        default:
+            return
+        }
+    }
+    
+    func didEnd(_ contact: SKPhysicsContact) {
+        guard let dialogStateViewModel = dialogStateViewModel else { return }
+
+        let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
+        switch mask {
+        case [PhysicsCategory.player, PhysicsCategory.npc]:
+            activeNpc?.animation?.removeBubbleChat()
+            activeNpc = nil
+            dialogStateViewModel.setState(.idle)
+        default:
+            return
+        }
+
+    }
+    
+    
+    // MARK: - Navigation to main scene
     func checkSceneTransition() {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }

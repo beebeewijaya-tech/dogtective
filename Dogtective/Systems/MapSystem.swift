@@ -36,7 +36,8 @@ extension GameScene {
         let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
         node.applyDynamicBody(
             shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
-            offset: bodyOffset
+            offset: bodyOffset,
+            collidesWith: PhysicsCategory.obstacle | PhysicsCategory.npc
         )
         
         playerEntity.animation?.playAnimation(state: .idle)
