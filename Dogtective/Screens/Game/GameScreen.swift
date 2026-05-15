@@ -12,7 +12,10 @@ struct GameScreen: View {
     // MARK: - ViewModel
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
+    
+    // MARK: - State
     @State var scene: SKScene?
+    @State var isDialogAnimate: Bool = true
     
     func makeScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
@@ -32,6 +35,28 @@ struct GameScreen: View {
             .ignoresSafeArea(.all)
             
             
+            if dialogStateViewModel.dialog != nil {
+                AppDialog(
+                    name: dialogStateViewModel.npc ?? "",
+                    text: dialogStateViewModel.dialog?.message ?? "",
+                    isDialogAnimate: $isDialogAnimate
+                ) {
+                    if isDialogAnimate {
+                        // if animate true / running
+                        // click will turn off animate
+                        self.isDialogAnimate = false
+                    } else {
+                        // if animate is already done
+                        // close the dialog
+                        dialogStateViewModel.resetDialog()
+                        self.isDialogAnimate = true
+                        dialogStateViewModel.isChat = .bubble
+                    }
+                }
+                .zIndex(2)
+            }
+            
+            
             VStack {
                 HStack(alignment: .top) {
                     Image(minimapStateViewModel.state.minimapState)
@@ -47,6 +72,7 @@ struct GameScreen: View {
                     GameActionButton()
                 }
             }
+            .zIndex(1)
             .padding(.vertical, 20)
         }
     }

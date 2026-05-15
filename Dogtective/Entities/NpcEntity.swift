@@ -73,6 +73,10 @@ class NpcEntity: BaseEntity {
         component(ofType: AnimationComponent.self)
     }
     
+    var dialogComponent: DialogComponent? {
+        component(ofType: DialogComponent.self)
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError()
     }
