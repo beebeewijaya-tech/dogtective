@@ -17,6 +17,7 @@ struct ParticleConfig {
     let fileName: String
     let position: CGPoint
     let particleSize: CGSize?
+    var zPosition: CGFloat = 0
 }
 
 struct ChunkContent {

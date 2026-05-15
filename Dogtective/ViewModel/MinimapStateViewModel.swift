@@ -7,7 +7,7 @@
 
 import Combine
 
-enum MinimapState {
+enum MinimapState: CaseIterable {
     case house,
          police,
          park,

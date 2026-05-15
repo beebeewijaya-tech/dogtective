@@ -31,6 +31,16 @@ final class ChunkManager {
     // ref-counted cache is still useful here.
     private let obstacleCache: TextureRefCache
 
+    // Obstacles can be bucketed into multiple chunks (when their visual rect
+    // spans chunk boundaries), so we dedupe instantiation by config id and
+    // refcount across active chunks.
+    private struct LoadedObstacle {
+        let entity: ObstacleEntity
+        var refcount: Int
+        let textureName: String
+    }
+    private var loadedObstacles: [Int: LoadedObstacle] = [:]
+
     private var contents: [ChunkCoord: ChunkContent]
     private var active: Set<ChunkCoord> = []
     private var lastCameraCoord: ChunkCoord?
@@ -79,16 +89,21 @@ final class ChunkManager {
         // Background — async decode, attach on main.
         loadBackgroundAsync(coord: coord, fileName: content.backgroundImageFileName)
 
-        // Obstacles — cheap, stay sync.
+        // Obstacles — cheap, stay sync. Dedupe across chunks: a tall obstacle
+        // bucketed into two chunks should only spawn one entity.
         for cfg in content.obstacleConfigs {
+            if loadedObstacles[cfg.id] != nil {
+                loadedObstacles[cfg.id]?.refcount += 1
+                continue
+            }
             guard let tex = obstacleCache.acquire(cfg.textureName) else { continue }
             let obs = ObstacleEntity(config: cfg, texture: tex)
             scene.register(obs)
             if let n = obs.node {
                 n.position = cfg.position
                 scene.addChild(n)
-                content.loadedNodes.append(n)
             }
+            loadedObstacles[cfg.id] = LoadedObstacle(entity: obs, refcount: 1, textureName: cfg.textureName)
         }
 
         // Particles — cheap.
@@ -96,6 +111,7 @@ final class ChunkManager {
             if let emitter = SKEmitterNode(fileNamed: pcfg.fileName) {
                 emitter.position = pcfg.position
                 if let s = pcfg.particleSize { emitter.particleSize = s }
+                emitter.zPosition = pcfg.zPosition
                 scene.addChild(emitter)
                 content.loadedNodes.append(emitter)
             }
@@ -125,17 +141,20 @@ final class ChunkManager {
             // the first time the texture is drawn, reintroducing the hitch).
             _ = image.cgImage?.dataProvider?.data
 
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.pendingBackground.remove(coord)
-                // Camera may have already moved away by the time we got here.
-                guard self.active.contains(coord) else { return }
-                let texture = SKTexture(image: image)
-                // Nearest filtering avoids bilinear bleed past the texture edge,
-                // which is what causes visible seams between adjacent chunks.
-                texture.filteringMode = .nearest
-                self.backgroundTextures[coord] = texture
-                self.attachBackgroundNode(coord: coord, texture: texture)
+            // Build texture off-main and force GPU upload via preload before
+            // we ever touch the scene graph. Without preload, the first draw
+            // uploads the bitmap to the GPU on the main thread = frame hitch.
+            let texture = SKTexture(image: image)
+            texture.filteringMode = .nearest
+            texture.preload {
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.pendingBackground.remove(coord)
+                    // Camera may have already moved away by the time we got here.
+                    guard self.active.contains(coord) else { return }
+                    self.backgroundTextures[coord] = texture
+                    self.attachBackgroundNode(coord: coord, texture: texture)
+                }
             }
         }
     }
@@ -169,7 +188,19 @@ final class ChunkManager {
         backgroundNodes.removeValue(forKey: coord)
         backgroundTextures.removeValue(forKey: coord)
 
-        for cfg in content.obstacleConfigs { obstacleCache.release(cfg.textureName) }
+        // Decrement refcount per obstacle id; only tear down when no other
+        // active chunk references it anymore.
+        for cfg in content.obstacleConfigs {
+            guard var loaded = loadedObstacles[cfg.id] else { continue }
+            loaded.refcount -= 1
+            if loaded.refcount <= 0 {
+                loaded.entity.node?.removeFromParent()
+                obstacleCache.release(loaded.textureName)
+                loadedObstacles.removeValue(forKey: cfg.id)
+            } else {
+                loadedObstacles[cfg.id] = loaded
+            }
+        }
         // Particle emitters own their own textures internally — nothing to release here.
     }
 
