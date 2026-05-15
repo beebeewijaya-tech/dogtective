@@ -14,25 +14,15 @@ struct GameActionButton: View {
     var body: some View {
         HStack(spacing: 20) {
             
-            Button(action: {
+            ImageButton(label: "speechButton", type: .primary, size: .large) {
                 dialogStateViewModel.isChat = .chat
-            }) {
-                Image("speechButton")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 80, height: 80)
             }
-            .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.0)
-            .animation(.easeInOut(duration: 0.1), value: dialogStateViewModel.isChat)
+            .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.5)
+            .animation(.easeInOut(duration: 0.05), value: dialogStateViewModel.isChat)
             .disabled(dialogStateViewModel.isChat != .bubble)
             
-            Button(action: {
+            ImageButton(label: "magnifyingglassButton", type: .primary, size: .large) {
                 
-            }) {
-                Image("magnifyingglassButton")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 80, height: 80)
             }
         }
     }

@@ -53,24 +53,10 @@ struct ImageButton: View {
         Button {
             action()
         } label: {
-            ZStack {
-                VStack {
-                    Image(label)
-                        .resizable()
-                        .frame(width: size.labelSize, height: size.labelSize)
-                        .foregroundStyle(type.foregroundColor)
-                }
-                .frame(width: size.backgroundSize, height: size.backgroundSize)
-                .padding()
-                .background(type.backgroundColor)
-                .clipShape(Circle())
-                .shadow(radius: 20)
-            }
-            .frame(width: size.outerSize, height: size.outerSize)
-            .padding()
-            .background(Color.black.opacity(0.3))
-            .clipShape(Circle())
-            .shadow(radius: 20)
+            Image(label)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
         }
 
     }

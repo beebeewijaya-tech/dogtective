@@ -20,6 +20,7 @@ class DialogStateViewModel: ObservableObject {
     @Published var dialog: Dialog?
         
     func setState(_ state: DialogState) {
+        guard isChat != state else { return }
         isChat = state
     }
     

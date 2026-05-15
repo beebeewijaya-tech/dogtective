@@ -12,11 +12,15 @@ class GameScene: SKScene {
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var cam: SKCameraNode?
-    var minimapStateViewModel: MinimapStateViewModel?
     var movementSystem: MovementSystem?
     var ysortSystem: YSortSystem?
     var joystickSystem: JoystickSystem?
     var chunkManager: ChunkManager?
+
+    
+    // MARK: - ViewModel
+    var questDialogViewModel: QuestStateViewModel?
+    var minimapStateViewModel: MinimapStateViewModel?
 
     
     // TODO: think better way to put global variable
@@ -49,9 +53,27 @@ class GameScene: SKScene {
         self.ysortSystem = YSortSystem()
         self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
 
-        self.setupBackground()
         self.setupPlayer()
         self.setupJoystick()
+        
+        if chunkManager == nil {
+            // we pre-warmed the setupbackground call from police transition scene
+            self.setupBackground()
+        }
+        
+        
+        Task {
+            // create new quest
+            let newQuest = Quest(
+                title: "Find the first evidence on the park",
+                done: false,
+                doneCondition: 1,
+                isLoading: false
+            )
+            
+            // 
+            try await questDialogViewModel?.doneQuest(newQuest)
+        }
     }
 
     // Add an entity to the world: track it, register its components with each system.
