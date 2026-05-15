@@ -28,8 +28,8 @@ extension GameScene {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.spriteNode else { return }
         register(playerEntity)
-        addEntity(playerEntity, position: CGPoint(x: -859, y: 34 ))
-        // DEFAULT IS CGPoint(x: -769, y: 34))
+        addEntity(playerEntity, position: CGPoint(x: -854, y: 34 ))
+        // DEFAULT IS CGPoint(x: -854, y: 34))
 
         // Player physics body
         let bodyWidth = node.size.width * 0.4
@@ -424,6 +424,7 @@ extension GameScene {
              .rect(at: CGPoint(x: 2195, y: 842), size: CGSize(width: 300, height: 20)),
              .rect(at: CGPoint(x: 2245, y: 615), size: CGSize(width: 20, height: 500)),
              .rect(at: CGPoint(x: 2159, y: 354), size: CGSize(width: 530, height: 30)),
+             .rect(at: CGPoint(x: 1010, y: 765), size: CGSize(width: 67, height: 67)),
              
              // vertical fence
              .rect(at: CGPoint(x: 490, y: 764), size: CGSize(width: 28, height: 500)),
@@ -437,6 +438,8 @@ extension GameScene {
              .rect(at: CGPoint(x: -567, y: 884), size: CGSize(width: 250 , height: 80)),
              .rect(at: CGPoint(x: -995, y: 790), size: CGSize(width: 30 , height: 450)),
              .rect(at: CGPoint(x: 185, y: 675), size: CGSize(width: 25, height: 120)),
+             .rect(at: CGPoint(x: -419, y: 725), size: CGSize(width: 25, height: 350)),
+             .rect(at: CGPoint(x: -345, y: 573), size: CGSize(width: 120, height: 35)),
              
              // left top
              .rect(at: CGPoint(x: -1218, y: 872), size: CGSize(width: 500 , height: 50)),

@@ -165,7 +165,7 @@ extension ObstacleConfig {
     
     static func fence(at pos: CGPoint, zOffset: CGFloat = 0) -> ObstacleConfig {
         ObstacleConfig(
-            textureName: "fence",
+            textureName: "fence_long",
             position: pos,
             scale: 0.33,
             axis: .vertical,
