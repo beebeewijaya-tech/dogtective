@@ -12,7 +12,8 @@ struct GameScreen: View {
     // MARK: - ViewModel
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
-    
+    @EnvironmentObject var questDialogViewModel: QuestStateViewModel
+
     // MARK: - State
     @State var scene: SKScene?
     @State var isDialogAnimate: Bool = true
@@ -21,6 +22,7 @@ struct GameScreen: View {
         let scene = PoliceGameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
+        scene.questDialogViewModel = questDialogViewModel
         return scene
     }
     
@@ -28,31 +30,23 @@ struct GameScreen: View {
         ZStack {
             GeometryReader { geo in
                 SpriteView(
-                    scene: makeScene(size: geo.size),
+                    scene: scene ?? SKScene(),
                     options: [.ignoresSiblingOrder],
-                debugOptions: [.showsPhysics, .showsFPS, .showsNodeCount, .showsDrawCount]
                 )
+                .onAppear {
+                    guard scene == nil else { return }
+                    scene = makeScene(size: geo.size)
+                }
             }
             .ignoresSafeArea(.all)
-            
-            
+
             if dialogStateViewModel.dialog != nil {
                 AppDialog(
                     name: dialogStateViewModel.npc ?? "",
-                    text: dialogStateViewModel.dialog?.message ?? "",
-                    isDialogAnimate: $isDialogAnimate
+                    text: dialogStateViewModel.dialog?.message ?? ""
                 ) {
-                    if isDialogAnimate {
-                        // if animate true / running
-                        // click will turn off animate
-                        self.isDialogAnimate = false
-                    } else {
-                        // if animate is already done
-                        // close the dialog
-                        dialogStateViewModel.resetDialog()
-                        self.isDialogAnimate = true
-                        dialogStateViewModel.isChat = .bubble
-                    }
+                    dialogStateViewModel.resetDialog()
+                    dialogStateViewModel.isChat = .bubble
                 }
                 .zIndex(2)
             }
@@ -63,15 +57,21 @@ struct GameScreen: View {
                     // All four minimap images stay mounted; we toggle opacity
                     // instead of swapping the `Image` source. SwiftUI was
                     // synchronously decoding the new asset on swap = stutter.
-                    ZStack {
-                        ForEach(MinimapState.allCases, id: \.self) { state in
-                            Image(state.minimapState)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .opacity(minimapStateViewModel.state == state ? 1 : 0)
+                    VStack(alignment: .leading) {
+                        ZStack {
+                            ForEach(MinimapState.allCases, id: \.self) { state in
+                                Image(state.minimapState)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .opacity(minimapStateViewModel.state == state ? 1 : 0)
+                            }
+                        }
+                        .frame(width: 100, height: 100)
+                        
+                        if questDialogViewModel.currentQuest != nil {
+                            AppQuest(quest: $questDialogViewModel.currentQuest)
                         }
                     }
-                    .frame(width: 100, height: 100)
                     Spacer()
                     GameMenu()
                 }

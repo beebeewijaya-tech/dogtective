@@ -13,7 +13,7 @@ struct Dialog {
 }
 
 class DialogComponent: GKComponent {
-    let dialog: [Dialog]
+    var dialog: [Dialog]
     
     init(dialog: [Dialog]) {
         self.dialog = dialog
@@ -26,6 +26,11 @@ class DialogComponent: GKComponent {
             return evidence! as Dialog
         }
         return dialog.randomElement()!
+    }
+    
+    func removeEvidenceDialog() {
+        // trigger when already talk and get evidence
+        dialog.removeAll(where: { $0.evidence })
     }
     
     required init?(coder aDecoder: NSCoder) {

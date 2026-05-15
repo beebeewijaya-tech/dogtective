@@ -11,12 +11,13 @@ struct MainScreen: View {
     @StateObject var pageStateViewModel: PageStateViewModel = PageStateViewModel()
     @StateObject var minimapStateViewModel: MinimapStateViewModel = MinimapStateViewModel()
     @StateObject var dialogStateViewModel: DialogStateViewModel = DialogStateViewModel()
-    
+    @StateObject var questDialogViewModel: QuestStateViewModel = QuestStateViewModel()
+
     var body: some View {
         VStack {
             switch pageStateViewModel.state {
             case .home:
-                LoadingScreen()
+                HomeScreen()
             case .level:
                 LevelScreen()
             case .loading:
@@ -25,6 +26,7 @@ struct MainScreen: View {
                 GameScreen()
                     .environmentObject(minimapStateViewModel)
                     .environmentObject(dialogStateViewModel)
+                    .environmentObject(questDialogViewModel)
             }
         }
         .environmentObject(pageStateViewModel)
