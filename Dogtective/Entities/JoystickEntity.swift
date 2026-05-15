@@ -20,6 +20,7 @@ class JoystickEntity: BaseEntity {
         self.knob = SKSpriteNode(imageNamed: "joystick_knob")
 
         let node = SKNode()
+        node.zPosition = 100000
         node.addChild(self.base)
         node.addChild(self.knob)
         
