@@ -8,8 +8,9 @@
 import SpriteKit
 
 enum SplitAxis {
-    case vertical    // first = bottom, second = top
-    case horizontal  // first = left, second = right
+    case vertical            // first = bottom, second = top
+    case horizontal          // first = left, second = right
+    case horizontalReversed  // first = right, second = left
 }
 
 struct SpriteSplitter {
@@ -56,6 +57,25 @@ struct SpriteSplitter {
             let second = SKSpriteNode(texture: secondTex, size: secondSize)
             second.anchorPoint = CGPoint(x: 0, y: 0.5)
             second.position = CGPoint(x: firstSize.width, y: 0)
+
+            return (first, second)
+
+        case .horizontalReversed:
+            // First = right slice (anchored at its right edge), second = left slice (sits to the left of first).
+            // Texture U coords: right slice is the LAST `clamped` fraction of width.
+            let firstTex = SKTexture(rect: CGRect(x: 1 - clamped, y: 0, width: clamped, height: 1), in: texture)
+            let secondTex = SKTexture(rect: CGRect(x: 0, y: 0, width: 1 - clamped, height: 1), in: texture)
+
+            let firstSize = CGSize(width: displaySize.width * clamped, height: displaySize.height)
+            let secondSize = CGSize(width: displaySize.width * (1 - clamped), height: displaySize.height)
+
+            let first = SKSpriteNode(texture: firstTex, size: firstSize)
+            first.anchorPoint = CGPoint(x: 1, y: 0.5)   // anchor on right edge
+            first.position = .zero
+
+            let second = SKSpriteNode(texture: secondTex, size: secondSize)
+            second.anchorPoint = CGPoint(x: 1, y: 0.5)
+            second.position = CGPoint(x: -firstSize.width, y: 0)
 
             return (first, second)
         }

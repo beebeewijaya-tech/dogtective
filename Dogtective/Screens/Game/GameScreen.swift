@@ -27,10 +27,11 @@ struct GameScreen: View {
     var body: some View {
         ZStack {
             GeometryReader { geo in
-                SpriteView(scene: scene ?? SKScene())
-                    .onAppear {
-                        scene = makeScene(size: geo.size)
-                    }
+                SpriteView(
+                    scene: makeScene(size: geo.size),
+//                    options: [.ignoresSiblingOrder],
+                // debugOptions: [.showsPhysics, .showsFPS, .showsNodeCount, .showsDrawCount]
+                )
             }
             .ignoresSafeArea(.all)
             
@@ -59,10 +60,18 @@ struct GameScreen: View {
             
             VStack {
                 HStack(alignment: .top) {
-                    Image(minimapStateViewModel.state.minimapState)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
+                    // All four minimap images stay mounted; we toggle opacity
+                    // instead of swapping the `Image` source. SwiftUI was
+                    // synchronously decoding the new asset on swap = stutter.
+                    ZStack {
+                        ForEach(MinimapState.allCases, id: \.self) { state in
+                            Image(state.minimapState)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .opacity(minimapStateViewModel.state == state ? 1 : 0)
+                        }
+                    }
+                    .frame(width: 100, height: 100)
                     Spacer()
                     GameMenu()
                 }

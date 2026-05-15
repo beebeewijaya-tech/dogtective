@@ -20,21 +20,21 @@ class GameScene: SKScene {
 
     
     // TODO: think better way to put global variable
-    var bonfirePosition = CGPoint(x: 1692, y: 456)
+    var bonfirePosition = CGPoint(x: 1792, y: 492)
     var foodStallPosition: [CGPoint] = [
         // from left map to right
         CGPoint(x: -124, y: 131),
         CGPoint(x: -32, y: 514),
         CGPoint(x: 1787, y: 88),
     ]
-    var lampLightPosition: [CGPoint] = [
-        // from left map to right
-        CGPoint(x: -692, y: -116),
-        CGPoint(x: -153, y: -23),
-        CGPoint(x: 444, y: -23),
-        CGPoint(x: 499, y: 522),
-        CGPoint(x: 1796, y: 231),
-    ]
+//    var lampLightPosition: [CGPoint] = [
+//        // from left map to right
+//        CGPoint(x: -690, y: -126),
+//        CGPoint(x: -198, y: -53),
+//        CGPoint(x: 444, y: -23),
+//        CGPoint(x: 499, y: 522),
+//        CGPoint(x: 1796, y: 231),
+//    ]
     
     var entities: [BaseEntity] = []
     private var lastUpdateTime: TimeInterval = 0
