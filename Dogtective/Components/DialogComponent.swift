@@ -20,7 +20,11 @@ class DialogComponent: GKComponent {
         super.init()
     }
     
-    func getRandomDialog() -> Dialog {
+    func getDialog() -> Dialog {
+        let evidence = dialog.first(where: { $0.evidence })
+        if evidence != nil {
+            return evidence! as Dialog
+        }
         return dialog.randomElement()!
     }
     
