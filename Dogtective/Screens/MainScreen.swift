@@ -16,7 +16,7 @@ struct MainScreen: View {
         VStack {
             switch pageStateViewModel.state {
             case .home:
-                HomeScreen()
+                LoadingScreen()
             case .level:
                 LevelScreen()
             case .loading:
