@@ -14,7 +14,10 @@ struct HomeScreen: View {
     
     // MARK: - State
     // State inherited from your settings logic
+    @State private var isHapticsOn = true
     @State private var showingLevelScreen = false
+    @State private var isMusicOn = true
+    @StateObject private var audioManager = AudioManager.shared
     
     var body: some View {
         ZStack {
@@ -45,7 +48,6 @@ struct HomeScreen: View {
                         .scaledToFit()
                         .frame(maxWidth: 500)
                     
-                    
                 }
                 // Play Button
                 Button(action: {
@@ -57,11 +59,8 @@ struct HomeScreen: View {
                         .frame(width: 220)
                 }
                 .padding(.bottom, 50)
+                
             }
-        }
-        // Navigation or FullScreenCover to LevelScreen
-        .fullScreenCover(isPresented: $showingLevelScreen) {
-            LevelScreen()
         }
     }
 }
