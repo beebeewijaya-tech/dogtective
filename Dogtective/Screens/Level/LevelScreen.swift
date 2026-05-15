@@ -40,7 +40,7 @@ struct LevelScreen: View {
     var body: some View {
         ZStack(alignment: .top) {
             
-            Image("levelpage_bg")
+            Image("BG_level_page")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .ignoresSafeArea()

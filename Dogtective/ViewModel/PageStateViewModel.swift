@@ -16,7 +16,7 @@ enum PageState {
 }
 
 class PageStateViewModel: ObservableObject {
-    @Published var state: PageState = .game
+    @Published var state: PageState = .home
     @Published var selectedLevel: Int = 1
     
     func setState(_ state: PageState) {
