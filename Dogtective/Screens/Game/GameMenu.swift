@@ -10,10 +10,10 @@ import SwiftUI
 struct GameMenu: View {
     var body: some View {
         HStack {
-            AppIcon(icon: "bagpack", size: .medium) {
+            AppIcon(icon: "backpackButton", size: .medium) {
                 
             }
-            AppIcon(icon: "settings", size: .medium) {
+            AppIcon(icon: "pauseButton", size: .medium) {
                 
             }
         }

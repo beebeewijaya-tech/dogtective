@@ -12,16 +12,27 @@ struct GameActionButton: View {
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
     
     var body: some View {
-        HStack {
-            ImageButton(label: "chat_bubble", type: .tertiary, size: .small) {
-                dialogStateViewModel.setState(.chat)
+        HStack(spacing: 20) {
+            
+            Button(action: {
+                dialogStateViewModel.isChat = .chat
+            }) {
+                Image("speechButton")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
             }
             .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.5)
             .animation(.easeInOut(duration: 0.1), value: dialogStateViewModel.isChat)
             .disabled(dialogStateViewModel.isChat != .bubble)
             
-            ImageButton(label: "magnifying_glass", type: .tertiary, size: .small) {
+            Button(action: {
                 
+            }) {
+                Image("magnifyingglassButton")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
             }
         }
     }
