@@ -10,12 +10,12 @@ import SwiftUI
 struct AppDialog: View {
     var name: String
     var text: String
-    @Binding var isDialogAnimate: Bool
-    var action: () -> Void = {}
-    
+    var onClose: () -> Void = {}
+
     // MARK: - State
     @State var nameDisplay: String = ""
     @State var textDisplay: String = ""
+    @State var isAnimating: Bool = true
 
     private func animateName() async {
         for n in name.uppercased() {
@@ -27,9 +27,9 @@ struct AppDialog: View {
     private func animateText() async {
         for t in text.capitalized {
             textDisplay += String(t)
-            try? await Task.sleep(for: .milliseconds(30))
+            try? await Task.sleep(for: .milliseconds(50))
         }
-        isDialogAnimate = true
+        isAnimating = false
     }
     
     var body: some View {
@@ -42,7 +42,7 @@ struct AppDialog: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(height: 37)
                         .overlay(alignment: .center) {
-                            Text(isDialogAnimate ? nameDisplay : name.uppercased())
+                            Text(isAnimating ? nameDisplay : name.uppercased())
                                 .foregroundStyle(.white)
                                 .passerOneStyle(size: 24)
                         }
@@ -54,7 +54,7 @@ struct AppDialog: View {
                         .aspectRatio(contentMode: .fit)
                         .overlay {
                             VStack(alignment: .leading) {
-                                Text(isDialogAnimate ? textDisplay : text.capitalized)
+                                Text(isAnimating ? textDisplay : text.capitalized)
                                     .foregroundStyle(.black)
                                     .font(.default)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -63,10 +63,16 @@ struct AppDialog: View {
                             }
                             .padding()
                         }
-                        .onTapGesture {
-                            action()
-                        }
                 }
+            }
+        }
+        .frame(maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isAnimating {
+                isAnimating = false
+            } else {
+                onClose()
             }
         }
         .task {

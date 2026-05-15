@@ -19,11 +19,21 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - ViewModel
     var minimapStateViewModel: MinimapStateViewModel?
     var dialogStateViewModel: DialogStateViewModel?
+    var questDialogViewModel: QuestStateViewModel?
     
     
     // MARK: - Local Property
     private var activeNpc: NpcEntity?
     private var currentDialogState: DialogState?
+    private var questDone = 0
+    private lazy var quest = Quest(
+        title: "Talked to \(questDone)/3 npcs",
+        done: false,
+        doneCondition: 3,
+        isLoading: false
+    )
+    private var isTransitioning = false
+    private var nextScene: SKScene?
     
     
     // MARK: - Entities for NPC
@@ -31,9 +41,9 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var npcs: [NpcEntity] = [
         NpcEntity(id: 1, name: "Max Holloway", type: .police, position: CGPoint(x: 322.0, y: 184.3333282470703), dialog: DialogUtils.dummyPoliceDialogs()),
         NpcEntity(id: 2, name: "Gideon Vance", type: .police, position: CGPoint(x: 375.3333435058594, y: 228.0), dialog: DialogUtils.dummyPoliceDialogs()),
-        NpcEntity(id: 6, name: "Jon Jones", type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539), dialog: DialogUtils.dummyDialogs()),
-        NpcEntity(id: 7, name: "Mario Balotelli", type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031), dialog: DialogUtils.dummyDialogs()),
-        NpcEntity(id: 10, name: "King Zharif", type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062), dialog: DialogUtils.dummyDialogs()),
+        NpcEntity(id: 6, name: "Jon Jones", type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "Bones disappear at night", evidence: true)]),
+        NpcEntity(id: 7, name: "Mario Balotelli", type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "No visible tracks near the missing spots", evidence: true)]),
+        NpcEntity(id: 10, name: "King Zharif", type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "I've seen Chichi in the area multiple of times....", evidence: true)]),
     ]
     
     // MARK: - Property
@@ -57,7 +67,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.setupCollisions()
         self.setupJoystick()
         
-        
+        questDialogViewModel?.setQuest(quest)
         physicsWorld.contactDelegate = self
     }
     
@@ -72,7 +82,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         guard let joystickSystem = joystickSystem else { return }
-        print("Location ", touch.location(in: self))
         joystickSystem.touchJoystick(touch: touch)
     }
     
@@ -89,7 +98,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        guard let dialogStateViewModel = dialogStateViewModel else { return }
         let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         movementSystem?.update(deltaTime: dt)
@@ -98,16 +106,8 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         // TODO: for now will do this to transition on the gamescene
         checkSceneTransition()
         
-        
-        // check chat
-        if dialogStateViewModel.isChat == .chat {
-            guard currentDialogState != .chat else { return }
-            currentDialogState = .chat
-            dialogStateViewModel.dialog = activeNpc?.dialogComponent?.getDialog()
-            dialogStateViewModel.npc = activeNpc?.name
-        } else {
-            currentDialogState = nil
-        }
+        // check dialog behavior
+        checkDialog()
     }
     
     
@@ -145,7 +145,20 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // MARK: - Navigation to main scene
-    func checkSceneTransition() {
+    func prepareGameScene() {
+        let scene = GameScene(size: size)
+        scene.minimapStateViewModel = minimapStateViewModel
+        scene.questDialogViewModel = questDialogViewModel
+        scene.setupBackground() // setup background
+        nextScene = scene
+     }
+    
+    
+    private func checkSceneTransition() {
+        guard !isTransitioning else { return }
+        guard quest.title.contains("police office") else { return }
+        guard let nextScene = nextScene else { return }
+        
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }
         
@@ -155,9 +168,62 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         let distance = hypot(dx, dy)
         
         if distance < 30 {
-            let nextScene = GameScene(size: size)
-            nextScene.minimapStateViewModel = minimapStateViewModel
-            view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
+            Task {
+                isTransitioning = true
+                view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
+            }
+        }
+    }
+    
+    // MARK: - Chat System
+    private func checkDialog() {
+        guard let dialogStateViewModel = dialogStateViewModel else { return }
+
+        if dialogStateViewModel.isChat == .chat {
+            guard currentDialogState != .chat else { return }
+            currentDialogState = .chat
+            dialogStateViewModel.dialog = activeNpc?.dialogComponent?.getDialog()
+            dialogStateViewModel.npc = activeNpc?.name
+            
+            guard let dialog = dialogStateViewModel.dialog else { return }
+            if dialog.evidence {
+                // if evidence we need to complete the quest
+                // quest trigger by 3 NPCs evidence
+                checkQuest()
+            }
+            
+            activeNpc?.dialogComponent?.removeEvidenceDialog()
+        } else {
+            currentDialogState = nil
+        }
+    }
+    
+    
+    private func checkQuest() {
+        questDone += 1
+        let updatedQuest = Quest(
+            title: "Talk to \(questDone)/3 NPCs",
+            done: questDone == quest.doneCondition,
+            doneCondition: quest.doneCondition,
+            isLoading: false
+        )
+        
+        if updatedQuest.done {
+            let nextQuest = Quest(
+                title: "Exit police office",
+                done: false,
+                doneCondition: 1,
+                isLoading: false
+            )
+            Task { @MainActor in
+                prepareGameScene()
+                try await questDialogViewModel?.doneQuest(nextQuest)
+                quest = nextQuest
+                questDone = 0
+            }
+        } else {
+            questDialogViewModel?.setQuest(updatedQuest)
+
         }
     }
 }

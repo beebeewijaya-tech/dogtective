@@ -44,6 +44,7 @@ class NpcEntity: BaseEntity {
         bubbleNode.size = CGSize(width: 70, height: 40  )
         bubbleNode.name = "bubble"
         bubbleNode.isHidden = true
+        bubbleNode.zPosition = 10000
         
         node.addChild(bubbleNode)
         super.init(node: node)
