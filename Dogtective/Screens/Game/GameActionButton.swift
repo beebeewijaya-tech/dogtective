@@ -22,7 +22,7 @@ struct GameActionButton: View {
                     .scaledToFit()
                     .frame(width: 80, height: 80)
             }
-            .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.5)
+            .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.0)
             .animation(.easeInOut(duration: 0.1), value: dialogStateViewModel.isChat)
             .disabled(dialogStateViewModel.isChat != .bubble)
             
