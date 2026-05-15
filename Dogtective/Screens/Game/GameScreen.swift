@@ -29,8 +29,8 @@ struct GameScreen: View {
             GeometryReader { geo in
                 SpriteView(
                     scene: makeScene(size: geo.size),
-//                    options: [.ignoresSiblingOrder],
-                // debugOptions: [.showsPhysics, .showsFPS, .showsNodeCount, .showsDrawCount]
+                    options: [.ignoresSiblingOrder],
+                debugOptions: [.showsPhysics, .showsFPS, .showsNodeCount, .showsDrawCount]
                 )
             }
             .ignoresSafeArea(.all)
