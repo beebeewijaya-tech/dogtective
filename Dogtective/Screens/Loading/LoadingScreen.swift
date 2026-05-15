@@ -32,7 +32,7 @@ struct LoadingScreen: View {
                 let dots = String(repeating: ".", count: dotCount)
                 
                 Text("Loading\(dots)")
-                    .font(.custom("PasseroOne-Regular", size: 40))
+                    .passerOneStyle(size: 40)
                     .foregroundColor(.black)
                     .padding(.bottom, 5)
                     .frame(width: 220, alignment: .leading)

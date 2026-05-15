@@ -23,6 +23,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Local Property
     private var activeNpc: NpcEntity?
+    private var currentDialogState: DialogState?
     
     
     // MARK: - Entities for NPC
@@ -88,6 +89,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
+        guard let dialogStateViewModel = dialogStateViewModel else { return }
         let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         movementSystem?.update(deltaTime: dt)
@@ -95,6 +97,17 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         
         // TODO: for now will do this to transition on the gamescene
         checkSceneTransition()
+        
+        
+        // check chat
+        if dialogStateViewModel.isChat == .chat {
+            guard currentDialogState != .chat else { return }
+            currentDialogState = .chat
+            dialogStateViewModel.dialog = activeNpc?.dialogComponent?.getDialog()
+            dialogStateViewModel.npc = activeNpc?.name
+        } else {
+            currentDialogState = nil
+        }
     }
     
     

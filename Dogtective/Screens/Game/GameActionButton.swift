@@ -14,11 +14,11 @@ struct GameActionButton: View {
     var body: some View {
         HStack {
             ImageButton(label: "chat_bubble", type: .tertiary, size: .small) {
-                
+                dialogStateViewModel.setState(.chat)
             }
-            .opacity(dialogStateViewModel.getChat() ? 1 : 0.5)
-            .animation(.easeInOut(duration: 0.1), value: dialogStateViewModel.getChat())
-            .disabled(dialogStateViewModel.getChat())
+            .opacity(dialogStateViewModel.isChat == .bubble ? 1 : 0.5)
+            .animation(.easeInOut(duration: 0.1), value: dialogStateViewModel.isChat)
+            .disabled(dialogStateViewModel.isChat != .bubble)
             
             ImageButton(label: "magnifying_glass", type: .tertiary, size: .small) {
                 

@@ -16,12 +16,20 @@ enum DialogState {
 
 class DialogStateViewModel: ObservableObject {
     @Published var isChat: DialogState = .idle
+    @Published var npc: String?
+    @Published var dialog: Dialog?
         
     func setState(_ state: DialogState) {
         isChat = state
     }
     
-    func getChat() -> Bool {
-        return isChat == .chat || isChat == .bubble
+    func setDialog(dialog: Dialog, npc: String) {
+        self.dialog = dialog
+        self.npc = npc
+    }
+    
+    func resetDialog() {
+        self.dialog = nil
+        self.npc = nil
     }
 }
