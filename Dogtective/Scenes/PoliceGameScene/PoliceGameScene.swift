@@ -6,6 +6,7 @@
 //
 
 import SpriteKit
+import Sentry
 
 class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Player related
@@ -48,9 +49,21 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Property
     private var lastUpdateTime: TimeInterval = 0
+    var sceneTransaction: Span?
     
     override func didMove(to view: SKView) {
         self.physicsWorld.gravity = .zero
+        
+        self.sceneTransaction = SentrySDK.startTransaction(
+            name: "PoliceGameScene",
+            operation: "police.game.scene",
+            bindToScope: true
+        )
+        
+        let initSpan = sceneTransaction?.startChild(
+            operation: "scene.init",
+            description: "Setting up Entities and Systems"
+        )
         
         // register entity or property
         self.playerEntity = PlayerEntity()
@@ -69,6 +82,8 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         
         questDialogViewModel?.setQuest(quest)
         physicsWorld.contactDelegate = self
+        
+        initSpan?.finish()
     }
     
     func setupBackground() {
@@ -169,7 +184,13 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         
         if distance < 30 {
             Task {
+                let transitionSpan = sceneTransaction?.startChild(operation: "scene.transition", description: "Loading Game Scene")
                 isTransitioning = true
+                
+                // finishing sentry
+                transitionSpan?.finish()
+                sceneTransaction?.finish()
+                
                 view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
             }
         }

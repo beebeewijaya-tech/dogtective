@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SpriteKit
+import SentrySwiftUI
 
 struct GameScreen: View {
+    @Environment(\.scenePhase) private var scenePhase
+    
     // MARK: - ViewModel
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
@@ -84,5 +87,6 @@ struct GameScreen: View {
             .zIndex(1)
             .padding(.vertical, 20)
         }
+        .sentryTrace("Game Screen")
     }
 }

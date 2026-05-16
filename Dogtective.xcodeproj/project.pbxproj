@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = C8C08B6B2FB867AF001073F7 /* Sentry */; };
+		C8C090DC2FB8A2BF001073F7 /* SentrySwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C8C090DB2FB8A2BF001073F7 /* SentrySwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */,
+				C8C090DC2FB8A2BF001073F7 /* SentrySwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				C8B2AF812FA8C0A6007BB26F /* Dogtective */,
+				C8C090DA2FB8A2BF001073F7 /* Frameworks */,
 				C8B2AF802FA8C0A6007BB26F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,6 +64,13 @@
 				C8B2AF7F2FA8C0A6007BB26F /* Dogtective.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C8C090DA2FB8A2BF001073F7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -84,6 +94,7 @@
 			name = Dogtective;
 			packageProductDependencies = (
 				C8C08B6B2FB867AF001073F7 /* Sentry */,
+				C8C090DB2FB8A2BF001073F7 /* SentrySwiftUI */,
 			);
 			productName = Dogtective;
 			productReference = C8B2AF7F2FA8C0A6007BB26F /* Dogtective.app */;
@@ -377,6 +388,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
 			productName = Sentry;
+		};
+		C8C090DB2FB8A2BF001073F7 /* SentrySwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = SentrySwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
