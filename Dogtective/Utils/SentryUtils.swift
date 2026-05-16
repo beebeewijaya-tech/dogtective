@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Sentry
+import SentrySwiftUI
 
 struct SentryUtils {
     static func setup() {
@@ -34,7 +34,5 @@ struct SentryUtils {
 
             options.enableLogs = true
         }
-        // Remove the next line after confirming that your Sentry integration is working.
-        SentrySDK.capture(message: "This app uses Sentry! :)")
     }
 }
