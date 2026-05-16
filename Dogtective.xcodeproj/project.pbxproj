@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = C8C08B6B2FB867AF001073F7 /* Sentry */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		C8B2AF7F2FA8C0A6007BB26F /* Dogtective.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dogtective.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = Dogtective;
 			packageProductDependencies = (
+				C8C08B6B2FB867AF001073F7 /* Sentry */,
 			);
 			productName = Dogtective;
 			productReference = C8B2AF7F2FA8C0A6007BB26F /* Dogtective.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = C8B2AF762FA8C0A6007BB26F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C8B2AF802FA8C0A6007BB26F /* Products */;
 			projectDirPath = "";
@@ -351,6 +360,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C8C08B6B2FB867AF001073F7 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C8B2AF772FA8C0A6007BB26F /* Project object */;
 }

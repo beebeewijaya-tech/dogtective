@@ -6,9 +6,17 @@
 //
 
 import SwiftUI
+import Sentry
+
 
 @main
 struct DogtectiveApp: App {
+    init() {
+        // initialize sentry
+        // for error tracing
+        SentryUtils.setup()
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainScreen()
