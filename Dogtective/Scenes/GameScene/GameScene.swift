@@ -7,6 +7,7 @@
 
 import SpriteKit
 import GameplayKit
+import Sentry
 
 class GameScene: SKScene {
     var playerEntity: PlayerEntity?
@@ -40,10 +41,32 @@ class GameScene: SKScene {
 //        CGPoint(x: 1796, y: 231),
 //    ]
     
+    // MARK: - Property
     var entities: [BaseEntity] = []
     private var lastUpdateTime: TimeInterval = 0
+    var sceneTransaction: Span?
 
     override func didMove(to view: SKView) {
+        // setup sentry
+        self.sceneTransaction = SentrySDK.startTransaction(
+            name: "MainGameScene",
+            operation: "main.game.scene",
+            bindToScope: true
+        )
+        
+        let initSpan = sceneTransaction?.startChild(
+            operation: "scene.init",
+            description: "Setting up Entities and Systems"
+        )
+        
+        // 2. Register UIKit observers for app lifecycle events
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
         // when the scene is first loaded
         self.physicsWorld.gravity = .zero
         self.playerEntity = PlayerEntity()
@@ -61,7 +84,7 @@ class GameScene: SKScene {
             self.setupBackground()
         }
         
-        
+        initSpan?.finish()
         Task {
             // create new quest
             let newQuest = Quest(
@@ -74,6 +97,10 @@ class GameScene: SKScene {
             // 
             try await questDialogViewModel?.doneQuest(newQuest)
         }
+        
+        let breadcrumb = Breadcrumb(level: .info, category: "gameplay.lifecycle")
+        breadcrumb.message = "User entered MainGameScene exploration mode."
+        SentrySDK.addBreadcrumb(breadcrumb)
     }
 
     // Add an entity to the world: track it, register its components with each system.
@@ -82,6 +109,21 @@ class GameScene: SKScene {
         ysortSystem?.register(entity)
     }
     
+    
+    // observer for sentry
+    @objc private func handleAppBackground() {
+        if let transaction = sceneTransaction {
+            transaction.setData(value: "User backgrounded via UIKit observer", key: "exit.reason")
+            transaction.finish()
+        }
+        
+        // Force Sentry to flush the transaction trace to the server immediately
+        SentrySDK.flush(timeout: 2.0)
+    }
+    
+    override func willMove(from view: SKView) {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return } // if any touch event occurs
