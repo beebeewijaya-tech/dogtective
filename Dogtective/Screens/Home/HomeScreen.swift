@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct HomeScreen: View {
+    // MARK: - ViewModel
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
+    
+    
+    // MARK: - State
     // State inherited from your settings logic
-    @State private var isMusicOn = true
-    @State private var isHapticsOn = true
     @State private var showingLevelScreen = false
     
     var body: some View {
@@ -23,30 +26,7 @@ struct HomeScreen: View {
             
             // 2. Top Right Settings Buttons
             VStack {
-                HStack(spacing: 15) {
-                    Spacer()
-                    
-                    Button(action: {
-                        isHapticsOn.toggle()
-                    }) {
-                        Image(isHapticsOn ? "haptics_on" : "haptics_off")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                    }
-                    
-                    Button(action: {
-                        isMusicOn.toggle()
-                    }) {
-                        Image(isMusicOn ? "music_on" : "music_off")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                    }
-                }
-                .padding(.top, 20)
-                .padding(.horizontal, 20)
-                
+                AppSettings()
                 Spacer()
             }
             
