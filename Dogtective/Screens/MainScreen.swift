@@ -18,6 +18,7 @@ struct MainScreen: View {
     @StateObject var dialogStateViewModel: DialogStateViewModel
     @StateObject var questDialogViewModel: QuestStateViewModel
     @StateObject var gameSettingsViewModel: GameSettingsViewModel
+    @StateObject var backpackStateViewModel: BackpackStateViewModel = BackpackStateViewModel()
     
     init() {
         self._pageStateViewModel = StateObject(wrappedValue: PageStateViewModel())
@@ -41,6 +42,7 @@ struct MainScreen: View {
                     .environmentObject(minimapStateViewModel)
                     .environmentObject(dialogStateViewModel)
                     .environmentObject(questDialogViewModel)
+                    .environmentObject(backpackStateViewModel)
             }
         }
         .task {

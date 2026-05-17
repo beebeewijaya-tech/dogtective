@@ -37,23 +37,6 @@ extension PoliceGameScene {
         playerEntity.animation?.playAnimation(state: .idle)
     }
     
-    func setupNPCs() {
-        for npc in npcs {
-            guard let node = npc.spriteNode else { continue }
-            addEntity(npc, position: npc.position)
-            
-            let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
-            node.applyStaticBody(
-                shape: .circle(node.size.width * 0.7),
-                offset: bodyOffset,
-                category: PhysicsCategory.npc,
-                collidesWith: PhysicsCategory.player
-            )
-            
-            npc.animation?.playAnimation(state: .idle)
-        }
-    }
-    
     func setupCollisions() {
         let wallLeft = SKNode()
         wallLeft.position = CGPoint(x: 140.0, y: 250)

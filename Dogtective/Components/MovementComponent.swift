@@ -10,7 +10,8 @@ import GameplayKit
 class MovementComponent: GKComponent {
     var speed: CGFloat
     var velocity: CGVector = .zero
-    
+    var isLocked: Bool = false
+
     init(speed: CGFloat) {
         self.speed = speed
         self.velocity = .zero

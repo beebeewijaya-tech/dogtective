@@ -28,6 +28,7 @@ class PlayerEntity: BaseEntity {
         let firstFrame = playerIdleAtlas.textureNamed("mrbones-idle_00") // for first render or default
         let node = SKSpriteNode(texture: firstFrame)
         node.size = CGSize(width: 57, height: 75)
+        node.anchorPoint = CGPoint(x: 0.5, y: 0.2)
         super.init(node: node)
         
         let playerIdleFrames = (0...61).map { playerIdleAtlas.textureNamed(String(format: "mrbones-idle_%02d", $0))}
