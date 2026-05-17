@@ -9,7 +9,7 @@ import SpriteKit
 import GameplayKit
 
 class MovementSystem: GKComponentSystem<MovementComponent> {
-    var joystickEntity: JoystickEntity? // TODO: move to real entity
+    var joystickEntity: JoystickEntity?
     var playerEntity: PlayerEntity?
     
     init(joystickEntity: JoystickEntity?, playerEntity: PlayerEntity?) {

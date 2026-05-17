@@ -6,12 +6,26 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainScreen: View {
-    @StateObject var pageStateViewModel: PageStateViewModel = PageStateViewModel()
-    @StateObject var minimapStateViewModel: MinimapStateViewModel = MinimapStateViewModel()
-    @StateObject var dialogStateViewModel: DialogStateViewModel = DialogStateViewModel()
-    @StateObject var questDialogViewModel: QuestStateViewModel = QuestStateViewModel()
+    // MARK: - Model
+    @Environment(\.modelContext) private var context
+
+    // MARK: - ViewModel
+    @StateObject var pageStateViewModel: PageStateViewModel
+    @StateObject var minimapStateViewModel: MinimapStateViewModel
+    @StateObject var dialogStateViewModel: DialogStateViewModel
+    @StateObject var questDialogViewModel: QuestStateViewModel
+    @StateObject var gameSettingsViewModel: GameSettingsViewModel
+    
+    init() {
+        self._pageStateViewModel = StateObject(wrappedValue: PageStateViewModel())
+        self._minimapStateViewModel = StateObject(wrappedValue: MinimapStateViewModel())
+        self._dialogStateViewModel = StateObject(wrappedValue: DialogStateViewModel())
+        self._questDialogViewModel = StateObject(wrappedValue: QuestStateViewModel())
+        self._gameSettingsViewModel = StateObject(wrappedValue: GameSettingsViewModel())
+    }
 
     var body: some View {
         VStack {
@@ -29,6 +43,10 @@ struct MainScreen: View {
                     .environmentObject(questDialogViewModel)
             }
         }
+        .task {
+            gameSettingsViewModel.configure(context: context)
+          }
         .environmentObject(pageStateViewModel)
+        .environmentObject(gameSettingsViewModel)
     }
 }
