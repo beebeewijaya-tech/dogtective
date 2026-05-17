@@ -322,7 +322,7 @@ extension GameScene {
             .smallObstacle(at: CGPoint(x: 1670, y: -74), textureName: "bench_front"),
             .smallObstacle(at: CGPoint(x: 1472, y: -74), textureName: "bench_front"),
             .smallObstacle(at: CGPoint(x: 1161, y: 107), textureName: "big_trash_bin"),
-            .smallObstacle(at: CGPoint(x: 1200, y: 107), textureName: "box"),
+            .smallObstacle(at: CGPoint(x: 1200, y: 107), textureName: "box_no_open"),
             .pole(at: CGPoint(x: 1895, y: 143), textureName: "standing_lamp"),
             
             // middle coffe shop section

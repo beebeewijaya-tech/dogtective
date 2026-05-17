@@ -9,7 +9,7 @@ import SpriteKit
 import GameplayKit
 import Sentry
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerEntity: PlayerEntity?
     var joystickEntity: JoystickEntity?
     var cam: SKCameraNode?
@@ -22,6 +22,41 @@ class GameScene: SKScene {
     // MARK: - ViewModel
     var questDialogViewModel: QuestStateViewModel?
     var minimapStateViewModel: MinimapStateViewModel?
+    var dialogStateViewModel: DialogStateViewModel?
+    var backpackStateViewModel: BackpackStateViewModel?
+
+    // MARK: - Evidence
+    var evidenceSystem: EvidenceSystem?
+
+    // MARK: - NPCs
+    // TODO: Change the dialog later and behaviour later (with gK State maybe)
+    var npcSystem: NpcSystem?
+    private var npcs: [NpcEntity] = [
+        NpcEntity(
+            name: "Bruno 20 assist", type: .npcKid,
+            position: CGPoint(x: -634, y: -83),
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(
+                    message: "I saw a tall shadow lurking last night near the alley...",
+                    evidence: true,
+                    evidenceReward: "siluet",
+                    evidenceFloating: .siluet
+                )
+            ]
+        ),
+        NpcEntity(
+            id: 8, name: "Old Karen", type: .npc,
+            position: CGPoint(x: -694, y: -83),
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(
+                    message: "Strange things happen around here lately...",
+                    evidence: true,
+                    evidenceReward: "fur",
+                    evidenceFloating: .fur
+                )
+            ]
+        ),
+    ]
 
     
     // TODO: think better way to put global variable
@@ -85,6 +120,20 @@ class GameScene: SKScene {
         }
         
         initSpan?.finish()
+
+        self.setupEvidences()
+
+        self.npcSystem = NpcSystem(
+            scene: self,
+            npcs: npcs,
+            playerEntity: playerEntity,
+            dialogStateViewModel: dialogStateViewModel
+        )
+        self.npcSystem?.setup { [weak self] npc in
+            self?.register(npc)
+        }
+        self.physicsWorld.contactDelegate = self
+
         Task {
             // create new quest
             let newQuest = Quest(
@@ -154,5 +203,15 @@ class GameScene: SKScene {
         if let cam = self.cam {
             chunkManager?.update(cameraPosition: cam.position)
         }
+        evidenceSystem?.update(deltaTime: dt)
+        npcSystem?.update()
+    }
+
+    func didBegin(_ contact: SKPhysicsContact) {
+        npcSystem?.handleContactBegin(contact)
+    }
+
+    func didEnd(_ contact: SKPhysicsContact) {
+        npcSystem?.handleContactEnd(contact)
     }
 }

@@ -11,6 +11,8 @@ class AnimationComponent: GKComponent {
     var idleFrames: [SKTexture]
     var walkingFrames: [SKTexture]
     var currentState: PlayerState?
+    // Mov System not to override the animation with `.idle`/`.moving`.
+    private(set) var isPlayingOneShot: Bool = false
     let fps: CGFloat = 1/30
     var bubbleFrames: [SKTexture]
     private lazy var bubbleAction: SKAction = {
@@ -51,6 +53,50 @@ class AnimationComponent: GKComponent {
         node.run(.repeatForever(animate))
     }
     
+    // Play a one-shot sequence on the base node, then restore idle.
+    func playOnce(frames: [SKTexture],
+                  timePerFrame: TimeInterval? = nil,
+                  scaleMultiplier: CGFloat = 1.0,
+                  completion: (() -> Void)? = nil) {
+        guard let sprite = baseNode as? SKSpriteNode else { completion?(); return }
+        guard !frames.isEmpty else { completion?(); return }
+        let perFrame = timePerFrame ?? Double(fps)
+
+
+        let originalSize = sprite.size
+        let originalTexture = sprite.texture
+        let firstNative = frames[0].size()
+        // Base scale matches existing sprite size; multiplier scales the
+        // cinematic frames bigger/smaller relative to that.
+        let scaleFactor = (originalSize.width / firstNative.width) * scaleMultiplier
+
+        sprite.removeAllActions()
+        isPlayingOneShot = true
+
+        var sequence: [SKAction] = []
+        for tex in frames {
+            let native = tex.size()
+            let target = CGSize(width: native.width * scaleFactor,
+                                height: native.height * scaleFactor)
+            let setFrame = SKAction.run { [weak sprite] in
+                sprite?.texture = tex
+                sprite?.size = target
+            }
+            sequence.append(setFrame)
+            sequence.append(.wait(forDuration: perFrame))
+        }
+
+        sprite.run(.sequence(sequence)) { [weak self, weak sprite] in
+            // Restore original texture + size before resuming idle loop.
+            sprite?.texture = originalTexture
+            sprite?.size = originalSize
+            self?.isPlayingOneShot = false
+            self?.currentState = nil
+            self?.playAnimation(state: .idle)
+            completion?()
+        }
+    }
+
     func playBubbleChat() {
         guard let bubbleNode, bubbleNode.isHidden else { return }
         bubbleNode.position = CGPoint(x: 0, y: 30)
