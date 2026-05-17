@@ -14,34 +14,33 @@ struct GameScreen: View {
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
     @EnvironmentObject var questDialogViewModel: QuestStateViewModel
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
 
     // MARK: - State
     @State var scene: SKScene?
     @State var isDialogAnimate: Bool = true
-    
-    
-    // MARK: - Storage
-    // TODO: move to swiftdata
-    @State private var isFirstTime: Bool = true
     
     func makeScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
         scene.questDialogViewModel = questDialogViewModel
+        scene.gameSettingsViewModel = gameSettingsViewModel
         return scene
     }
     
     var body: some View {
         ZStack {
-            if isFirstTime {
+            if gameSettingsViewModel.isFirstTime {
                 // render tutorial page
+                // TODO: Bee update the tutorial_first using new assets
                 Image("tutorial_first")
                     .resizable()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        isFirstTime = false
+                        gameSettingsViewModel.isFirstTime = false
+                        gameSettingsViewModel.save()
                     }
             } else {
                 // render game page
@@ -57,6 +56,7 @@ struct GameScreen: View {
                 }
                 .ignoresSafeArea(.all)
 
+                // Dialog run whenever the dialog actions happening
                 if dialogStateViewModel.dialog != nil {
                     AppDialog(
                         name: dialogStateViewModel.npc ?? "",
@@ -69,6 +69,7 @@ struct GameScreen: View {
                 }
                 
                 
+                // Game HUD
                 VStack {
                     HStack(alignment: .top) {
                         // All four minimap images stay mounted; we toggle opacity
@@ -85,16 +86,22 @@ struct GameScreen: View {
                             }
                             .frame(width: 100, height: 100)
                             
+                            
+                            // Quest UI under the minimap
                             if questDialogViewModel.currentQuest != nil {
                                 AppQuest(quest: $questDialogViewModel.currentQuest)
                             }
                         }
                         Spacer()
+                        
+                        // Will render top-right corner game menu
                         GameMenu()
                     }
                     Spacer()
                     HStack {
                         Spacer()
+                        
+                        // Will render bottom-right game action menu
                         GameActionButton()
                     }
                 }

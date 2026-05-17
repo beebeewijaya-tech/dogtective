@@ -21,6 +21,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var minimapStateViewModel: MinimapStateViewModel?
     var dialogStateViewModel: DialogStateViewModel?
     var questDialogViewModel: QuestStateViewModel?
+    var gameSettingsViewModel: GameSettingsViewModel?
     
     
     // MARK: - Local Property
@@ -80,7 +81,14 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.setupCollisions()
         self.setupJoystick()
         
-        questDialogViewModel?.setQuest(quest)
+        // TODO: Bee work on sync the quest and the storage
+        if gameSettingsViewModel?.currentQuest != nil && gameSettingsViewModel?.currentQuest?.title != "" {
+            let quest = gameSettingsViewModel?.currentQuest!
+            questDialogViewModel?.setQuest(quest!) // set quest from storage
+        } else {
+            questDialogViewModel?.setQuest(quest)
+        }
+        
         physicsWorld.contactDelegate = self
         
         initSpan?.finish()
@@ -117,8 +125,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         lastUpdateTime = currentTime
         movementSystem?.update(deltaTime: dt)
         ysortSystem?.update(deltaTime: dt)
-        
-        // TODO: for now will do this to transition on the gamescene
         checkSceneTransition()
         
         // check dialog behavior
@@ -239,12 +245,18 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
             Task { @MainActor in
                 prepareGameScene()
                 try await questDialogViewModel?.doneQuest(nextQuest)
+                saveQuestState(quest: nextQuest) // save next quest
                 quest = nextQuest
                 questDone = 0
             }
         } else {
-            questDialogViewModel?.setQuest(updatedQuest)
-
+            questDialogViewModel?.setQuest(updatedQuest) // save updated quest
+            saveQuestState(quest: updatedQuest)
         }
+    }
+    
+    private func saveQuestState(quest: Quest) {
+        gameSettingsViewModel?.currentQuest = quest
+        gameSettingsViewModel?.save()
     }
 }
