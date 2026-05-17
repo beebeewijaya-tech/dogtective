@@ -22,10 +22,21 @@ class MovementSystem: GKComponentSystem<MovementComponent> {
         guard let playerEntity = playerEntity else { return }
         guard let playerNode = playerEntity.spriteNode else { return }
         guard let joystickEntity = joystickEntity else { return }
-        
+
+        // Locked during cutscene-like flows
+        if playerEntity.movement?.isLocked == true {
+            playerEntity.movement?.velocity = .zero
+            playerNode.physicsBody?.velocity = .zero
+            // Only force idle if a one-shot anim isn't already playing
+            if playerEntity.animation?.isPlayingOneShot != true {
+                playerEntity.animation?.playAnimation(state: .idle)
+            }
+            return
+        }
+
         let dx = joystickEntity.knob.position.x - joystickEntity.base.position.x
         let dy = joystickEntity.knob.position.y - joystickEntity.base.position.y
-        
+
         playerEntity.movement?.velocity = CGVector(dx: dx, dy: dy)
         if dx != 0 || dy != 0 {
             playerNode.xScale = dx > 0 ? 1 : -1
@@ -33,7 +44,7 @@ class MovementSystem: GKComponentSystem<MovementComponent> {
         } else {
             playerEntity.animation?.playAnimation(state: .idle)
         }
-        
+
         playerEntity.update(deltaTime: seconds) // will run the movement
     }
 }

@@ -8,20 +8,22 @@
 import SwiftUI
 
 struct GameMenu: View {
-    
+    @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
+
     @State private var isBackpackOpen = false
-    
+
+    // Backpack item keys in display order. Matches asset names sans `_on/_off`.
     let backpackItems = [
-        "tissue_off", "siluet_off", "corn_off", "piececorn_off",
-        "fur_off", "dig_off", "billy_off", "fence_off"
+        "tissue", "siluet", "corn", "piece_of_corn",
+        "fur", "dig", "billy", "fence"
     ]
-    
+
     var body: some View {
         HStack(spacing: 15) {
-        
+
             ZStack(alignment: .trailing) {
-                
-        
+
+
                 ZStack(alignment: .trailing) {
                     if isBackpackOpen {
                         ZStack(alignment: .trailing) {
@@ -31,10 +33,11 @@ struct GameMenu: View {
                                 .scaledToFill()
                                 .frame(width: 350, height: 45)
                                 .offset(x: -5)
-                            
+
                             HStack(spacing: 5) {
                                 ForEach(backpackItems, id: \.self) { item in
-                                    Image(item)
+                                    let collected = backpackStateViewModel.collectedKeys.contains(item)
+                                    Image(collected ? "\(item)_on" : "\(item)_off")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 32, height: 32)
@@ -52,10 +55,29 @@ struct GameMenu: View {
                 .frame(width: 400, height: 60, alignment: .trailing)
                 .clipped()
                 .zIndex(1)
-                
-                AppIcon(icon: "backpackButton", size: .medium) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isBackpackOpen.toggle()
+
+                ZStack(alignment: .topTrailing) {
+                    AppIcon(icon: "backpackButton", size: .medium) {
+                        let wasOpen = isBackpackOpen
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isBackpackOpen.toggle()
+                        }
+                        // Mark seen on close (open → close cycle clears badge).
+                        if wasOpen {
+                            backpackStateViewModel.markSeen()
+                        }
+                    }
+
+                    if backpackStateViewModel.hasUnseen {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 14, height: 14)
+                            .overlay(
+                                Text("!")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white)
+                            )
+                            .offset(x: 4, y: -4)
                     }
                 }
                 .padding(.trailing, 7.5)
@@ -63,12 +85,12 @@ struct GameMenu: View {
                 .zIndex(2)
             }
             .frame(width: 430, height: 60, alignment: .trailing)
-            
+
             AppIcon(icon: "pauseButton", size: .medium) {
                 print("Pause tapped")
             }
         }
-        
+
         .padding(.top, 20)
         .padding(.trailing, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
@@ -79,6 +101,7 @@ struct GameMenu: View {
 struct GameMenu_Previews: PreviewProvider {
     static var previews: some View {
         GameMenu()
+            .environmentObject(BackpackStateViewModel())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }
