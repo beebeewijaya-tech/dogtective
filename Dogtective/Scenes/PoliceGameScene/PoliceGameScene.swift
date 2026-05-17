@@ -22,11 +22,13 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var dialogStateViewModel: DialogStateViewModel?
     var questDialogViewModel: QuestStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
+    var backpackStateViewModel: BackpackStateViewModel?
     
     
+    // MARK: - NPC system
+    var npcSystem: NpcSystem?
+
     // MARK: - Local Property
-    private var activeNpc: NpcEntity?
-    private var currentDialogState: DialogState?
     private var questDone = 0
     private lazy var quest = Quest(
         title: "Talked to \(questDone)/3 npcs",
@@ -77,7 +79,18 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         
         self.setupBackground()
         self.setupPlayer()
-        self.setupNPCs()
+
+        self.npcSystem = NpcSystem(
+            scene: self,
+            npcs: npcs,
+            playerEntity: playerEntity,
+            dialogStateViewModel: dialogStateViewModel
+        )
+        self.npcSystem?.onEvidenceDialogShown = { [weak self] _ in
+            self?.checkQuest()
+        }
+        self.npcSystem?.setup()
+
         self.setupCollisions()
         self.setupJoystick()
         
@@ -126,42 +139,18 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         movementSystem?.update(deltaTime: dt)
         ysortSystem?.update(deltaTime: dt)
         checkSceneTransition()
-        
-        // check dialog behavior
-        checkDialog()
+        // NPC bubble + dialog handling
+        npcSystem?.update()
     }
-    
-    
+
+
     // MARK: - Collisions check
     func didBegin(_ contact: SKPhysicsContact) {
-        guard let dialogStateViewModel = dialogStateViewModel else { return }
-        
-        let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
-        switch mask {
-        case [PhysicsCategory.player, PhysicsCategory.npc]:
-            let npc = contact.bodyA.categoryBitMask == PhysicsCategory.npc ? contact.bodyA : contact.bodyB
-            activeNpc?.animation?.removeBubbleChat()
-            activeNpc = npcs.first { $0.node == npc.node }
-            activeNpc?.animation?.playBubbleChat()
-            dialogStateViewModel.setState(.bubble)
-        default:
-            return
-        }
+        npcSystem?.handleContactBegin(contact)
     }
-    
+
     func didEnd(_ contact: SKPhysicsContact) {
-        guard let dialogStateViewModel = dialogStateViewModel else { return }
-
-        let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
-        switch mask {
-        case [PhysicsCategory.player, PhysicsCategory.npc]:
-            activeNpc?.animation?.removeBubbleChat()
-            activeNpc = nil
-            dialogStateViewModel.setState(.idle)
-        default:
-            return
-        }
-
+        npcSystem?.handleContactEnd(contact)
     }
     
     
@@ -170,6 +159,8 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         let scene = GameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.questDialogViewModel = questDialogViewModel
+        scene.dialogStateViewModel = dialogStateViewModel
+        scene.backpackStateViewModel = backpackStateViewModel
         scene.setupBackground() // setup background
         nextScene = scene
      }
@@ -203,29 +194,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Chat System
-    private func checkDialog() {
-        guard let dialogStateViewModel = dialogStateViewModel else { return }
 
-        if dialogStateViewModel.isChat == .chat {
-            guard currentDialogState != .chat else { return }
-            currentDialogState = .chat
-            dialogStateViewModel.dialog = activeNpc?.dialogComponent?.getDialog()
-            dialogStateViewModel.npc = activeNpc?.name
-            
-            guard let dialog = dialogStateViewModel.dialog else { return }
-            if dialog.evidence {
-                // if evidence we need to complete the quest
-                // quest trigger by 3 NPCs evidence
-                checkQuest()
-            }
-            
-            activeNpc?.dialogComponent?.removeEvidenceDialog()
-        } else {
-            currentDialogState = nil
-        }
-    }
-    
-    
     private func checkQuest() {
         questDone += 1
         let updatedQuest = Quest(

@@ -22,7 +22,7 @@ struct GameActionButton: View {
             .disabled(dialogStateViewModel.isChat != .bubble)
             
             ImageButton(label: "magnifyingglassButton", type: .primary, size: .large) {
-                
+                NotificationCenter.default.post(name: .magnifyingButtonTapped, object: nil)
             }
         }
     }

@@ -10,6 +10,12 @@ import GameplayKit
 struct Dialog {
     var message: String
     var evidence: Bool
+    // Backpack item key to award when this dialog is dismissed.
+    var evidenceReward: String? = nil
+    // Texture floated above player's head during the evidence-found animation.
+    var evidenceFloating: EvidenceType? = nil
+    // Player self-talk shown after the cinematic. Speaker = "Mr.Bones".
+    var collectedMessage: String? = nil
 }
 
 class DialogComponent: GKComponent {

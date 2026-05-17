@@ -15,7 +15,8 @@ struct GameScreen: View {
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
     @EnvironmentObject var questDialogViewModel: QuestStateViewModel
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
-
+    @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
+    
     // MARK: - State
     @State var scene: SKScene?
     @State var isDialogAnimate: Bool = true
@@ -26,6 +27,7 @@ struct GameScreen: View {
         scene.dialogStateViewModel = dialogStateViewModel
         scene.questDialogViewModel = questDialogViewModel
         scene.gameSettingsViewModel = gameSettingsViewModel
+        scene.backpackStateViewModel = backpackStateViewModel
         return scene
     }
     
@@ -55,20 +57,44 @@ struct GameScreen: View {
                     }
                 }
                 .ignoresSafeArea(.all)
-
-                // Dialog run whenever the dialog actions happening
+                
                 if dialogStateViewModel.dialog != nil {
                     AppDialog(
                         name: dialogStateViewModel.npc ?? "",
                         text: dialogStateViewModel.dialog?.message ?? ""
                     ) {
+                        // Capture evidence payload before resetting the dialog,
+                        let reward = dialogStateViewModel.dialog?.evidenceReward
+                        let floating = dialogStateViewModel.dialog?.evidenceFloating
+                        let collectedMsg = dialogStateViewModel.dialog?.collectedMessage
                         dialogStateViewModel.resetDialog()
                         dialogStateViewModel.isChat = .bubble
+                        
+                        if let reward = reward {
+                            var userInfo: [String: Any] = [
+                                EvidenceFromDialogKey.reward: reward
+                            ]
+                            if let floating = floating {
+                                userInfo[EvidenceFromDialogKey.floatingType] = floating
+                            }
+                            if let msg = collectedMsg {
+                                userInfo[EvidenceFromDialogKey.collectedMessage] = msg
+                            }
+                            NotificationCenter.default.post(
+                                name: .evidenceFromDialog,
+                                object: nil,
+                                userInfo: userInfo
+                            )
+                        } else {
+                            NotificationCenter.default.post(
+                                name: .dialogDismissedNoReward,
+                                object: nil
+                            )
+                        }
                     }
-                    .zIndex(2)
+                    .zIndex(3)
                 }
-                
-                
+
                 // Game HUD
                 VStack {
                     HStack(alignment: .top) {
@@ -105,10 +131,9 @@ struct GameScreen: View {
                         GameActionButton()
                     }
                 }
-                .zIndex(1)
+                .zIndex(2)
                 .padding(.vertical, 20)
             }
-        }
-        .sentryTrace("Game Screen")
+        }.sentryTrace("Game Screen")
     }
 }
