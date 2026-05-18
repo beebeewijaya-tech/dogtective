@@ -92,7 +92,8 @@ struct GameScreen: View {
                 if dialogStateViewModel.dialog != nil {
                     AppDialog(
                         name: dialogStateViewModel.npc ?? "",
-                        text: dialogStateViewModel.dialog?.message ?? ""
+                        text: dialogStateViewModel.dialog?.message ?? "",
+                        image: dialogStateViewModel.npcImage
                     ) {
                         // Capture evidence payload before resetting the dialog,
                         let reward = dialogStateViewModel.dialog?.evidenceReward
