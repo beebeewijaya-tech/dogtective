@@ -21,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // MARK: - ViewModel
-    var questDialogViewModel: QuestStateViewModel?
+    var questStateViewModel: QuestStateViewModel?
     var minimapStateViewModel: MinimapStateViewModel?
     var dialogStateViewModel: DialogStateViewModel?
     var backpackStateViewModel: BackpackStateViewModel?
@@ -100,7 +100,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private let openFenceThreshold = 7 // threshold to open fence npc
     private let durantFirstPosition = CGPoint(x: 193, y: 775)
     private let durantSecondPosition = CGPoint(x: 216, y: 834)
+    let playerParkPosition = CGPoint(x: 1700, y: 340)
+    
     private var hasFenceOpened = false
+    private var hasCheckedBackyard = false
     
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
@@ -154,7 +157,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.subscribeBurnState()
             initSpan?.finish()
             self.setupEvidences()
-            setupInitialQuest()
+            self.setupInitialQuest()
             self.logSceneSentry()
             
             self.physicsWorld.contactDelegate = self
@@ -198,6 +201,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         evidenceSystem?.update(deltaTime: dt)
         npcSystem?.update()
+        followBillyPosition()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -246,19 +250,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
     }
     
+    private func nextQuest() {
+        Task {
+            try await questStateViewModel?.recordProgress()
+            gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
+            gameSettingsViewModel?.save()
+        }
+    }
+    
     private func applyEvidenceProgression(count: Int) {
         chunkManager?.setBurned(count >= burnThreshold)
         relocateDurant()
 
+        if count == 1 {
+            // if evidence 1 found
+            // at the park
+            nextQuest()
+        }
+        
         if gameSettingsViewModel?.currentCutscene == 3 && !hasFenceOpened && count >= 7 {
             // Fence Cutscene
             hasFenceOpened = true
+            nextQuest()
             gameSettingsViewModel?.playerPosition = durantFirstPosition
             setCutscene(cutscene: 3)
         }
         
-        if gameSettingsViewModel?.currentCutscene == 4 && count >= 8 {
+        if gameSettingsViewModel?.currentCutscene == 4 && !hasCheckedBackyard && count >= 8 {
             // Culprit Cutscene
+            hasCheckedBackyard = true
+            nextQuest()
             gameSettingsViewModel?.playerPosition = durantFirstPosition
             setCutscene(cutscene: 4)
         }
@@ -283,6 +304,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let gameSettingsViewModel else { return }
         gameSettingsViewModel.collectedEvidence.forEach {
           backpackStateViewModel?.collect($0)
+        }
+    }
+    
+    private func followBillyPosition() {
+        guard let questStateViewModel = questStateViewModel else { return }
+        guard questStateViewModel.currentIndex == 5  else { return } // guard if only "follow billy"
+        guard let node = playerEntity?.node else { return }
+
+        let billyPosition = CGPoint(x: 1250.5548095703125, y: 298.858154296875)
+        
+        if abs(node.position.x - billyPosition.x) < 50 {
+            // only need to know x position
+            Task {
+                try await questStateViewModel.recordProgress()
+                gameSettingsViewModel?.playerPosition = playerParkPosition
+                gameSettingsViewModel?.currentQuest = questStateViewModel.currentIndex
+                gameSettingsViewModel?.save()
+            }
         }
     }
 }

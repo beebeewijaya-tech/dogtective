@@ -20,7 +20,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - ViewModel
     var minimapStateViewModel: MinimapStateViewModel?
     var dialogStateViewModel: DialogStateViewModel?
-    var questDialogViewModel: QuestStateViewModel?
+    var questStateViewModel: QuestStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
     var backpackStateViewModel: BackpackStateViewModel?
     var cutsceneViewModel: CutsceneViewModel?
@@ -31,7 +31,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Local Property
     private var questDone = 0
-    private var quest: Quest!
+    private lazy var quest = questStateViewModel?.currentQuest
     private var isTransitioning = false
     private var nextScene: SKScene?
     
@@ -90,19 +90,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.setupCollisions()
         self.setupJoystick()
         
-        if gameSettingsViewModel?.currentQuest != nil && gameSettingsViewModel?.currentQuest?.title != "" {
-            quest = gameSettingsViewModel?.currentQuest!
-            questDialogViewModel?.setQuest(quest!) // set quest from storage
-        } else {
-            quest = Quest(
-                title: "Talked to \(questDone)/3 Residents NPC",
-                done: false,
-                doneCondition: 3,
-                isLoading: false
-            )
-            questDialogViewModel?.setQuest(quest)
-        }
-        
         physicsWorld.contactDelegate = self
         
         initSpan?.finish()
@@ -160,7 +147,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         let scene = GameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
-        scene.questDialogViewModel = questDialogViewModel
+        scene.questStateViewModel = questStateViewModel
         scene.gameSettingsViewModel = gameSettingsViewModel
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
@@ -172,7 +159,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     
     private func checkSceneTransition() {
         guard !isTransitioning else { return }
-        guard quest.title.contains("police office") else { return }
+        guard questStateViewModel?.currentIndex == 1 else { return }
         guard let nextScene = nextScene else { return }
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }
@@ -190,7 +177,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
                 // finishing sentry
                 transitionSpan?.finish()
                 sceneTransaction?.finish()
-                
                 cutsceneViewModel?.setCutscene(cutscene: 2)
                 gameSettingsViewModel?.currentCutscene = 2
                 gameSettingsViewModel?.save()
@@ -203,35 +189,14 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Chat System
 
     private func checkQuest() {
-        questDone += 1
-        let updatedQuest = Quest(
-            title: "Talk to \(questDone)/3 Residents NPC",
-            done: questDone == quest.doneCondition,
-            doneCondition: quest.doneCondition,
-            isLoading: false
-        )
-        
-        if updatedQuest.done {
-            let nextQuest = Quest(
-                title: "Exit police office",
-                done: false,
-                doneCondition: 1,
-                isLoading: false
-            )
-            Task { @MainActor in
+        Task {
+            if questStateViewModel?.currentProgress == 2 {
                 prepareGameScene()
-                try await questDialogViewModel?.doneQuest(nextQuest)
-                saveQuestState(quest: nextQuest) // save next quest
-                quest = nextQuest
-                questDone = 0
             }
-        } else {
-            questDialogViewModel?.setQuest(updatedQuest) // save updated quest
+            
+            try await questStateViewModel?.recordProgress()
+            gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
+            gameSettingsViewModel?.save()
         }
-    }
-    
-    private func saveQuestState(quest: Quest) {
-        gameSettingsViewModel?.currentQuest = quest
-        gameSettingsViewModel?.save()
     }
 }

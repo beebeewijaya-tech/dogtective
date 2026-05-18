@@ -19,7 +19,7 @@ class GameSettingsViewModel: ObservableObject {
     @Published var isFirstTime: Bool = true
     @Published var playerPosition: CGPoint = .zero
     @Published var numOfEvidence: Int = 0
-    @Published var currentQuest: Quest? = nil
+    @Published var currentQuest: Int = 0
     @Published var soundEnabled: Bool = true
     @Published var hapticsEnabled: Bool = true
     @Published var currentLevel: Int = 0
@@ -41,12 +41,7 @@ class GameSettingsViewModel: ObservableObject {
         isFirstTime = settings.isFirstTime
         playerPosition = CGPoint(x: settings.playerPositionX, y: settings.playerPositionY)
         numOfEvidence = settings.playerNumOfEvidence
-        currentQuest = Quest(
-            title: settings.questTitle,
-            done: settings.questDone,
-            doneCondition: settings.questDoneCondition,
-            isLoading: false
-        )
+        currentQuest = settings.currentQuest
         soundEnabled = settings.soundEnabled
         hapticsEnabled = settings.hapticsEnabled
         currentLevel = settings.currentLevel
@@ -74,9 +69,7 @@ class GameSettingsViewModel: ObservableObject {
         settings.playerNumOfEvidence = numOfEvidence
         settings.soundEnabled = soundEnabled
         settings.hapticsEnabled = hapticsEnabled
-        settings.questTitle = currentQuest?.title ?? ""
-        settings.questDone = currentQuest?.done ?? false
-        settings.questDoneCondition = currentQuest?.doneCondition ?? 0
+        settings.currentQuest = currentQuest
         settings.currentLevel = currentLevel
         settings.currentCutscene = currentCutscene
         settings.gameScene = gameScene
@@ -96,12 +89,13 @@ class GameSettingsViewModel: ObservableObject {
         isFirstTime = true
         playerPosition = .zero
         numOfEvidence = 0
-        currentQuest = nil
+        currentQuest = 0
         soundEnabled = true
         hapticsEnabled = true
         currentLevel = 0
         currentCutscene = 1
         gameScene = "police"
+        collectedEvidence = []
     }
     
     private func fetchOrCreateSettings() -> GameSettings {
