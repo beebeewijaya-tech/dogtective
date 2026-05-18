@@ -126,7 +126,8 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
         lockedForEmptyDialog = true
         vm.setDialog(
             dialog: Dialog(message: message, evidence: false),
-            npc: "Mr.Bones"
+            npc: "Mr.Bones",
+            npcImage: "mrbones-idle_00"
         )
     }
 
@@ -183,7 +184,8 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
         }
         vm.setDialog(
             dialog: Dialog(message: "Theres nothing i can see here.", evidence: false),
-            npc: "Mr.Bones"
+            npc: "Mr.Bones",
+            npcImage: "mrbones-idle_00"
         )
     }
 

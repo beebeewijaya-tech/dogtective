@@ -115,6 +115,40 @@ extension ObstacleConfig {
         )
     }
     
+    static func bushObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false) -> ObstacleConfig {
+        ObstacleConfig(
+            textureName: textureName,
+            position: pos,
+            scale: 0.35,
+            axis: .vertical,
+            ratio: 0.25,
+            collisionWidthRatio: 1.0,
+            collisionHeightRatio: 1.0,
+            ysortEnabled: true,
+            secondPieceZ: 0,
+            zOffset: zOffset,
+            burnTextureName: burnTextureName,
+            burnOnly: burnOnly
+        )
+    }
+    
+    static func grassObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0) -> ObstacleConfig {
+        ObstacleConfig(
+            textureName: textureName,
+            position: pos,
+            scale: 0.35,
+            axis: .vertical,
+            ratio: 0.25,
+            collisionWidthRatio: 0,
+            collisionHeightRatio: 0,
+            ysortEnabled: true,
+            secondPieceZ: 0,
+            zOffset: zOffset,
+            burnTextureName: nil,
+            burnOnly: false
+        )
+    }
+    
     static func car(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0) -> ObstacleConfig {
         ObstacleConfig(
             textureName: textureName,

@@ -165,7 +165,7 @@ extension GameScene {
             .coneTree(at: CGPoint(x: -371, y: 826)),
             .coneTree(at: CGPoint(x: -315, y: 743), zOffset: 1),
             .coneTree(at: CGPoint(x: -393, y: 711), zOffset: 2),
-            .coneTree(at: CGPoint(x: 164, y: 801), zOffset: 50),
+            .coneTree(at: CGPoint(x: 164, y: 801), zOffset: 3),
             
             // MARK: - Bulding
             // coffe shop
@@ -393,11 +393,49 @@ extension GameScene {
             // top section
             .pole(at: CGPoint(x: -618, y: 534), textureName: "cross_sign"),
             
+            // MARK: - Bush detail effect
+            .bushObstacle(at: CGPoint(x: -471, y: 663), textureName: "bush_small"),
+            .bushObstacle(at: CGPoint(x: -462, y: 594), textureName: "bush_small"),
+            .bushObstacle(at: CGPoint(x: -373, y: 545), textureName: "bush", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: -1305, y: -42), textureName: "mini_pot_horizontal", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: -1402, y: -42), textureName: "mini_pot_horizontal", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: -958, y: -227), textureName: "bush", zOffset: 3),
+            
+            // Bottom right
+            .bushObstacle(at: CGPoint(x: 1000, y: -275), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1006, y: -529), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1530, y: -279), textureName: "bush_small", zOffset: 3),
+            
+            // Park and Playground
+            .bushObstacle(at: CGPoint(x: 2121, y: 649), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 2211, y: 440), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 2068, y: 735), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1603, y: 727), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1426, y: 775), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1439, y: 415), textureName: "bush_small", zOffset: 3),
+            .bushObstacle(at: CGPoint(x: 1603, y: 423), textureName: "bush_small", zOffset: 3),
+            
+            .grassObstacle(at: CGPoint(x: 2093, y: 385),textureName: "grass_big", zOffset: 6),
+            .grassObstacle(at: CGPoint(x: 1837, y: 578),textureName: "grass_big", zOffset: 6),
+            .grassObstacle(at: CGPoint(x: 1497, y: 408),textureName: "grass_big", zOffset: 6),
+            .grassObstacle(at: CGPoint(x: 1422, y: 575),textureName: "grass_big", zOffset: 6),
+            
+            .grassObstacle(at: CGPoint(x: 1805, y: 629), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 2012, y: 771), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 2157, y: 631), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 2219, y: 716), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 2147, y: 462), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 1504, y: 532), textureName: "grass_small", zOffset: 8),
+            .grassObstacle(at: CGPoint(x: 1378, y: 570), textureName: "grass_small", zOffset: 10),
+            
+            
             
             // MARK: - Burn things only
-//            .smallObstacle(at: CGPoint(x: 1600, y: 500), textureName: "dig_raw", burnOnly: true),
-//            .smallObstacle(at: CGPoint(x: 1800, y: 450), textureName: "dig_raw", burnOnly: true),
-            
+            .smallObstacle(at: CGPoint(x: 1482, y: 534), textureName: "dig_raw",  zOffset: 5, burnOnly: true),
+            .smallObstacle(at: CGPoint(x: 1749, y: 705), textureName: "dig_raw",  zOffset: 5, burnOnly: true),
+            .smallObstacle(at: CGPoint(x: 1971, y: 596), textureName: "dig_raw", zOffset: 5, burnOnly: true),
+            .smallObstacle(at: CGPoint(x: 2157, y: 486), textureName: "dig_raw", zOffset: 5, burnOnly: true),
+            .smallObstacle(at: CGPoint(x: 2055, y: 779), textureName: "dig_raw", zOffset: 5, burnOnly: true),
         ]
         + ObstacleConfig.fenceLine(from: CGPoint(x: -957, y: 554), direction: .right, count: 4)
         + ObstacleConfig.fenceLine(from: CGPoint(x: -452, y: 554), direction: .left, count: 2)
