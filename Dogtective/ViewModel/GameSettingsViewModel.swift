@@ -25,6 +25,7 @@ class GameSettingsViewModel: ObservableObject {
     @Published var currentLevel: Int = 0
     @Published var currentCutscene: Int = 1
     @Published var gameScene: String = "police"
+    @Published var collectedEvidence: [String] = []
     
     // MARK: - Action
     
@@ -51,6 +52,7 @@ class GameSettingsViewModel: ObservableObject {
         currentLevel = settings.currentLevel
         currentCutscene = settings.currentCutscene
         gameScene = settings.gameScene
+        collectedEvidence = settings.collectedEvidence
         print("load settings isFirstTime: \(isFirstTime)")
         print("load settings playerPosition: \(playerPosition)")
         print("load settings numOfEvidence: \(numOfEvidence)")
@@ -60,6 +62,7 @@ class GameSettingsViewModel: ObservableObject {
         print("load settings currentLevel: \(currentLevel)")
         print("load settings currentCutscene: \(currentCutscene)")
         print("load settings gameScene: \(gameScene)")
+        print("load settings collectedEvidence: \(collectedEvidence)")
     }
     
     func save() {
@@ -77,6 +80,7 @@ class GameSettingsViewModel: ObservableObject {
         settings.currentLevel = currentLevel
         settings.currentCutscene = currentCutscene
         settings.gameScene = gameScene
+        settings.collectedEvidence = collectedEvidence
         try? context.save()
     }
     

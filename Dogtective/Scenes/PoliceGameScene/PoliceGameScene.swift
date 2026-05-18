@@ -95,7 +95,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
             questDialogViewModel?.setQuest(quest!) // set quest from storage
         } else {
             quest = Quest(
-                title: "Talked to \(questDone)/3 npcs",
+                title: "Talked to \(questDone)/3 Residents NPC",
                 done: false,
                 doneCondition: 3,
                 isLoading: false
@@ -176,8 +176,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         guard let nextScene = nextScene else { return }
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }
-        guard let gameSettingsViewModel = gameSettingsViewModel else { return }
-        
+
         let door = CGPoint(x: 437.3, y: 289.6)
         let dx = node.position.x - door.x
         let dy = node.position.y - door.y
@@ -191,8 +190,10 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
                 // finishing sentry
                 transitionSpan?.finish()
                 sceneTransaction?.finish()
-                gameSettingsViewModel.currentCutscene = 2
-                gameSettingsViewModel.save()
+                
+                cutsceneViewModel?.setCutscene(cutscene: 2)
+                gameSettingsViewModel?.currentCutscene = 2
+                gameSettingsViewModel?.save()
                 
                 view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
             }
@@ -204,7 +205,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     private func checkQuest() {
         questDone += 1
         let updatedQuest = Quest(
-            title: "Talk to \(questDone)/3 NPCs",
+            title: "Talk to \(questDone)/3 Residents NPC",
             done: questDone == quest.doneCondition,
             doneCondition: quest.doneCondition,
             isLoading: false
