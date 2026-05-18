@@ -18,7 +18,7 @@ import SpriteKit
 final class ChunkManager {
 
     private weak var scene: GameScene?
-    private let registry: ChunkRegistry
+    let registry: ChunkRegistry
     private let activeRadius: Int
 
     // Background textures are not shared between chunks (each chunk has its
