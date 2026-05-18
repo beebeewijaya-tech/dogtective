@@ -11,8 +11,8 @@ struct GameMenu: View {
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
 
     @State private var isBackpackOpen = false
-
-    // Backpack item keys in display order. Matches asset names sans `_on/_off`.
+    @Binding var isPaused: Bool
+    
     let backpackItems = [
         "tissue", "siluet", "corn", "piece_of_corn",
         "fur", "dig", "billy", "fence"
@@ -20,14 +20,11 @@ struct GameMenu: View {
 
     var body: some View {
         HStack(spacing: 15) {
-
             ZStack(alignment: .trailing) {
-
-
                 ZStack(alignment: .trailing) {
                     if isBackpackOpen {
                         ZStack(alignment: .trailing) {
-
+                            
                             Image("backpackBar")
                                 .resizable()
                                 .scaledToFill()
@@ -87,7 +84,9 @@ struct GameMenu: View {
             .frame(width: 430, height: 60, alignment: .trailing)
 
             AppIcon(icon: "pauseButton", size: .medium) {
-                print("Pause tapped")
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isPaused = true
+                }
             }
         }
 
@@ -100,8 +99,7 @@ struct GameMenu: View {
 // MARK: - Previews
 struct GameMenu_Previews: PreviewProvider {
     static var previews: some View {
-        GameMenu()
-            .environmentObject(BackpackStateViewModel())
+        GameMenu(isPaused: .constant(false))
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

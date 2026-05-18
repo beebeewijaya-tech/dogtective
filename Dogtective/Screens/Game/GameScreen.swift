@@ -20,6 +20,8 @@ struct GameScreen: View {
     // MARK: - State
     @State var scene: SKScene?
     @State var isDialogAnimate: Bool = true
+    @State private var isPaused = false
+    @State private var showSaveToast = false
     
     func makeScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
@@ -35,7 +37,6 @@ struct GameScreen: View {
         ZStack {
             if gameSettingsViewModel.isFirstTime {
                 // render tutorial page
-                // TODO: Bee update the tutorial_first using new assets
                 Image("tutorial_first")
                     .resizable()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -94,13 +95,9 @@ struct GameScreen: View {
                     }
                     .zIndex(3)
                 }
-
                 // Game HUD
                 VStack {
                     HStack(alignment: .top) {
-                        // All four minimap images stay mounted; we toggle opacity
-                        // instead of swapping the `Image` source. SwiftUI was
-                        // synchronously decoding the new asset on swap = stutter.
                         VStack(alignment: .leading) {
                             ZStack {
                                 ForEach(MinimapState.allCases, id: \.self) { state in
@@ -112,7 +109,6 @@ struct GameScreen: View {
                             }
                             .frame(width: 100, height: 100)
                             
-                            
                             // Quest UI under the minimap
                             if questDialogViewModel.currentQuest != nil {
                                 AppQuest(quest: $questDialogViewModel.currentQuest)
@@ -120,19 +116,56 @@ struct GameScreen: View {
                         }
                         Spacer()
                         
-                        // Will render top-right corner game menu
-                        GameMenu()
+                        GameMenu(isPaused: $isPaused)
                     }
                     Spacer()
                     HStack {
                         Spacer()
-                        
-                        // Will render bottom-right game action menu
                         GameActionButton()
                     }
                 }
                 .zIndex(2)
                 .padding(.vertical, 20)
+                
+                if showSaveToast {
+                    VStack {
+                        Text("GAME SAVED!")
+                            .passerOneStyle(size: 24)
+                            .tracking(-1)
+                            .foregroundColor(Color(red: 235/255, green: 181/255, blue: 107/255))
+                            .shadow(color: Color(red: 65/255, green: 35/255, blue: 18/255), radius: 1, x: 1.5, y: 1.5)
+                            .shadow(color: Color(red: 65/255, green: 35/255, blue: 18/255), radius: 1, x: -1.5, y: -1.5)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 30)
+                            .background(
+                                // Menggunakan style warna papan kayu game kamu
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(red: 65/255, green: 35/255, blue: 18/255))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color(red: 235/255, green: 181/255, blue: 107/255), lineWidth: 3)
+                                    )
+                            )
+                            .shadow(radius: 5)
+                            .padding(.top, 30) // Posisi muncul melayang di atas tengah layar
+                        Spacer()
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity)) 
+                    .zIndex(90)
+                    .onAppear {
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showSaveToast = false
+                            }
+                        }
+                    }
+                }
+                
+                if isPaused {
+                    
+                    GamePause(isPaused: $isPaused, showSaveToast: $showSaveToast)
+                }
             }
         }.sentryTrace("Game Screen")
     }
