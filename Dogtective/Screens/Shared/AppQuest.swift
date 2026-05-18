@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct AppQuest: View {
-    @Binding var quest: Quest?
+    var questDisplay: String
+    var quest: Quest?
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -17,7 +18,7 @@ struct AppQuest: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Text(quest.done ? "✓" : quest.title)
+                    Text(quest.done ? "✓" : questDisplay)
                         .foregroundStyle(.white)
                         .font(.caption)
                         .bold()

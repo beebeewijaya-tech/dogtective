@@ -30,7 +30,7 @@ extension GameScene {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
         
         
-        var pos = CGPoint(x: 1755, y: 420)
+        var pos = playerParkPosition
         if gameSettingsViewModel.playerPosition.x != 0 && gameSettingsViewModel.playerPosition.y != 0 {
             // if player position has been altered
             // from quest, cutscene, etc

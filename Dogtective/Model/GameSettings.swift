@@ -15,10 +15,7 @@ class GameSettings {
     var playerPositionX: Double
     var playerPositionY: Double
     var playerNumOfEvidence: Int
-    var questTitle: String
-    var questDoneCondition: Int
-    var questDone: Bool
-    var questLoading: Bool
+    var currentQuest: Int
     var soundEnabled: Bool
     var hapticsEnabled: Bool
     var currentLevel: Int
@@ -34,10 +31,7 @@ class GameSettings {
         playerPositionX: Double = 0,
         playerPositionY: Double = 0,
         playerNumOfEvidence: Int = 0,
-        questTitle: String = "",
-        questDoneCondition: Int = 0,
-        questDone: Bool = false,
-        questLoading: Bool = false,
+        currentQuest: Int = 0,
         soundEnabled: Bool = true,
         hapticsEnabled: Bool = true,
         currentLevel: Int = 0,
@@ -49,10 +43,7 @@ class GameSettings {
         self.playerPositionX = playerPositionX
         self.playerPositionY = playerPositionY
         self.playerNumOfEvidence = playerNumOfEvidence
-        self.questTitle = questTitle
-        self.questDoneCondition = questDoneCondition
-        self.questDone = questDone
-        self.questLoading = questLoading
+        self.currentQuest = currentQuest
         self.soundEnabled = soundEnabled
         self.hapticsEnabled = hapticsEnabled
         self.currentLevel = currentLevel
