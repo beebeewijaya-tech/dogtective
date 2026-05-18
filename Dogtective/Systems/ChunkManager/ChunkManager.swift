@@ -37,7 +37,8 @@ final class ChunkManager {
     private struct LoadedObstacle {
         let entity: ObstacleEntity
         var refcount: Int
-        let textureName: String
+        var textureName: String
+        let config: ObstacleConfig
     }
     private var loadedObstacles: [Int: LoadedObstacle] = [:]
 
@@ -48,6 +49,15 @@ final class ChunkManager {
     // Chunks whose background decode is in flight. Prevents double-issuing if
     // the camera bounces in/out before the async load completes.
     private var pendingBackground: Set<ChunkCoord> = []
+
+    // Burn-mode swaps a fixed set of chunks (5,6,7,13,14,15) to their `_burn`
+    // PNG variants. Toggled externally when evidence collected reaches threshold.
+    // Per-coord generation lets us invalidate in-flight decodes when the mode
+    // flips mid-load — otherwise the old-filename decode would race the reload
+    // and attach a stale background.
+    private var burnActive: Bool = false
+    private let burnIndices: Set<Int> = [5, 6, 7, 13, 14, 15]
+    private var loadGeneration: [ChunkCoord: Int] = [:]
 
     private let decodeQueue = DispatchQueue(
         label: "dogtective.chunk-decode",
@@ -81,29 +91,116 @@ final class ChunkManager {
         active = desired
     }
 
+    // MARK: - burn mode
+    // Flip burn-variant rendering for chunks in `burnIndices`. Reloads
+    func setBurned(_ active: Bool) {
+        guard burnActive != active else { return }
+        burnActive = active
+
+        for coord in self.active where burnIndices.contains(chunkIndex(coord)) {
+            guard let content = contents[coord] else { continue }
+            // Tear down current background (node + texture). Bump generation
+            if let node = backgroundNodes.removeValue(forKey: coord) {
+                node.removeFromParent()
+                if var c = contents[coord] {
+                    c.loadedNodes.removeAll { $0 === node }
+                    contents[coord] = c
+                }
+            }
+            backgroundTextures.removeValue(forKey: coord)
+            pendingBackground.remove(coord)
+            loadGeneration[coord, default: 0] += 1
+
+            loadBackgroundAsync(coord: coord, fileName: currentBackgroundFileName(for: coord, base: content.backgroundImageFileName))
+        }
+
+        // Obstacle texture swap (park trees, log_2 etc.). Walk all loaded
+        for (id, loaded) in loadedObstacles {
+            guard let burnName = loaded.config.burnTextureName else { continue }
+            let desiredName = active ? burnName : loaded.config.textureName
+            guard desiredName != loaded.textureName else { continue }
+            guard let newTex = obstacleCache.acquire(desiredName) else { continue }
+            loaded.entity.reskin(with: newTex, config: loaded.config)
+            obstacleCache.release(loaded.textureName)
+            var updated = loaded
+            updated.textureName = desiredName
+            loadedObstacles[id] = updated
+        }
+
+        // burnOnly obstacles: spawn into currently active chunks when flipping
+        // on, tear down when flipping off.
+        guard let scene = scene else { return }
+        if active {
+            var spawnedIds: Set<Int> = []
+            for coord in self.active {
+                guard let content = contents[coord] else { continue }
+                for cfg in content.obstacleConfigs where cfg.burnOnly {
+                    if loadedObstacles[cfg.id] != nil {
+                        // Already spawned via another bucketed chunk this pass.
+                        if spawnedIds.contains(cfg.id) {
+                            loadedObstacles[cfg.id]?.refcount += 1
+                        }
+                        continue
+                    }
+                    spawnObstacle(cfg, in: scene)
+                    spawnedIds.insert(cfg.id)
+                }
+            }
+        } else {
+            for (id, loaded) in loadedObstacles where loaded.config.burnOnly {
+                loaded.entity.node?.removeFromParent()
+                obstacleCache.release(loaded.textureName)
+                loadedObstacles.removeValue(forKey: id)
+            }
+        }
+    }
+
+    private func spawnObstacle(_ cfg: ObstacleConfig, in scene: GameScene) {
+        let chosenName = obstacleTextureName(for: cfg)
+        guard let tex = obstacleCache.acquire(chosenName) else { return }
+        let obs = ObstacleEntity(config: cfg, texture: tex)
+        scene.register(obs)
+        if let n = obs.node {
+            n.position = cfg.position
+            scene.addChild(n)
+        }
+        loadedObstacles[cfg.id] = LoadedObstacle(entity: obs, refcount: 1, textureName: chosenName, config: cfg)
+    }
+
+    private func obstacleTextureName(for cfg: ObstacleConfig) -> String {
+        if burnActive, let burnName = cfg.burnTextureName { return burnName }
+        return cfg.textureName
+    }
+
+    private func chunkIndex(_ coord: ChunkCoord) -> Int {
+        coord.row * registry.gridCols + coord.col
+    }
+
+    private func currentBackgroundFileName(for coord: ChunkCoord, base: String) -> String {
+        guard burnActive, burnIndices.contains(chunkIndex(coord)) else { return base }
+        let idx = chunkIndex(coord)
+        return "chunk_\(idx)_burn.png"
+    }
+
     // MARK: - load / unload
 
     private func load(_ coord: ChunkCoord) {
         guard var content = contents[coord], let scene = scene else { return }
 
         // Background — async decode, attach on main.
-        loadBackgroundAsync(coord: coord, fileName: content.backgroundImageFileName)
+        loadBackgroundAsync(coord: coord, fileName: currentBackgroundFileName(for: coord, base: content.backgroundImageFileName))
 
         // Obstacles — cheap, stay sync. Dedupe across chunks: a tall obstacle
         // bucketed into two chunks should only spawn one entity.
         for cfg in content.obstacleConfigs {
+            // Burn-only configs stay dormant until burn-mode activates; they're
+            // spawned by setBurned() at flip time.
+            if cfg.burnOnly && !burnActive { continue }
             if loadedObstacles[cfg.id] != nil {
                 loadedObstacles[cfg.id]?.refcount += 1
                 continue
             }
-            guard let tex = obstacleCache.acquire(cfg.textureName) else { continue }
-            let obs = ObstacleEntity(config: cfg, texture: tex)
-            scene.register(obs)
-            if let n = obs.node {
-                n.position = cfg.position
-                scene.addChild(n)
-            }
-            loadedObstacles[cfg.id] = LoadedObstacle(entity: obs, refcount: 1, textureName: cfg.textureName)
+            spawnObstacle(cfg, in: scene)
         }
 
         // Particles — cheap.
@@ -130,6 +227,8 @@ final class ChunkManager {
         if pendingBackground.contains(coord) { return }  // decode already in flight
 
         pendingBackground.insert(coord)
+        let generation = (loadGeneration[coord] ?? 0) + 1
+        loadGeneration[coord] = generation
         decodeQueue.async { [weak self] in
             guard let path = Bundle.main.path(forResource: fileName, ofType: nil),
                   let image = UIImage(contentsOfFile: path) else {
@@ -152,6 +251,8 @@ final class ChunkManager {
                     self.pendingBackground.remove(coord)
                     // Camera may have already moved away by the time we got here.
                     guard self.active.contains(coord) else { return }
+                    // Burn-mode flipped mid-decode? Stale result — drop it
+                    guard self.loadGeneration[coord] == generation else { return }
                     self.backgroundTextures[coord] = texture
                     self.attachBackgroundNode(coord: coord, texture: texture)
                 }

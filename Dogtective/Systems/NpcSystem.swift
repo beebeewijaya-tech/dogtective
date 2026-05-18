@@ -30,6 +30,10 @@ final class NpcSystem {
         self.dialogStateViewModel = dialogStateViewModel
     }
 
+    func npc(withId id: Int) -> NpcEntity? {
+        npcs.first { $0.id == id }
+    }
+
     // MARK: - Setup
     // Adds each NPC's node to the scene + attaches a circular static body
     func setup(register: ((NpcEntity) -> Void)? = nil) {

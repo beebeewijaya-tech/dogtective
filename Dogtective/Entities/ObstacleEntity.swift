@@ -25,6 +25,10 @@ struct ObstacleConfig {
     // Stable id assigned by MapSystem so ChunkManager can dedupe when the same
     // obstacle is bucketed into multiple chunks (tall sprites span boundaries).
     var id: Int = 0
+    // When non-nil, ChunkManager swaps in this texture once burn-mode activates
+    var burnTextureName: String? = nil
+    // When true, this obstacle only spawns while burn-mode is active. Used for
+    var burnOnly: Bool = false
 }
 
 enum FenceDirection {
@@ -32,7 +36,7 @@ enum FenceDirection {
 }
 
 extension ObstacleConfig {
-    static func bigTree(at pos: CGPoint, zOffset: CGFloat = 0) -> ObstacleConfig {
+    static func bigTree(at pos: CGPoint, zOffset: CGFloat = 0, burns: Bool = false) -> ObstacleConfig {
         ObstacleConfig(
             textureName: "big_tree",
             position: pos,
@@ -43,11 +47,12 @@ extension ObstacleConfig {
             collisionHeightRatio: 0.35,
             ysortEnabled: true,
             secondPieceZ: 1000,
-            zOffset: zOffset
+            zOffset: zOffset,
+            burnTextureName: burns ? "big_tree_burn" : nil
         )
     }
-    
-    static func coneTree(at pos: CGPoint, zOffset: CGFloat = 0) -> ObstacleConfig {
+
+    static func coneTree(at pos: CGPoint, zOffset: CGFloat = 0, burns: Bool = false) -> ObstacleConfig {
         ObstacleConfig(
             textureName: "cone_tree",
             position: pos,
@@ -58,7 +63,8 @@ extension ObstacleConfig {
             collisionHeightRatio: 0.25,
             ysortEnabled: true,
             secondPieceZ: 1000,
-            zOffset: zOffset
+            zOffset: zOffset,
+            burnTextureName: burns ? "cone_tree_burn" : nil
         )
     }
     
@@ -92,7 +98,7 @@ extension ObstacleConfig {
         )
     }
     
-    static func smallObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0) -> ObstacleConfig {
+    static func smallObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false) -> ObstacleConfig {
         ObstacleConfig(
             textureName: textureName,
             position: pos,
@@ -103,7 +109,9 @@ extension ObstacleConfig {
             collisionHeightRatio: 1.0,
             ysortEnabled: true,
             secondPieceZ: 0,
-            zOffset: zOffset
+            zOffset: zOffset,
+            burnTextureName: burnTextureName,
+            burnOnly: burnOnly
         )
     }
     
@@ -276,5 +284,24 @@ class ObstacleEntity: BaseEntity {
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError()
+    }
+
+    // Swap the visual texture in place. Reuses the existing split sprite nodes
+    func reskin(with newTexture: SKTexture, config: ObstacleConfig) {
+        guard let split = component(ofType: SplitSpriteComponent.self) else { return }
+        let display = CGSize(
+            width: newTexture.size().width * config.scale,
+            height: newTexture.size().height * config.scale
+        )
+        let parts = SpriteSplitter.split(
+            texture: newTexture,
+            ratio: config.ratio,
+            axis: config.axis,
+            displaySize: display
+        )
+        split.first.texture = parts.first.texture
+        split.first.size = parts.first.size
+        split.second.texture = parts.second.texture
+        split.second.size = parts.second.size
     }
 }
