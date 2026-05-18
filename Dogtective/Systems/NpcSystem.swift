@@ -98,6 +98,7 @@ final class NpcSystem {
             let dialog = activeNpc?.dialogComponent?.getDialog()
             vm.dialog = dialog
             vm.npc = activeNpc?.name
+            vm.npcImage = activeNpc?.firstIdleFrameName
 
             if let dialog = dialog, dialog.evidence {
                 onEvidenceDialogShown?(dialog)
