@@ -20,6 +20,36 @@ extension GameScene {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }
         guard let cam = cam else { return }
-        cam.position = node.position
+        guard let registry = chunkManager?.registry else {
+            cam.position = node.position
+            return
+        }
+        
+        let screenHalfWidth = (size.width / 2) * cam.xScale
+        let screenHalfHeight = (size.height / 2) * cam.yScale
+        
+        // camera is at coordinate (0, 0) at middle of the screen
+        let mapLeftEdge = registry.mapOriginBottomLeft.x
+        let mapRightEdge = mapLeftEdge + registry.mapSize.width
+        let mapBottomEdge = registry.mapOriginBottomLeft.y
+        let mapTopEdge = mapBottomEdge + registry.mapSize.height
+        
+        let cameraMinX = mapLeftEdge + screenHalfWidth // how far left "x" can the camera go before showing black
+        let cameraMaxX = mapRightEdge - screenHalfWidth // how far right "x" can the camera go before showing black
+        let cameraMinY = mapBottomEdge + screenHalfHeight // how far bottom "y" can the camera go
+        let cameraMaxY = mapTopEdge - screenHalfHeight // how far top "y" can camera go
+        
+        // so we will clamp it
+        // if the player go to left like a lot, camera will stay at cameraMinX ( maximum )
+        // if the player go to right like a lot, camera will stay at cameraMaxX ( maximum )
+        cam.position = CGPoint(
+            x: min(max(node.position.x, cameraMinX), cameraMaxX), // if player is too far left ( almost black area ), choose cameraMinX, otherwise keep player.x
+            y: min(max(node.position.y, cameraMinY), cameraMaxY)
+        )
+        
+        playerEntity.node?.position = CGPoint(
+            x: min(max(node.position.x, mapLeftEdge), mapRightEdge), // player will clamp to use mapLeftEdge if it try to go past the value
+            y: min(max(node.position.y, mapBottomEdge), mapTopEdge)
+        )
     }
 }
