@@ -36,7 +36,7 @@ final class EvidenceEntity: BaseEntity {
         addComponent(body)
         body.attach(to: container)
 
-        addComponent(YSortComponent())
+        addComponent(YSortComponent(zOffset: config.zOffset))
     }
 
     @available(*, unavailable)

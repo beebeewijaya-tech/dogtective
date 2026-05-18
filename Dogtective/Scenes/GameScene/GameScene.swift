@@ -8,6 +8,7 @@
 import SpriteKit
 import GameplayKit
 import Sentry
+import Combine
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerEntity: PlayerEntity?
@@ -39,8 +40,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 Dialog(
                     message: "I saw a tall shadow lurking last night near the alley...",
                     evidence: true,
-                    evidenceReward: "siluet",
-                    evidenceFloating: .siluet
+                    evidenceReward: "billy",
+                    evidenceFloating: .billy
                 )
             ]
         ),
@@ -51,8 +52,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 Dialog(
                     message: "Strange things happen around here lately...",
                     evidence: true,
-                    evidenceReward: "fur",
-                    evidenceFloating: .fur
+                    evidenceReward: "siluet",
+                    evidenceFloating: .siluet
+                )
+            ]
+        ),
+        NpcEntity(
+            id: 3, name: "Slaleli", type: .npc,
+            position: CGPoint(x: 193, y: 775),
+            // relocates to (216, 834) once evidence count >= slaleliRelocateThreshold
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(
+                    message: "Strange things happen around here lately...",
+                    evidence: false,
                 )
             ]
         ),
@@ -80,6 +92,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var entities: [BaseEntity] = []
     private var lastUpdateTime: TimeInterval = 0
     var sceneTransaction: Span?
+    private var burnSubscription: AnyCancellable?
+    private let burnThreshold = 8
+    private let slaleliRelocateThreshold = 7
+    private let slaleliFirstPosition = CGPoint(x: 193, y: 775)
+    private let slaleliSecondPosition = CGPoint(x: 216, y: 834)
 
     override func didMove(to view: SKView) {
         // setup sentry
@@ -109,6 +126,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.setupCamera()
         self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
         self.ysortSystem = YSortSystem()
+        // Pre-warmed chunks (loaded by PoliceGameScene.prepareGameScene before
+        // this scene's didMove ran) registered entities while ysortSystem was
+        // still nil — back-register them so their container zPosition gets
+        // updated every frame.
+        for entity in entities {
+            ysortSystem?.register(entity)
+        }
         self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
 
         self.setupPlayer()
@@ -118,7 +142,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // we pre-warmed the setupbackground call from police transition scene
             self.setupBackground()
         }
-        
+
+        self.subscribeBurnState()
+
         initSpan?.finish()
 
         self.setupEvidences()
@@ -172,6 +198,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func willMove(from view: SKView) {
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        burnSubscription?.cancel()
+        burnSubscription = nil
+    }
+
+    private func subscribeBurnState() {
+        guard let vm = backpackStateViewModel else { return }
+        // Apply current state immediately so a save above threshold already
+        // shows burn chunks + relocated NPCs on first frame.
+        applyEvidenceProgression(count: vm.collectedKeys.count)
+        burnSubscription = vm.$collectedKeys
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] keys in
+                self?.applyEvidenceProgression(count: keys.count)
+            }
+    }
+
+    private func applyEvidenceProgression(count: Int) {
+        chunkManager?.setBurned(count >= burnThreshold)
+        relocateSlaleli(evidenceCount: count)
+    }
+
+    private func relocateSlaleli(evidenceCount: Int) {
+        guard let npc = npcSystem?.npc(withId: 3) else { return }
+        let target = evidenceCount >= slaleliRelocateThreshold
+            ? slaleliSecondPosition
+            : slaleliFirstPosition
+        if npc.node?.position != target {
+            npc.node?.position = target
+            npc.position = target
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
