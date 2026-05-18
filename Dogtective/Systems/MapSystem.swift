@@ -127,35 +127,35 @@ extension GameScene {
             .bigTree(at: CGPoint(x: 550, y: 671), zOffset: 1),
             .bigTree(at: CGPoint(x: 1154, y: 719)),
             // PARK
-            .bigTree(at: CGPoint(x: 1368, y: 696), zOffset: 1),
-            .bigTree(at: CGPoint(x: 1456, y: 772)),
-            .bigTree(at: CGPoint(x: 1576, y: 569), zOffset: 2),
-            .bigTree(at: CGPoint(x: 1383, y: 404)),
-            .bigTree(at: CGPoint(x: 1577, y: 414), zOffset: 3),
-            .bigTree(at: CGPoint(x: 2080, y: 391), zOffset: 3),
-            .bigTree(at: CGPoint(x: 2144, y: 467), zOffset: 2),
+            .bigTree(at: CGPoint(x: 1368, y: 696), zOffset: 1, burns: true),
+            .bigTree(at: CGPoint(x: 1456, y: 772), burns: true),
+            .bigTree(at: CGPoint(x: 1576, y: 569), zOffset: 2, burns: true),
+            .bigTree(at: CGPoint(x: 1383, y: 404), burns: true),
+            .bigTree(at: CGPoint(x: 1577, y: 414), zOffset: 3, burns: true),
+            .bigTree(at: CGPoint(x: 2080, y: 391), zOffset: 3, burns: true),
+            .bigTree(at: CGPoint(x: 2144, y: 467), zOffset: 2, burns: true),
             // HOUSE - RIGHT
             .bigTree(at: CGPoint(x: 2313, y: -548)),
             .bigTree(at: CGPoint(x: 1855, y: -273)),
             .bigTree(at: CGPoint(x: 1519, y: -549)),
             
             // MARK: - Cone Tree Entity
-            // PLAYGROUND
-            .coneTree(at: CGPoint(x: 1369, y: 580), zOffset: 3),
-            .coneTree(at: CGPoint(x: 1485, y: 536), zOffset: 4),
-            .coneTree(at: CGPoint(x: 1707, y: 703), zOffset: 1),
-            .coneTree(at: CGPoint(x: 1786, y: 637), zOffset: 2),
-            .coneTree(at: CGPoint(x: 1841, y: 735)),
-            .coneTree(at: CGPoint(x: 2020, y: 781)),
-            .coneTree(at: CGPoint(x: 2139, y: 755)),
-            .coneTree(at: CGPoint(x: 2200, y: 701), zOffset: 1),
-            .coneTree(at: CGPoint(x: 2144, y: 636), zOffset: 2),
-            .coneTree(at: CGPoint(x: 1939, y: 577)),
+            // PARK
+            .coneTree(at: CGPoint(x: 1369, y: 580), zOffset: 3, burns: true),
+            .coneTree(at: CGPoint(x: 1485, y: 536), zOffset: 4, burns: true),
+            .coneTree(at: CGPoint(x: 1707, y: 703), zOffset: 1, burns: true),
+            .coneTree(at: CGPoint(x: 1786, y: 637), zOffset: 2, burns: true),
+            .coneTree(at: CGPoint(x: 1841, y: 735), burns: true),
+            .coneTree(at: CGPoint(x: 2020, y: 781), burns: true),
+            .coneTree(at: CGPoint(x: 2139, y: 755), burns: true),
+            .coneTree(at: CGPoint(x: 2200, y: 701), zOffset: 1, burns: true),
+            .coneTree(at: CGPoint(x: 2144, y: 636), zOffset: 2, burns: true),
+            .coneTree(at: CGPoint(x: 1939, y: 577), burns: true),
             // BACKHOUSE
             .coneTree(at: CGPoint(x: -371, y: 826)),
             .coneTree(at: CGPoint(x: -315, y: 743), zOffset: 1),
             .coneTree(at: CGPoint(x: -393, y: 711), zOffset: 2),
-            .coneTree(at: CGPoint(x: 164, y: 801)),
+            .coneTree(at: CGPoint(x: 164, y: 801), zOffset: 50),
             
             // MARK: - Bulding
             // coffe shop
@@ -304,9 +304,8 @@ extension GameScene {
             .pole(at: CGPoint(x: 518, y: 490), textureName: "standing_lamp"),
             .pole(at: CGPoint(x: 495, y: 406), textureName: "traffic_light"),
             .pole(at: CGPoint(x: 1639, y: 297), textureName: "cross_sign"),
-            .smallObstacle(at: CGPoint(x: 1185, y: 473), textureName: "trash_bin"),
-            .smallObstacle(at: CGPoint(x: 1999, y: 539), textureName: "log_2"),
-            .smallObstacle(at: CGPoint(x: 1693, y: 580), textureName: "log_2"),
+            .smallObstacle(at: CGPoint(x: 1999, y: 539), textureName: "log_2", burnTextureName: "log_2_burn"),
+            .smallObstacle(at: CGPoint(x: 1693, y: 580), textureName: "log_2", burnTextureName: "log_2_burn"),
             .smallObstacle(at: CGPoint(x: 774, y: 615), textureName: "log_1"),
             
             // middle section
@@ -385,8 +384,9 @@ extension GameScene {
             .pole(at: CGPoint(x: -618, y: 534), textureName: "cross_sign"),
             
             
-            // MARK: - Fence
-            // Top House
+            // MARK: - Burn things only
+//            .smallObstacle(at: CGPoint(x: 1600, y: 500), textureName: "dig_raw", burnOnly: true),
+//            .smallObstacle(at: CGPoint(x: 1800, y: 450), textureName: "dig_raw", burnOnly: true),
             
         ]
         + ObstacleConfig.fenceLine(from: CGPoint(x: -957, y: 554), direction: .right, count: 4)

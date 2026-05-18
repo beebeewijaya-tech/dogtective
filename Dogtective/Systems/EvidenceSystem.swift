@@ -134,8 +134,10 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
 
         for comp in components where comp.state != .collected && comp.state != .interacting {
             guard let n = comp.containerNode else { continue }
-            let dx = n.position.x - playerPos.x
-            let dy = n.position.y - playerPos.y
+            let cx = n.position.x + comp.proximityOffset.x
+            let cy = n.position.y + comp.proximityOffset.y
+            let dx = cx - playerPos.x
+            let dy = cy - playerPos.y
             let distSq = dx * dx + dy * dy
             let r = comp.proximityRadius
             if distSq <= r * r && distSq < bestDistSq {
@@ -380,12 +382,16 @@ extension GameScene {
     // TODO: - Positions later, hard to debug if use real location for now
     func allEvidenceConfigs() -> [EvidenceConfig] {
         return [
-            .item(.corn, at: CGPoint(x: -525, y: 98), scale: 0.3),
             .digRawTissue(at: CGPoint(x:-525, y: 140),
                           rewardGroup: "tissue_key",
                           collectedMessage: "Tissue, hmm this must be interesting."),
             .digRawTissue(at: CGPoint(x:-485, y: 140), rewardGroup: "tissue_key"),
+            .trashCan(at: CGPoint(x: -539, y: 202), collectedMessage: "CORNN???"),
+            .item(.pieceOfCorn, at: CGPoint(x: -469, y: -41)),
+            .item(.fur, at: CGPoint(x: -344, y: 87)),
             .digRawDig   (at: CGPoint(x: -525, y: 220), scale: 0.33),
+            .item(.brokenFence, at: CGPoint(x: -374, y: 570), proximityOffset:  CGPoint(x: 0, y: 60) )
+           
         ]
     }
 }
