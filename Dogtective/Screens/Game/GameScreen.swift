@@ -13,10 +13,9 @@ struct GameScreen: View {
     // MARK: - ViewModel
     @EnvironmentObject var minimapStateViewModel: MinimapStateViewModel
     @EnvironmentObject var dialogStateViewModel: DialogStateViewModel
-    @EnvironmentObject var questDialogViewModel: QuestStateViewModel
+    @EnvironmentObject var questStateViewModel: QuestStateViewModel
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
-    
     @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
 
@@ -30,7 +29,7 @@ struct GameScreen: View {
         let scene = PoliceGameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
-        scene.questDialogViewModel = questDialogViewModel
+        scene.questStateViewModel = questStateViewModel
         scene.gameSettingsViewModel = gameSettingsViewModel
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
@@ -43,7 +42,7 @@ struct GameScreen: View {
         let scene = GameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
-        scene.questDialogViewModel = questDialogViewModel
+        scene.questStateViewModel = questStateViewModel
         scene.gameSettingsViewModel = gameSettingsViewModel
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
@@ -141,8 +140,8 @@ struct GameScreen: View {
                             .frame(width: 100, height: 100)
                             
                             // Quest UI under the minimap
-                            if questDialogViewModel.currentQuest != nil {
-                                AppQuest(quest: $questDialogViewModel.currentQuest)
+                            if questStateViewModel.currentQuest != nil {
+                                AppQuest(questDisplay: questStateViewModel.currentQuestDisplay, quest: questStateViewModel.currentQuest)
                             }
                         }
                         Spacer()
@@ -198,6 +197,7 @@ struct GameScreen: View {
                     GamePause(isPaused: $isPaused, showSaveToast: $showSaveToast)
                 }
             }
-        }.sentryTrace("Game Screen")
+        }
+        .sentryTrace("Game Screen")
     }
 }

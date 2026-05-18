@@ -32,17 +32,14 @@ extension GameScene {
     }
     
     func setupInitialQuest() {
-        Task {
-            // create new quest
-            let newQuest = Quest(
-                title: "Find the first evidence on the park",
-                done: false,
-                doneCondition: 1,
-                isLoading: false
-            )
-            
-            //
-            try await questDialogViewModel?.doneQuest(newQuest)
+        questStateViewModel?.currentIndex = gameSettingsViewModel?.currentQuest ?? 0
+
+        if questStateViewModel?.currentIndex == 1 {
+            Task {
+                try await questStateViewModel?.recordProgress()
+                gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
+                gameSettingsViewModel?.save()
+            }
         }
     }
 }
