@@ -28,7 +28,7 @@ extension GameScene {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.spriteNode else { return }
         register(playerEntity)
-        addEntity(playerEntity, position: CGPoint(x: -854, y: 34 ))
+        addEntity(playerEntity, position: CGPoint(x: 1755, y: 420 ))
         // DEFAULT IS CGPoint(x: -854, y: 34))
 
         // Player physics body
