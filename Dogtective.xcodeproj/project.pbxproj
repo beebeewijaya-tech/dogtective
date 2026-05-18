@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = C8C08B6B2FB867AF001073F7 /* Sentry */; };
 		C8C090DC2FB8A2BF001073F7 /* SentrySwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C8C090DB2FB8A2BF001073F7 /* SentrySwiftUI */; };
+		C8D723822FBB1A67000C18A1 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C8D723812FBB1A67000C18A1 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			files = (
 				C8C08B6C2FB867AF001073F7 /* Sentry in Frameworks */,
 				C8C090DC2FB8A2BF001073F7 /* SentrySwiftUI in Frameworks */,
+				C8D723822FBB1A67000C18A1 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +97,7 @@
 			packageProductDependencies = (
 				C8C08B6B2FB867AF001073F7 /* Sentry */,
 				C8C090DB2FB8A2BF001073F7 /* SentrySwiftUI */,
+				C8D723812FBB1A67000C18A1 /* Lottie */,
 			);
 			productName = Dogtective;
 			productReference = C8B2AF7F2FA8C0A6007BB26F /* Dogtective.app */;
@@ -126,6 +129,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				C8D723802FBB1A67000C18A1 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C8B2AF802FA8C0A6007BB26F /* Products */;
@@ -165,7 +169,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_TEAM = 8K9W457NTR;
+				DEVELOPMENT_TEAM = HK5U3FU2AP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Dogtective/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -200,7 +204,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_TEAM = 8K9W457NTR;
+				DEVELOPMENT_TEAM = HK5U3FU2AP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Dogtective/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -381,6 +385,14 @@
 				minimumVersion = 9.13.0;
 			};
 		};
+		C8D723802FBB1A67000C18A1 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -393,6 +405,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C8C08B6A2FB867AF001073F7 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
 			productName = SentrySwiftUI;
+		};
+		C8D723812FBB1A67000C18A1 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C8D723802FBB1A67000C18A1 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

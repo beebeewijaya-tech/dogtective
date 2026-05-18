@@ -10,9 +10,11 @@ import Combine
 import SpriteKit
 
 struct LoadingScreen: View {
-    
+    // MARK: - Viewmodel
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
-    
+    @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
+
     @State private var activePaws = 0
     @State private var navigateToGame = false
     
@@ -65,8 +67,13 @@ struct LoadingScreen: View {
             } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     withAnimation(.easeInOut(duration: 0.5)) {
-
-                        pageStateViewModel.state = .game
+                        if gameSettingsViewModel.currentCutscene == 1 {
+                            // if first time
+                            cutsceneViewModel.setCutscene(cutsceneName: "cutscene_1")
+                            pageStateViewModel.setState(.cutscene, nextState: .game)
+                        } else {
+                            pageStateViewModel.setState(.game)
+                        }
                     }
                 }
             }

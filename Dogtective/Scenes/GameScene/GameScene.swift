@@ -25,6 +25,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var minimapStateViewModel: MinimapStateViewModel?
     var dialogStateViewModel: DialogStateViewModel?
     var backpackStateViewModel: BackpackStateViewModel?
+    var cutsceneViewModel: CutsceneViewModel?
+    var pageStateViewModel: PageStateViewModel?
+    var gameSettingsViewModel: GameSettingsViewModel?
 
     // MARK: - Evidence
     var evidenceSystem: EvidenceSystem?
@@ -99,6 +102,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private let slaleliSecondPosition = CGPoint(x: 216, y: 834)
 
     override func didMove(to view: SKView) {
+        guard let gameSettingsViewModel = gameSettingsViewModel else { return }
+
         // setup sentry
         self.sceneTransaction = SentrySDK.startTransaction(
             name: "MainGameScene",
@@ -119,69 +124,85 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             object: nil
         )
         
-        // when the scene is first loaded
-        self.physicsWorld.gravity = .zero
-        self.playerEntity = PlayerEntity()
-        self.joystickEntity = JoystickEntity(sceneSize: size)
-        self.setupCamera()
-        self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
-        self.ysortSystem = YSortSystem()
-        // Pre-warmed chunks (loaded by PoliceGameScene.prepareGameScene before
-        // this scene's didMove ran) registered entities while ysortSystem was
-        // still nil — back-register them so their container zPosition gets
-        // updated every frame.
-        for entity in entities {
-            ysortSystem?.register(entity)
-        }
-        self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
+        print("gameSettingsViewModel.currentCutscene: \(gameSettingsViewModel.currentCutscene)")
+        if gameSettingsViewModel.currentCutscene == 2 {
+            cutScenePoliceExit()
+        } else {
+            // when the scene is first loaded
+            self.physicsWorld.gravity = .zero
+            self.playerEntity = PlayerEntity()
+            self.joystickEntity = JoystickEntity(sceneSize: size)
+            self.setupCamera()
+            self.movementSystem = MovementSystem(joystickEntity: self.joystickEntity, playerEntity: self.playerEntity)
+            self.ysortSystem = YSortSystem()
+            // Pre-warmed chunks (loaded by PoliceGameScene.prepareGameScene before
+            // this scene's didMove ran) registered entities while ysortSystem was
+            // still nil — back-register them so their container zPosition gets
+            // updated every frame.
+            for entity in entities {
+                ysortSystem?.register(entity)
+            }
+            self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
 
-        self.setupPlayer()
-        self.setupJoystick()
-        
-        if chunkManager == nil {
-            // we pre-warmed the setupbackground call from police transition scene
-            self.setupBackground()
-        }
-
-        self.subscribeBurnState()
-
-        initSpan?.finish()
-
-        self.setupEvidences()
-
-        self.npcSystem = NpcSystem(
-            scene: self,
-            npcs: npcs,
-            playerEntity: playerEntity,
-            dialogStateViewModel: dialogStateViewModel
-        )
-        self.npcSystem?.setup { [weak self] npc in
-            self?.register(npc)
-        }
-        self.physicsWorld.contactDelegate = self
-
-        Task {
-            // create new quest
-            let newQuest = Quest(
-                title: "Find the first evidence on the park",
-                done: false,
-                doneCondition: 1,
-                isLoading: false
-            )
+            self.setupPlayer()
+            self.setupJoystick()
             
-            // 
-            try await questDialogViewModel?.doneQuest(newQuest)
+            if chunkManager == nil {
+                // we pre-warmed the setupbackground call from police transition scene
+                self.setupBackground()
+            }
+
+            self.subscribeBurnState()
+
+            initSpan?.finish()
+
+            self.setupEvidences()
+
+            self.npcSystem = NpcSystem(
+                scene: self,
+                npcs: npcs,
+                playerEntity: playerEntity,
+                dialogStateViewModel: dialogStateViewModel
+            )
+            self.npcSystem?.setup { [weak self] npc in
+                self?.register(npc)
+            }
+            self.physicsWorld.contactDelegate = self
+
+            Task {
+                // create new quest
+                let newQuest = Quest(
+                    title: "Find the first evidence on the park",
+                    done: false,
+                    doneCondition: 1,
+                    isLoading: false
+                )
+                
+                //
+                try await questDialogViewModel?.doneQuest(newQuest)
+            }
+            
+            let breadcrumb = Breadcrumb(level: .info, category: "gameplay.lifecycle")
+            breadcrumb.message = "User entered MainGameScene exploration mode."
+            SentrySDK.addBreadcrumb(breadcrumb)
         }
-        
-        let breadcrumb = Breadcrumb(level: .info, category: "gameplay.lifecycle")
-        breadcrumb.message = "User entered MainGameScene exploration mode."
-        SentrySDK.addBreadcrumb(breadcrumb)
     }
 
     // Add an entity to the world: track it, register its components with each system.
     func register(_ entity: BaseEntity) {
         entities.append(entity)
         ysortSystem?.register(entity)
+    }
+    
+    // cutscene first render
+    func cutScenePoliceExit() {
+        guard let cutsceneViewModel = cutsceneViewModel else { return }
+        guard let pageStateViewModel = pageStateViewModel else { return }
+    
+        cutsceneViewModel.setCutscene(cutsceneName: "cutscene_2")
+        pageStateViewModel.setState(.cutscene, nextState: .game)
+        gameSettingsViewModel?.gameScene = "game"
+        gameSettingsViewModel?.save()
     }
     
     

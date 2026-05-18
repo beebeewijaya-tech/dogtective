@@ -23,19 +23,15 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var questDialogViewModel: QuestStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
     var backpackStateViewModel: BackpackStateViewModel?
-    
+    var cutsceneViewModel: CutsceneViewModel?
+    var pageStateViewModel: PageStateViewModel?
     
     // MARK: - NPC system
     var npcSystem: NpcSystem?
 
     // MARK: - Local Property
     private var questDone = 0
-    private lazy var quest = Quest(
-        title: "Talked to \(questDone)/3 npcs",
-        done: false,
-        doneCondition: 3,
-        isLoading: false
-    )
+    private var quest: Quest!
     private var isTransitioning = false
     private var nextScene: SKScene?
     
@@ -94,11 +90,16 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.setupCollisions()
         self.setupJoystick()
         
-        // TODO: Bee work on sync the quest and the storage
         if gameSettingsViewModel?.currentQuest != nil && gameSettingsViewModel?.currentQuest?.title != "" {
-            let quest = gameSettingsViewModel?.currentQuest!
+            quest = gameSettingsViewModel?.currentQuest!
             questDialogViewModel?.setQuest(quest!) // set quest from storage
         } else {
+            quest = Quest(
+                title: "Talked to \(questDone)/3 npcs",
+                done: false,
+                doneCondition: 3,
+                isLoading: false
+            )
             questDialogViewModel?.setQuest(quest)
         }
         
@@ -158,9 +159,12 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     func prepareGameScene() {
         let scene = GameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
-        scene.questDialogViewModel = questDialogViewModel
         scene.dialogStateViewModel = dialogStateViewModel
+        scene.questDialogViewModel = questDialogViewModel
+        scene.gameSettingsViewModel = gameSettingsViewModel
         scene.backpackStateViewModel = backpackStateViewModel
+        scene.cutsceneViewModel = cutsceneViewModel
+        scene.pageStateViewModel = pageStateViewModel
         scene.setupBackground() // setup background
         nextScene = scene
      }
@@ -170,9 +174,9 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         guard !isTransitioning else { return }
         guard quest.title.contains("police office") else { return }
         guard let nextScene = nextScene else { return }
-        
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.node else { return }
+        guard let gameSettingsViewModel = gameSettingsViewModel else { return }
         
         let door = CGPoint(x: 437.3, y: 289.6)
         let dx = node.position.x - door.x
@@ -187,6 +191,8 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
                 // finishing sentry
                 transitionSpan?.finish()
                 sceneTransaction?.finish()
+                gameSettingsViewModel.currentCutscene = 2
+                gameSettingsViewModel.save()
                 
                 view?.presentScene(nextScene, transition: .fade(withDuration: 0.5))
             }
@@ -220,7 +226,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
             }
         } else {
             questDialogViewModel?.setQuest(updatedQuest) // save updated quest
-            saveQuestState(quest: updatedQuest)
         }
     }
     
