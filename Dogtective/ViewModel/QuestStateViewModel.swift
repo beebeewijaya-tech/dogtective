@@ -15,6 +15,13 @@ struct Quest {
 }
 
 class QuestStateViewModel: ObservableObject {
+    @Published var questList: [Quest] = [
+        Quest(title: "Talked to 0/3 npcs", done: false, doneCondition: 3, isLoading: false),
+        Quest(title: "Exit from the police office", done: false, doneCondition: 1, isLoading: false),
+        Quest(title: "", done: false, doneCondition: 1, isLoading: false),
+        Quest(title: "", done: false, doneCondition: 1, isLoading: false),
+        
+    ]
     @Published var currentQuest: Quest?
     
     func setQuest(_ newQuest: Quest) {

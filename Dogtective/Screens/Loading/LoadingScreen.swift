@@ -69,9 +69,10 @@ struct LoadingScreen: View {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         if gameSettingsViewModel.currentCutscene == 1 {
                             // if first time
-                            cutsceneViewModel.setCutscene(cutsceneName: "cutscene_1")
+                            cutsceneViewModel.setCutscene(cutscene: 1)
                             pageStateViewModel.setState(.cutscene, nextState: .game)
                         } else {
+                            gameSettingsViewModel.save()
                             pageStateViewModel.setState(.game)
                         }
                     }

@@ -50,7 +50,8 @@ struct MainScreen: View {
             case .cutscene:
                 AppLottie(avatarName: cutsceneViewModel.cutsceneName) {
                     pageStateViewModel.navigateToNextState()
-                    gameSettingsViewModel.currentCutscene += 1
+                    cutsceneViewModel.incrementCutscene()
+                    gameSettingsViewModel.currentCutscene = cutsceneViewModel.cutscene
                     gameSettingsViewModel.save()
                 }
             }

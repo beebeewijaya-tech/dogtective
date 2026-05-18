@@ -25,6 +25,7 @@ class GameSettings {
     
     var currentCutscene: Int
     var gameScene: String
+    var collectedEvidence: [String]
     
     // TODO: add list evidence to save not only playerNumOfEvidence
     
@@ -41,7 +42,8 @@ class GameSettings {
         hapticsEnabled: Bool = true,
         currentLevel: Int = 0,
         currentCutscene: Int = 1,
-        gameScene: String = "police" // default police
+        gameScene: String = "police", // default police
+        collectedEvidence: [String] = []
     ) {
         self.isFirstTime = isFirstTime
         self.playerPositionX = playerPositionX
@@ -56,5 +58,6 @@ class GameSettings {
         self.currentLevel = currentLevel
         self.currentCutscene = currentCutscene
         self.gameScene = gameScene
+        self.collectedEvidence = collectedEvidence
     }
 }

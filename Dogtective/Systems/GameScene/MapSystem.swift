@@ -1,5 +1,5 @@
 //
-//  LayoutSystem.swift
+//  MapSystem.swift
 //  Dogtective
 //
 //  Created by Bee Wijaya on 04/05/26.
@@ -27,8 +27,18 @@ extension GameScene {
     func setupPlayer() {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.spriteNode else { return }
+        guard let gameSettingsViewModel = gameSettingsViewModel else { return }
+        
+        
+        var pos = CGPoint(x: 1755, y: 420)
+        if gameSettingsViewModel.playerPosition.x != 0 && gameSettingsViewModel.playerPosition.y != 0 {
+            // if player position has been altered
+            // from quest, cutscene, etc
+            pos = gameSettingsViewModel.playerPosition
+        }
+        
         register(playerEntity)
-        addEntity(playerEntity, position: CGPoint(x: 1755, y: 420 ))
+        addEntity(playerEntity, position: pos)
         // DEFAULT IS CGPoint(x: -854, y: 34))
 
         // Player physics body

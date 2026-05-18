@@ -26,8 +26,11 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
     weak var scene: SKScene?
     weak var playerEntity: PlayerEntity?
     weak var cam: SKCameraNode?
+    
+    // MARK: - ViewModel
     weak var dialogStateViewModel: DialogStateViewModel?
     weak var backpackStateViewModel: BackpackStateViewModel?
+    weak var gameSettingsViewModel: GameSettingsViewModel?
 
     private(set) var activeEvidence: EvidenceComponent?
     private var isInteracting = false
@@ -40,12 +43,15 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
          playerEntity: PlayerEntity?,
          cam: SKCameraNode?,
          dialogStateViewModel: DialogStateViewModel?,
-         backpackStateViewModel: BackpackStateViewModel?) {
+         backpackStateViewModel: BackpackStateViewModel?,
+         gameSettingsViewModel: GameSettingsViewModel?
+    ) {
         self.scene = scene
         self.playerEntity = playerEntity
         self.cam = cam
         self.dialogStateViewModel = dialogStateViewModel
         self.backpackStateViewModel = backpackStateViewModel
+        self.gameSettingsViewModel = gameSettingsViewModel
         super.init(componentClass: EvidenceComponent.self)
         subscribe()
     }
@@ -286,11 +292,17 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
     }
 
     private func finishCinematic(reward: String?) {
-        if let playerNode = playerEntity?.node,
-           let item = playerNode.childNode(withName: "evidence_floating_item") {
+        guard let playerNode = playerEntity?.node else { return }
+        if let item = playerNode.childNode(withName: "evidence_floating_item") {
             item.run(.sequence([.fadeOut(withDuration: 0.2), .removeFromParent()]))
         }
         backpackStateViewModel?.collect(reward)
+        
+        // Save to settings
+        gameSettingsViewModel?.playerPosition = playerNode.position
+        gameSettingsViewModel?.numOfEvidence = backpackStateViewModel?.collectedKeys.count ?? 0
+        gameSettingsViewModel?.collectedEvidence = Array(backpackStateViewModel?.collectedKeys ?? [])
+        gameSettingsViewModel?.save()
     }
 
     // MARK: - Helpers
@@ -353,45 +365,5 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
             }
         }
         return frames
-    }
-}
-
-// MARK: - GameScene wiring
-extension GameScene {
-    func setupEvidences() {
-        let system = EvidenceSystem(
-            scene: self,
-            playerEntity: playerEntity,
-            cam: cam,
-            dialogStateViewModel: dialogStateViewModel,
-            backpackStateViewModel: backpackStateViewModel
-        )
-        self.evidenceSystem = system
-
-        for raw in allEvidenceConfigs().enumerated() {
-            var cfg = raw.element
-            cfg.id = raw.offset
-            let entity = EvidenceEntity(config: cfg)
-            register(entity)
-            addEntity(entity, position: cfg.position)
-            system.addComponent(foundIn: entity)
-        }
-    }
-
-    // Placeholder list, fill
-    // TODO: - Positions later, hard to debug if use real location for now
-    func allEvidenceConfigs() -> [EvidenceConfig] {
-        return [
-            .digRawTissue(at: CGPoint(x:-525, y: 140),
-                          rewardGroup: "tissue_key",
-                          collectedMessage: "Tissue, hmm this must be interesting."),
-            .digRawTissue(at: CGPoint(x:-485, y: 140), rewardGroup: "tissue_key"),
-            .trashCan(at: CGPoint(x: -539, y: 202), collectedMessage: "CORNN???"),
-            .item(.pieceOfCorn, at: CGPoint(x: -469, y: -41)),
-            .item(.fur, at: CGPoint(x: -344, y: 87)),
-            .digRawDig   (at: CGPoint(x: -525, y: 220), scale: 0.33),
-            .item(.brokenFence, at: CGPoint(x: -374, y: 570), proximityOffset:  CGPoint(x: 0, y: 60) )
-           
-        ]
     }
 }

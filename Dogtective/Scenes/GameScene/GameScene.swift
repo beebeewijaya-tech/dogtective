@@ -18,7 +18,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var ysortSystem: YSortSystem?
     var joystickSystem: JoystickSystem?
     var chunkManager: ChunkManager?
-
+    
     
     // MARK: - ViewModel
     var questDialogViewModel: QuestStateViewModel?
@@ -28,16 +28,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cutsceneViewModel: CutsceneViewModel?
     var pageStateViewModel: PageStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
-
+    
     // MARK: - Evidence
     var evidenceSystem: EvidenceSystem?
-
+    
     // MARK: - NPCs
     // TODO: Change the dialog later and behaviour later (with gK State maybe)
     var npcSystem: NpcSystem?
     private var npcs: [NpcEntity] = [
         NpcEntity(
-            name: "Bruno 20 assist", type: .npcKid,
+            name: "Timmy the kid", type: .npcKid,
             position: CGPoint(x: -634, y: -83),
             dialog: DialogUtils.dummyDialogs() + [
                 Dialog(
@@ -49,7 +49,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ]
         ),
         NpcEntity(
-            id: 8, name: "Old Karen", type: .npc,
+            id: 8, name: "Ronda Rousey", type: .npc,
             position: CGPoint(x: -694, y: -83),
             dialog: DialogUtils.dummyDialogs() + [
                 Dialog(
@@ -61,9 +61,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ]
         ),
         NpcEntity(
-            id: 3, name: "Slaleli", type: .npc,
+            id: 3, name: "Kevin Durrant", type: .npc,
             position: CGPoint(x: 193, y: 775),
-            // relocates to (216, 834) once evidence count >= slaleliRelocateThreshold
+            // relocates to (216, 834) once evidence count >= openFenceThreshold
             dialog: DialogUtils.dummyDialogs() + [
                 Dialog(
                     message: "Strange things happen around here lately...",
@@ -72,7 +72,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ]
         ),
     ]
-
+    
     
     // TODO: think better way to put global variable
     var bonfirePosition = CGPoint(x: 1792, y: 492)
@@ -82,14 +82,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         CGPoint(x: -32, y: 514),
         CGPoint(x: 1787, y: 88),
     ]
-//    var lampLightPosition: [CGPoint] = [
-//        // from left map to right
-//        CGPoint(x: -690, y: -126),
-//        CGPoint(x: -198, y: -53),
-//        CGPoint(x: 444, y: -23),
-//        CGPoint(x: 499, y: 522),
-//        CGPoint(x: 1796, y: 231),
-//    ]
+    //    var lampLightPosition: [CGPoint] = [
+    //        // from left map to right
+    //        CGPoint(x: -690, y: -126),
+    //        CGPoint(x: -198, y: -53),
+    //        CGPoint(x: 444, y: -23),
+    //        CGPoint(x: 499, y: 522),
+    //        CGPoint(x: 1796, y: 231),
+    //    ]
     
     // MARK: - Property
     var entities: [BaseEntity] = []
@@ -97,13 +97,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var sceneTransaction: Span?
     private var burnSubscription: AnyCancellable?
     private let burnThreshold = 8
-    private let slaleliRelocateThreshold = 7
-    private let slaleliFirstPosition = CGPoint(x: 193, y: 775)
-    private let slaleliSecondPosition = CGPoint(x: 216, y: 834)
-
+    private let openFenceThreshold = 7 // threshold to open fence npc
+    private let durantFirstPosition = CGPoint(x: 193, y: 775)
+    private let durantSecondPosition = CGPoint(x: 216, y: 834)
+    private var hasFenceOpened = false
+    
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
-
+        
         // setup sentry
         self.sceneTransaction = SentrySDK.startTransaction(
             name: "MainGameScene",
@@ -124,7 +125,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             object: nil
         )
         
-        print("gameSettingsViewModel.currentCutscene: \(gameSettingsViewModel.currentCutscene)")
         if gameSettingsViewModel.currentCutscene == 2 {
             cutScenePoliceExit()
         } else {
@@ -143,112 +143,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ysortSystem?.register(entity)
             }
             self.joystickSystem = JoystickSystem(joystickEntity: joystickEntity, cam: cam, scene: self)
-
             self.setupPlayer()
             self.setupJoystick()
-            
+            self.setupNpcSystem(npcs)
             if chunkManager == nil {
                 // we pre-warmed the setupbackground call from police transition scene
                 self.setupBackground()
             }
-
+            self.loadEvidenceFromSave()
             self.subscribeBurnState()
-
             initSpan?.finish()
-
             self.setupEvidences()
-
-            self.npcSystem = NpcSystem(
-                scene: self,
-                npcs: npcs,
-                playerEntity: playerEntity,
-                dialogStateViewModel: dialogStateViewModel
-            )
-            self.npcSystem?.setup { [weak self] npc in
-                self?.register(npc)
-            }
-            self.physicsWorld.contactDelegate = self
-
-            Task {
-                // create new quest
-                let newQuest = Quest(
-                    title: "Find the first evidence on the park",
-                    done: false,
-                    doneCondition: 1,
-                    isLoading: false
-                )
-                
-                //
-                try await questDialogViewModel?.doneQuest(newQuest)
-            }
+            setupInitialQuest()
+            self.logSceneSentry()
             
-            let breadcrumb = Breadcrumb(level: .info, category: "gameplay.lifecycle")
-            breadcrumb.message = "User entered MainGameScene exploration mode."
-            SentrySDK.addBreadcrumb(breadcrumb)
+            self.physicsWorld.contactDelegate = self
         }
-    }
-
-    // Add an entity to the world: track it, register its components with each system.
-    func register(_ entity: BaseEntity) {
-        entities.append(entity)
-        ysortSystem?.register(entity)
-    }
-    
-    // cutscene first render
-    func cutScenePoliceExit() {
-        guard let cutsceneViewModel = cutsceneViewModel else { return }
-        guard let pageStateViewModel = pageStateViewModel else { return }
-    
-        cutsceneViewModel.setCutscene(cutsceneName: "cutscene_2")
-        pageStateViewModel.setState(.cutscene, nextState: .game)
-        gameSettingsViewModel?.gameScene = "game"
-        gameSettingsViewModel?.save()
-    }
-    
-    
-    // observer for sentry
-    @objc private func handleAppBackground() {
-        if let transaction = sceneTransaction {
-            transaction.setData(value: "User backgrounded via UIKit observer", key: "exit.reason")
-            transaction.finish()
-        }
-        
-        // Force Sentry to flush the transaction trace to the server immediately
-        SentrySDK.flush(timeout: 2.0)
     }
     
     override func willMove(from view: SKView) {
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
         burnSubscription?.cancel()
         burnSubscription = nil
-    }
-
-    private func subscribeBurnState() {
-        guard let vm = backpackStateViewModel else { return }
-        // Apply current state immediately so a save above threshold already
-        // shows burn chunks + relocated NPCs on first frame.
-        applyEvidenceProgression(count: vm.collectedKeys.count)
-        burnSubscription = vm.$collectedKeys
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] keys in
-                self?.applyEvidenceProgression(count: keys.count)
-            }
-    }
-
-    private func applyEvidenceProgression(count: Int) {
-        chunkManager?.setBurned(count >= burnThreshold)
-        relocateSlaleli(evidenceCount: count)
-    }
-
-    private func relocateSlaleli(evidenceCount: Int) {
-        guard let npc = npcSystem?.npc(withId: 3) else { return }
-        let target = evidenceCount >= slaleliRelocateThreshold
-            ? slaleliSecondPosition
-            : slaleliFirstPosition
-        if npc.node?.position != target {
-            npc.node?.position = target
-            npc.position = target
-        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -283,12 +199,90 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         evidenceSystem?.update(deltaTime: dt)
         npcSystem?.update()
     }
-
+    
     func didBegin(_ contact: SKPhysicsContact) {
         npcSystem?.handleContactBegin(contact)
     }
-
+    
     func didEnd(_ contact: SKPhysicsContact) {
         npcSystem?.handleContactEnd(contact)
+    }
+    
+    
+    // MARK: - Actions
+    // Add an entity to the world: track it, register its components with each system.
+    func register(_ entity: BaseEntity) {
+        entities.append(entity)
+        ysortSystem?.register(entity)
+    }
+    
+    // cutscene first render
+    func cutScenePoliceExit() {
+        gameSettingsViewModel?.gameScene = "game"
+        setCutscene(cutscene: 2)
+    }
+    
+    // observer for sentry
+    @objc private func handleAppBackground() {
+        if let transaction = sceneTransaction {
+            transaction.setData(value: "User backgrounded via UIKit observer", key: "exit.reason")
+            transaction.finish()
+        }
+        
+        // Force Sentry to flush the transaction trace to the server immediately
+        SentrySDK.flush(timeout: 2.0)
+    }
+    
+    
+    private func subscribeBurnState() {
+        guard let vm = backpackStateViewModel else { return }
+        // Apply current state immediately so a save above threshold already
+        // shows burn chunks + relocated NPCs on first frame.
+        applyEvidenceProgression(count: vm.collectedKeys.count)
+        burnSubscription = vm.$collectedKeys
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] keys in
+                self?.applyEvidenceProgression(count: keys.count)
+            }
+    }
+    
+    private func applyEvidenceProgression(count: Int) {
+        chunkManager?.setBurned(count >= burnThreshold)
+        relocateDurant()
+
+        if gameSettingsViewModel?.currentCutscene == 3 && !hasFenceOpened && count >= 7 {
+            // Fence Cutscene
+            hasFenceOpened = true
+            gameSettingsViewModel?.playerPosition = durantFirstPosition
+            setCutscene(cutscene: 3)
+        }
+        
+        if gameSettingsViewModel?.currentCutscene == 4 && count >= 8 {
+            // Culprit Cutscene
+            gameSettingsViewModel?.playerPosition = durantFirstPosition
+            setCutscene(cutscene: 4)
+        }
+    }
+    
+    
+    private func relocateDurant() {
+        // npc on the fence area
+        guard let gameSettingsViewModel else { return }
+        guard let npc = npcSystem?.npc(withId: 3) else { return }
+        
+        let target = gameSettingsViewModel.numOfEvidence >= openFenceThreshold
+        ? durantSecondPosition
+        : durantFirstPosition
+        if npc.node?.position != target {
+            npc.node?.position = target
+            npc.position = target
+        }
+    }
+    
+    private func loadEvidenceFromSave() {
+        guard let gameSettingsViewModel else { return }
+        gameSettingsViewModel.collectedEvidence.forEach {
+          backpackStateViewModel?.collect($0)
+        }
     }
 }
