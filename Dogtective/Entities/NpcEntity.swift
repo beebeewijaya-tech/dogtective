@@ -36,6 +36,7 @@ enum NpcType {
 }
 
 class NpcEntity: BaseEntity {
+    let id: Int
     var name: String
     var npcIdleAtlas: SKTextureAtlas
     var position: CGPoint
@@ -49,6 +50,7 @@ class NpcEntity: BaseEntity {
         let atlasName = type.atlasName(id: id)
         let framePrefix = type.framePrefix(id: id)
 
+        self.id = id
         self.npcIdleAtlas = SKTextureAtlas(named: atlasName)
         self.position = position
         self.dialog = dialog
@@ -80,6 +82,7 @@ class NpcEntity: BaseEntity {
         // MARK: - prepare components
         addComponent(AnimationComponent(idleFrames: npcIdleTextures, walkingFrames: [], bubbleFrames: bubbleTextures))
         addComponent(DialogComponent(dialog: dialog))
+        addComponent(YSortComponent())
     }
     
     // MARK: - Make getter for better use rather than to CASTING everytime
