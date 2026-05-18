@@ -67,7 +67,6 @@ struct LevelDetailOverlay: View {
                     if gameSettingsViewModel.currentLevel == data.id {
                         // IF Game ever saved / investigated
                         // 2 Buttons ( Resume, New Game )
-                        // TODO: Bee update the button using new assets
                         HStack(spacing: 12) {
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 0.5)) {

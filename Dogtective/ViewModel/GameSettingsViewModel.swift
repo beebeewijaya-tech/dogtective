@@ -8,6 +8,7 @@
 import Combine
 import SwiftUI
 import SwiftData
+import SpriteKit
 
 class GameSettingsViewModel: ObservableObject {
     // MARK: - Model
@@ -22,6 +23,8 @@ class GameSettingsViewModel: ObservableObject {
     @Published var soundEnabled: Bool = true
     @Published var hapticsEnabled: Bool = true
     @Published var currentLevel: Int = 0
+    @Published var currentCutscene: Int = 1
+    @Published var gameScene: String = "police"
     
     // MARK: - Action
     
@@ -46,6 +49,8 @@ class GameSettingsViewModel: ObservableObject {
         soundEnabled = settings.soundEnabled
         hapticsEnabled = settings.hapticsEnabled
         currentLevel = settings.currentLevel
+        currentCutscene = settings.currentCutscene
+        gameScene = settings.gameScene
         print("load settings isFirstTime: \(isFirstTime)")
         print("load settings playerPosition: \(playerPosition)")
         print("load settings numOfEvidence: \(numOfEvidence)")
@@ -53,6 +58,8 @@ class GameSettingsViewModel: ObservableObject {
         print("load settings soundEnabled: \(soundEnabled)")
         print("load settings soundEnabled: \(hapticsEnabled)")
         print("load settings currentLevel: \(currentLevel)")
+        print("load settings currentCutscene: \(currentCutscene)")
+        print("load settings gameScene: \(gameScene)")
     }
     
     func save() {
@@ -68,6 +75,8 @@ class GameSettingsViewModel: ObservableObject {
         settings.questDone = currentQuest?.done ?? false
         settings.questDoneCondition = currentQuest?.doneCondition ?? 0
         settings.currentLevel = currentLevel
+        settings.currentCutscene = currentCutscene
+        settings.gameScene = gameScene
         try? context.save()
     }
     
@@ -87,6 +96,8 @@ class GameSettingsViewModel: ObservableObject {
         soundEnabled = true
         hapticsEnabled = true
         currentLevel = 0
+        currentCutscene = 1
+        gameScene = "police"
     }
     
     private func fetchOrCreateSettings() -> GameSettings {

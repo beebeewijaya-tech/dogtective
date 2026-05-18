@@ -17,19 +17,50 @@ struct GameScreen: View {
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
     
+    @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
+    @EnvironmentObject var pageStateViewModel: PageStateViewModel
+
     // MARK: - State
     @State var scene: SKScene?
     @State var isDialogAnimate: Bool = true
     @State private var isPaused = false
     @State private var showSaveToast = false
     
-    func makeScene(size: CGSize) -> SKScene {
+    func policeGameScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
         scene.minimapStateViewModel = minimapStateViewModel
         scene.dialogStateViewModel = dialogStateViewModel
         scene.questDialogViewModel = questDialogViewModel
         scene.gameSettingsViewModel = gameSettingsViewModel
         scene.backpackStateViewModel = backpackStateViewModel
+        scene.cutsceneViewModel = cutsceneViewModel
+        scene.pageStateViewModel = pageStateViewModel
+        return scene
+
+    }
+    
+    func gameScene(size: CGSize) -> SKScene {
+        let scene = GameScene(size: size)
+        scene.minimapStateViewModel = minimapStateViewModel
+        scene.dialogStateViewModel = dialogStateViewModel
+        scene.questDialogViewModel = questDialogViewModel
+        scene.gameSettingsViewModel = gameSettingsViewModel
+        scene.backpackStateViewModel = backpackStateViewModel
+        scene.cutsceneViewModel = cutsceneViewModel
+        scene.pageStateViewModel = pageStateViewModel
+        return scene
+
+    }
+    
+    
+    func makeScene(size: CGSize) -> SKScene {
+        var scene: SKScene
+        if gameSettingsViewModel.gameScene == "police" {
+            scene = policeGameScene(size: size)
+        } else {
+            scene = gameScene(size: size)
+        }
+        
         return scene
     }
     
