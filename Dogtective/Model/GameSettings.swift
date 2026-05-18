@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import SpriteKit
 
 @Model
 class GameSettings {
@@ -22,6 +23,9 @@ class GameSettings {
     var hapticsEnabled: Bool
     var currentLevel: Int
     
+    var currentCutscene: Int
+    var gameScene: String
+    
     // TODO: add list evidence to save not only playerNumOfEvidence
     
     init(
@@ -35,7 +39,9 @@ class GameSettings {
         questLoading: Bool = false,
         soundEnabled: Bool = true,
         hapticsEnabled: Bool = true,
-        currentLevel: Int = 0
+        currentLevel: Int = 0,
+        currentCutscene: Int = 1,
+        gameScene: String = "police" // default police
     ) {
         self.isFirstTime = isFirstTime
         self.playerPositionX = playerPositionX
@@ -48,5 +54,7 @@ class GameSettings {
         self.soundEnabled = soundEnabled
         self.hapticsEnabled = hapticsEnabled
         self.currentLevel = currentLevel
+        self.currentCutscene = currentCutscene
+        self.gameScene = gameScene
     }
 }
