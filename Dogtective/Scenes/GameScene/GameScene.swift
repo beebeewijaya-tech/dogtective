@@ -37,23 +37,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var npcSystem: NpcSystem?
     private var npcs: [NpcEntity] = [
         NpcEntity(
-            name: "Timmy the kid", type: .npcKid,
-            position: CGPoint(x: -634, y: -83),
+            id: 1, name: "Baxter Whitmore", type: .npc,
+            position: CGPoint(x: -1172, y: -373),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 2, name: "Winston Barkley", type: .npc,
+            position: CGPoint(x: -808, y: 598),
             dialog: DialogUtils.dummyDialogs() + [
                 Dialog(
                     message: "I saw a tall shadow lurking last night near the alley...",
-                    evidence: true,
-                    evidenceReward: "billy",
-                    evidenceFloating: .billy
-                )
-            ]
-        ),
-        NpcEntity(
-            id: 8, name: "Ronda Rousey", type: .npc,
-            position: CGPoint(x: -694, y: -83),
-            dialog: DialogUtils.dummyDialogs() + [
-                Dialog(
-                    message: "Strange things happen around here lately...",
                     evidence: true,
                     evidenceReward: "siluet",
                     evidenceFloating: .siluet
@@ -61,13 +54,65 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ]
         ),
         NpcEntity(
-            id: 3, name: "Kevin Durrant", type: .npc,
+            id: 3, name: "Kevin Durant", type: .npc,
             position: CGPoint(x: 193, y: 775),
             // relocates to (216, 834) once evidence count >= openFenceThreshold
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 4, name: "Rupert Howl", type: .npc,
+            position: CGPoint(x: -447, y: -325),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 5, name: "Milo Hound", type: .npc,
+            position: CGPoint(x: 1510, y: -309),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 6, name: "Oliver Sniff", type: .npc,
+            position: CGPoint(x: 1922, y: -26),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 7, name: "Chester Bones", type: .npc,
+            position: CGPoint(x: 933, y: -70),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 8, name: "Archie Tailor", type: .npc,
+            position: CGPoint(x: 523, y: 419),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 9, name: "Jasper Collier", type: .npc,
+            position: CGPoint(x: -83, y: 23),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            id: 10, name: "Felix Waggins", type: .npc,
+            position: CGPoint(x: -1209, y: 47),
+            dialog: DialogUtils.dummyDialogs()
+        ),
+        NpcEntity(
+            name: "Billy Gates", type: .billy,
+            position: CGPoint(x: 1417, y: 153),
+            dialog: DialogUtils.billyDialogs()
+        ),
+        NpcEntity(
+            name: "Chi Chi", type: .chichi,
+            position: CGPoint(x: -165, y: 316),
+            dialog: DialogUtils.chichiDialogs()
+        ),
+        NpcEntity(
+            name: "Timmy the kid", type: .npcKid,
+            position: CGPoint(x: 705, y: 645),
             dialog: DialogUtils.dummyDialogs() + [
                 Dialog(
-                    message: "Strange things happen around here lately...",
-                    evidence: false,
+                    message: "I always play with mr. Billy at the park around here, he always come here",
+                    evidence: true,
+                    evidenceReward: "billy",
+                    evidenceFloating: .billy
                 )
             ]
         ),
@@ -82,14 +127,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         CGPoint(x: -32, y: 514),
         CGPoint(x: 1787, y: 88),
     ]
-    //    var lampLightPosition: [CGPoint] = [
-    //        // from left map to right
-    //        CGPoint(x: -690, y: -126),
-    //        CGPoint(x: -198, y: -53),
-    //        CGPoint(x: 444, y: -23),
-    //        CGPoint(x: 499, y: 522),
-    //        CGPoint(x: 1796, y: 231),
-    //    ]
     
     // MARK: - Property
     var entities: [BaseEntity] = []

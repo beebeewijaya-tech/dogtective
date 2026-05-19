@@ -41,9 +41,9 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var npcs: [NpcEntity] = [
         NpcEntity(id: 1, name: "Max Holloway", type: .police, position: CGPoint(x: 322.0, y: 184.3333282470703), dialog: DialogUtils.dummyPoliceDialogs()),
         NpcEntity(id: 2, name: "Gideon Vance", type: .police, position: CGPoint(x: 375.3333435058594, y: 228.0), dialog: DialogUtils.dummyPoliceDialogs()),
-        NpcEntity(id: 6, name: "Jon Jones", type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "Bones disappear at night", evidence: true)]),
-        NpcEntity(id: 7, name: "Mario Balotelli", type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "No visible tracks near the missing spots", evidence: true)]),
-        NpcEntity(id: 10, name: "King Zharif", type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "I've seen Chichi in the area multiple of times....", evidence: true)]),
+        NpcEntity(id: 6, name: "Oliver Sniff", type: .npc, position: CGPoint(x: 424.3333435058594, y: 119.3333511352539), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "Bones disappear at night", evidence: true)]),
+        NpcEntity(id: 7, name: "Chester Bones", type: .npc, position: CGPoint(x: 457.6666564941406, y: 61.33332824707031), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "No visible tracks near the missing spots", evidence: true)]),
+        NpcEntity(id: 10, name: "Felix Waggins", type: .npc, position: CGPoint(x: 611.6666870117188, y: 75.66665649414062), dialog: DialogUtils.dummyDialogs() + [Dialog(message: "I've seen Chichi in the area multiple of times....", evidence: true)]),
     ]
     
     // MARK: - Property
