@@ -19,6 +19,7 @@ class DialogStateViewModel: ObservableObject {
     @Published var npc: String?
     @Published var npcImage: String?
     @Published var dialog: Dialog?
+    @Published var isCinematic: Bool = false
 
     func setState(_ state: DialogState) {
         guard isChat != state else { return }
