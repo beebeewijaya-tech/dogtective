@@ -237,6 +237,7 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
         }
         isInteracting = true
         player.movement?.isLocked = true
+        dialogStateViewModel?.isCinematic = true
         playerNode.physicsBody?.velocity = .zero
 
         if let cam = cam {
@@ -305,6 +306,7 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
         gameSettingsViewModel?.numOfEvidence = backpackStateViewModel?.collectedKeys.count ?? 0
         gameSettingsViewModel?.collectedEvidence = Array(backpackStateViewModel?.collectedKeys ?? [])
         gameSettingsViewModel?.save()
+        dialogStateViewModel?.isCinematic = false
     }
 
     // MARK: - Helpers
