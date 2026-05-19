@@ -29,6 +29,8 @@ struct ObstacleConfig {
     var burnTextureName: String? = nil
     // When true, this obstacle only spawns while burn-mode is active. Used for
     var burnOnly: Bool = false
+    // When true, this obstacle despawns once burn-mode activates and respawns when it deactivates.
+    var unburnedOnly: Bool = false
 }
 
 enum FenceDirection {
@@ -115,7 +117,7 @@ extension ObstacleConfig {
         )
     }
     
-    static func bushObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false) -> ObstacleConfig {
+    static func bushObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false, unburnedOnly: Bool = false) -> ObstacleConfig {
         ObstacleConfig(
             textureName: textureName,
             position: pos,
@@ -128,11 +130,12 @@ extension ObstacleConfig {
             secondPieceZ: 0,
             zOffset: zOffset,
             burnTextureName: burnTextureName,
-            burnOnly: burnOnly
+            burnOnly: burnOnly,
+            unburnedOnly: unburnedOnly
         )
     }
-    
-    static func grassObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0) -> ObstacleConfig {
+
+    static func grassObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, unburnedOnly: Bool = false) -> ObstacleConfig {
         ObstacleConfig(
             textureName: textureName,
             position: pos,
@@ -145,7 +148,8 @@ extension ObstacleConfig {
             secondPieceZ: 0,
             zOffset: zOffset,
             burnTextureName: nil,
-            burnOnly: false
+            burnOnly: false,
+            unburnedOnly: unburnedOnly
         )
     }
     

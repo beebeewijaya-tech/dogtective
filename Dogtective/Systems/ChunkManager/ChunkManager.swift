@@ -129,6 +129,7 @@ final class ChunkManager {
 
         // burnOnly obstacles: spawn into currently active chunks when flipping
         // on, tear down when flipping off.
+        // unburnedOnly obstacles do the inverse: tear down on flip-on, respawn on flip-off.
         guard let scene = scene else { return }
         if active {
             var spawnedIds: Set<Int> = []
@@ -146,11 +147,30 @@ final class ChunkManager {
                     spawnedIds.insert(cfg.id)
                 }
             }
+            for (id, loaded) in loadedObstacles where loaded.config.unburnedOnly {
+                loaded.entity.node?.removeFromParent()
+                obstacleCache.release(loaded.textureName)
+                loadedObstacles.removeValue(forKey: id)
+            }
         } else {
             for (id, loaded) in loadedObstacles where loaded.config.burnOnly {
                 loaded.entity.node?.removeFromParent()
                 obstacleCache.release(loaded.textureName)
                 loadedObstacles.removeValue(forKey: id)
+            }
+            var spawnedIds: Set<Int> = []
+            for coord in self.active {
+                guard let content = contents[coord] else { continue }
+                for cfg in content.obstacleConfigs where cfg.unburnedOnly {
+                    if loadedObstacles[cfg.id] != nil {
+                        if spawnedIds.contains(cfg.id) {
+                            loadedObstacles[cfg.id]?.refcount += 1
+                        }
+                        continue
+                    }
+                    spawnObstacle(cfg, in: scene)
+                    spawnedIds.insert(cfg.id)
+                }
             }
         }
     }
@@ -196,6 +216,7 @@ final class ChunkManager {
             // Burn-only configs stay dormant until burn-mode activates; they're
             // spawned by setBurned() at flip time.
             if cfg.burnOnly && !burnActive { continue }
+            if cfg.unburnedOnly && burnActive { continue }
             if loadedObstacles[cfg.id] != nil {
                 loadedObstacles[cfg.id]?.refcount += 1
                 continue
