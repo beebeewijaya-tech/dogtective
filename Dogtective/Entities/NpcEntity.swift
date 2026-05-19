@@ -8,20 +8,22 @@
 import GameplayKit
 
 enum NpcType {
-    case police, npc, npcKid
+    case police, npc, npcKid, billy, chichi
 
     var name: String {
         switch self {
         case .police: return "police"
         case .npc:    return "npc"
         case .npcKid: return "npckid"
+        case .billy: return "billy"
+        case .chichi: return "chichi"
         }
     }
 
     /// Types like `.npcKid` have only one variant — no id segment in asset names.
     var hasIdInAssets: Bool {
         switch self {
-        case .npcKid: return false
+        case .npcKid, .billy, .chichi: return false
         default:      return true
         }
     }
