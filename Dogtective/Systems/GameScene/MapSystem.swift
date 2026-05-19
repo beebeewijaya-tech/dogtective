@@ -406,27 +406,27 @@ extension GameScene {
             .bushObstacle(at: CGPoint(x: 1006, y: -529), textureName: "bush_small", zOffset: 3),
             .bushObstacle(at: CGPoint(x: 1530, y: -279), textureName: "bush_small", zOffset: 3),
             
-            // Park and Playground
-            .bushObstacle(at: CGPoint(x: 2121, y: 649), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 2211, y: 440), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 2068, y: 735), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 1603, y: 727), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 1426, y: 775), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 1439, y: 415), textureName: "bush_small", zOffset: 3),
-            .bushObstacle(at: CGPoint(x: 1603, y: 423), textureName: "bush_small", zOffset: 3),
-            
-            .grassObstacle(at: CGPoint(x: 2093, y: 385),textureName: "grass_big", zOffset: 6),
-            .grassObstacle(at: CGPoint(x: 1837, y: 578),textureName: "grass_big", zOffset: 6),
-            .grassObstacle(at: CGPoint(x: 1497, y: 408),textureName: "grass_big", zOffset: 6),
-            .grassObstacle(at: CGPoint(x: 1422, y: 575),textureName: "grass_big", zOffset: 6),
-            
-            .grassObstacle(at: CGPoint(x: 1805, y: 629), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 2012, y: 771), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 2157, y: 631), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 2219, y: 716), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 2147, y: 462), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 1504, y: 532), textureName: "grass_small", zOffset: 8),
-            .grassObstacle(at: CGPoint(x: 1378, y: 570), textureName: "grass_small", zOffset: 10),
+            // Park and Playground (only visible before park burns)
+            .bushObstacle(at: CGPoint(x: 2121, y: 649), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 2211, y: 440), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 2068, y: 735), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 1603, y: 727), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 1426, y: 775), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 1439, y: 415), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+            .bushObstacle(at: CGPoint(x: 1603, y: 423), textureName: "bush_small", zOffset: 3, unburnedOnly: true),
+
+            .grassObstacle(at: CGPoint(x: 2093, y: 385),textureName: "grass_big", zOffset: 6, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 1837, y: 578),textureName: "grass_big", zOffset: 6, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 1497, y: 408),textureName: "grass_big", zOffset: 6, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 1422, y: 575),textureName: "grass_big", zOffset: 6, unburnedOnly: true),
+
+            .grassObstacle(at: CGPoint(x: 1805, y: 629), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 2012, y: 771), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 2157, y: 631), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 2219, y: 716), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 2147, y: 462), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 1504, y: 532), textureName: "grass_small", zOffset: 8, unburnedOnly: true),
+            .grassObstacle(at: CGPoint(x: 1378, y: 570), textureName: "grass_small", zOffset: 10, unburnedOnly: true),
             
             
             
