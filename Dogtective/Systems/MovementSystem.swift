@@ -57,14 +57,19 @@ extension GameScene {
         guard let playerEntity = playerEntity else { return }
         guard let playerNode = playerEntity.node else { return }
 
-        if playerNode.position.x > 1000 && playerNode.position.y > 1000 {
-            minimapStateViewModel?.setState(.park)
-        } else if playerNode.position.x > 1000 && playerNode.position.y < 1000 {
-            minimapStateViewModel?.setState(.central)
-        } else if playerNode.position.x < 1000 && playerNode.position.y > 1000 {
-            minimapStateViewModel?.setState(.house)
-        } else if playerNode.position.x < 1000 && playerNode.position.y < 1000 {
-            minimapStateViewModel?.setState(.police)
+        let next: MinimapState
+        if playerNode.position.x > 458 && playerNode.position.y > 159 {
+            next = .park
+        } else if playerNode.position.x > 458 {
+            next = .central
+        } else if playerNode.position.y > 159 {
+            next = .house
+        } else {
+            next = .police
+        }
+
+        if minimapStateViewModel?.state != next {
+            minimapStateViewModel?.setState(next)
         }
     }
 }
