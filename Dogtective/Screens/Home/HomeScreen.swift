@@ -17,7 +17,7 @@ struct HomeScreen: View {
     @State private var isHapticsOn = true
     @State private var showingLevelScreen = false
     @State private var isMusicOn = true
-    @StateObject private var audioManager = AudioManager.shared
+    private let audioManager = AudioManager.shared
     
     var body: some View {
         ZStack {
@@ -49,7 +49,7 @@ struct HomeScreen: View {
                         .frame(maxWidth: 500)
                     
                 }
-                // Play Button
+                // 4. Play Button
                 Button(action: {
                     showingLevelScreen = true
                 }) {
@@ -60,7 +60,24 @@ struct HomeScreen: View {
                 }
                 .padding(.bottom, 50)
                 
+                // 5. Backsound
+                .onAppear {
+                    if isMusicOn {
+                        audioManager.playMusic(fileName: "dogtective_song" )
+                    }
+                }
+                .onChange(of: isMusicOn) { oldValue, newValue in
+                    if newValue {
+                        audioManager.playMusic(fileName: "dogtective_song" )
+                    } else {
+                        audioManager.stopMusic()
+                    }
+                }
+                .fullScreenCover(isPresented: $showingLevelScreen) {
+                    LevelScreen()
+                }
             }
         }
     }
 }
+
