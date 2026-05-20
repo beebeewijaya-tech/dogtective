@@ -21,7 +21,9 @@ class GameSettingsViewModel: ObservableObject {
     @Published var numOfEvidence: Int = 0
     @Published var currentQuest: Int = 0
     @Published var soundEnabled: Bool = true
-    @Published var hapticsEnabled: Bool = true
+    @Published var hapticsEnabled: Bool = true {
+        didSet { Haptics.isEnabled = hapticsEnabled }
+    }
     @Published var currentLevel: Int = 0
     @Published var currentCutscene: Int = 1
     @Published var gameScene: String = "police"
