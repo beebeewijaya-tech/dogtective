@@ -133,6 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastUpdateTime: TimeInterval = 0
     var sceneTransaction: Span?
     private var burnSubscription: AnyCancellable?
+    var evidenceGateSubscription: AnyCancellable?
     private let burnThreshold = 8
     private let openFenceThreshold = 7 // threshold to open fence npc
     private let durantFirstPosition = CGPoint(x: 193, y: 775)
@@ -213,6 +214,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
         burnSubscription?.cancel()
         burnSubscription = nil
+        evidenceGateSubscription?.cancel()
+        evidenceGateSubscription = nil
         evidenceSystem = nil
     }
     
