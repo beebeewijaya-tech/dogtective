@@ -7,11 +7,15 @@
 
 import SpriteKit
 import GameplayKit
+import Combine
 
 
 // MARK: - GameScene wiring
 // Getting from upper level gamescene and wire to gamescene
 extension GameScene {
+    // First evidence (tissue) gates spawning the rest.
+    private static let gatingKey = "tissue"
+
     func setupEvidences() {
         let system = EvidenceSystem(
             scene: self,
@@ -23,19 +27,49 @@ extension GameScene {
         )
         self.evidenceSystem = system
 
+        let configs = allEvidenceConfigs().enumerated().map { (offset, cfg) -> EvidenceConfig in
+            var c = cfg
+            c.id = offset
+            return c
+        }
         let collected = backpackStateViewModel?.collectedKeys ?? []
-        for raw in allEvidenceConfigs().enumerated() {
-            var cfg = raw.element
-            cfg.id = raw.offset
-            let entity = EvidenceEntity(config: cfg)
-            register(entity)
-            addEntity(entity, position: cfg.position)
-            system.addComponent(foundIn: entity)
-            if let ev = entity.evidence,
-               let reward = ev.reward,
-               collected.contains(reward) {
-                ev.markInert()
-            }
+        let tissueFound = collected.contains(Self.gatingKey)
+
+        for cfg in configs {
+            let isGate = (cfg.reward ?? cfg.type.defaultBackpackKey) == Self.gatingKey
+            if !tissueFound && !isGate { continue }
+            spawnEvidence(cfg: cfg, system: system, collected: collected)
+        }
+
+        if !tissueFound, let backpack = backpackStateViewModel {
+            evidenceGateSubscription = backpack.$collectedKeys
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] keys in
+                    guard let self = self, keys.contains(Self.gatingKey) else { return }
+                    let pending = configs.filter {
+                        ($0.reward ?? $0.type.defaultBackpackKey) != Self.gatingKey
+                    }
+                    let collectedNow = self.backpackStateViewModel?.collectedKeys ?? []
+                    for cfg in pending {
+                        self.spawnEvidence(cfg: cfg, system: system, collected: collectedNow)
+                    }
+                    self.evidenceGateSubscription?.cancel()
+                    self.evidenceGateSubscription = nil
+                }
+        }
+    }
+
+    private func spawnEvidence(cfg: EvidenceConfig,
+                               system: EvidenceSystem,
+                               collected: Set<String>) {
+        let entity = EvidenceEntity(config: cfg)
+        register(entity)
+        addEntity(entity, position: cfg.position)
+        system.addComponent(foundIn: entity)
+        if let ev = entity.evidence,
+           let reward = ev.reward,
+           collected.contains(reward) {
+            ev.markInert()
         }
     }
 
