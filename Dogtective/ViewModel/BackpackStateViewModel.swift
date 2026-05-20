@@ -22,4 +22,9 @@ class BackpackStateViewModel: ObservableObject {
     func markSeen() {
         hasUnseen = false
     }
+
+    func reset() {
+        collectedKeys = []
+        hasUnseen = false
+    }
 }
