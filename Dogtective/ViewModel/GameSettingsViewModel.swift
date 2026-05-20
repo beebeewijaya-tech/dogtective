@@ -29,6 +29,10 @@ class GameSettingsViewModel: ObservableObject {
     @Published var gameScene: String = "police"
     @Published var collectedEvidence: [String] = []
     
+    // MARK: - Non persist
+    @Published var fenceDialogShown: Bool = false
+    @Published var hasCheckedBackyard: Bool = false
+    
     // MARK: - Action
     
     func configure(context: ModelContext) {
@@ -81,12 +85,8 @@ class GameSettingsViewModel: ObservableObject {
     
     func reset() {
         guard let context else { return }
-        
-        let descriptor = FetchDescriptor<GameSettings>()
-        if let existing = try? context.fetch(descriptor).first {
-            context.delete(existing)
-            try? context.save()
-        }
+               
+        try? context.delete(model: GameSettings.self)
         
         isFirstTime = true
         playerPosition = .zero
@@ -98,6 +98,7 @@ class GameSettingsViewModel: ObservableObject {
         currentCutscene = 1
         gameScene = "police"
         collectedEvidence = []
+        save()
     }
     
     private func fetchOrCreateSettings() -> GameSettings {

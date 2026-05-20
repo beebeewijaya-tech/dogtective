@@ -21,14 +21,14 @@ struct AppDialog: View {
     private func animateName() async {
         for n in name.uppercased() {
             nameDisplay += String(n)
-            try? await Task.sleep(for: .milliseconds(50))
+            try? await Task.sleep(for: .milliseconds(20))
         }
     }
     
     private func animateText() async {
         for t in text.capitalized {
             textDisplay += String(t)
-            try? await Task.sleep(for: .milliseconds(50))
+            try? await Task.sleep(for: .milliseconds(20))
         }
         isAnimating = false
     }
