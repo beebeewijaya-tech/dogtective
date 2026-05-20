@@ -12,6 +12,7 @@ extension Notification.Name {
     static let magnifyingButtonTapped  = Notification.Name("magnifyingButtonTapped")
     static let evidenceFromDialog      = Notification.Name("evidenceFromDialog")
     static let dialogDismissedNoReward = Notification.Name("dialogDismissedNoReward")
+    static let saveGameRequested       = Notification.Name("saveGameRequested")
 }
 
 // Payload keys for `.evidenceFromDialog` userInfo.
