@@ -91,10 +91,36 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.setupJoystick()
         
         physicsWorld.contactDelegate = self
-        
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSaveRequested),
+            name: .saveGameRequested,
+            object: nil
+        )
+
         initSpan?.finish()
     }
-    
+
+    override func willMove(from view: SKView) {
+        NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
+    }
+
+    @objc private func handleSaveRequested() {
+        guard let vm = gameSettingsViewModel else { return }
+        if let pos = playerEntity?.node?.position {
+            vm.playerPosition = pos
+        }
+        if let backpack = backpackStateViewModel {
+            vm.numOfEvidence = backpack.collectedKeys.count
+            vm.collectedEvidence = Array(backpack.collectedKeys)
+        }
+        if let quest = questStateViewModel {
+            vm.currentQuest = quest.currentIndex
+        }
+        vm.save()
+    }
+
     func setupBackground() {
         let scale = min(size.width / bg.size.width, size.height / bg.size.height)
         bg.setScale(scale)
