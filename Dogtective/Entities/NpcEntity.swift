@@ -44,6 +44,7 @@ class NpcEntity: BaseEntity {
     var position: CGPoint
     var dialog: [Dialog]
     let firstIdleFrameName: String
+    let type: NpcType
     
     
     // MARK: - atlas
@@ -59,6 +60,7 @@ class NpcEntity: BaseEntity {
         self.dialog = dialog
         self.name = name
         self.firstIdleFrameName = "\(framePrefix)_00"
+        self.type = type
 
         let node = SKSpriteNode(texture: npcIdleAtlas.textureNamed("\(framePrefix)_00"))
         node.size = CGSize(width: 57, height: 75)
