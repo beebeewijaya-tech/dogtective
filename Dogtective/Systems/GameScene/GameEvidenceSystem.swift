@@ -23,6 +23,7 @@ extension GameScene {
         )
         self.evidenceSystem = system
 
+        let collected = backpackStateViewModel?.collectedKeys ?? []
         for raw in allEvidenceConfigs().enumerated() {
             var cfg = raw.element
             cfg.id = raw.offset
@@ -30,6 +31,11 @@ extension GameScene {
             register(entity)
             addEntity(entity, position: cfg.position)
             system.addComponent(foundIn: entity)
+            if let ev = entity.evidence,
+               let reward = ev.reward,
+               collected.contains(reward) {
+                ev.markInert()
+            }
         }
     }
 

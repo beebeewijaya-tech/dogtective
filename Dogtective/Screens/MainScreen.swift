@@ -44,8 +44,6 @@ struct MainScreen: View {
                 GameScreen()
                     .environmentObject(minimapStateViewModel)
                     .environmentObject(dialogStateViewModel)
-                    .environmentObject(questDialogViewModel)
-                    .environmentObject(backpackStateViewModel)
                     .environmentObject(cutsceneViewModel)
             case .cutscene:
                 AppLottie(avatarName: cutsceneViewModel.cutsceneName) {
@@ -61,5 +59,7 @@ struct MainScreen: View {
         }
         .environmentObject(pageStateViewModel)
         .environmentObject(gameSettingsViewModel)
+        .environmentObject(backpackStateViewModel)
+        .environmentObject(questDialogViewModel)
     }
 }

@@ -59,6 +59,16 @@ class QuestStateViewModel: ObservableObject {
     func setQuest(_ quest: Int) {
         currentIndex = quest
     }
+
+    func reset() {
+        currentIndex = 0
+        currentProgress = 0
+        doneProgress = false
+        for i in questList.indices {
+            questList[i].done = false
+            questList[i].isLoading = false
+        }
+    }
     
     func doneQuest() async throws {
         doneProgress = true

@@ -213,6 +213,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
         burnSubscription?.cancel()
         burnSubscription = nil
+        evidenceSystem = nil
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
