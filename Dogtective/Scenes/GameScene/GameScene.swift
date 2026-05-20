@@ -143,6 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var hasFenceOpened = false
     private var hasCheckedBackyard = false
     
+    private var hasSpawnedFinalEvidence = false
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
         
@@ -165,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name: UIApplication.didEnterBackgroundNotification,
             object: nil
         )
-
+        
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleSaveRequested),
@@ -289,7 +290,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         vm.save()
     }
-
+    
     // observer for sentry
     @objc private func handleAppBackground() {
         if let transaction = sceneTransaction {
@@ -325,11 +326,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func applyEvidenceProgression(count: Int) {
         chunkManager?.setBurned(count >= burnThreshold)
         relocateDurant()
-
+        
         if count == 1 {
             // if evidence 1 found
             // at the park
             nextQuest()
+        }
+        
+        if count >= 8 {
+            spawnFinalEvidence()
         }
         
         if gameSettingsViewModel?.currentCutscene == 3 && !hasFenceOpened && count >= 7 {
@@ -346,6 +351,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             nextQuest()
             gameSettingsViewModel?.playerPosition = durantFirstPosition
             setCutscene(cutscene: 4)
+        }
+    }
+    
+    private func spawnFinalEvidence() {
+        guard !hasSpawnedFinalEvidence else { return }
+        hasSpawnedFinalEvidence = true
+        
+        var cfg = EvidenceConfig.digFinal(
+            at: CGPoint(x: 1649.72607421875, y: 722.70361328125),
+            collectedMessage: "This is the bones that were missing. I should go to the police station"
+        )
+
+        cfg.id = 999
+        let entity = EvidenceEntity(config: cfg)
+
+        addEntity(entity, position: cfg.position)
+        
+        if let comp = entity.component(ofType: EvidenceComponent.self) {
+            evidenceSystem?.addComponent(comp)
+        }
+        
+        if let node = entity.component(ofType: GKSKNodeComponent.self)?.node {
+            node.isHidden = false
+            node.alpha = 1.0
+            node.zPosition = 1
         }
     }
     
@@ -367,7 +397,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func loadEvidenceFromSave() {
         guard let gameSettingsViewModel else { return }
         gameSettingsViewModel.collectedEvidence.forEach {
-          backpackStateViewModel?.collect($0)
+            backpackStateViewModel?.collect($0)
         }
     }
     
@@ -375,7 +405,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let questStateViewModel = questStateViewModel else { return }
         guard questStateViewModel.currentIndex == 5  else { return } // guard if only "follow billy"
         guard let node = playerEntity?.node else { return }
-
+        
         let billyPosition = CGPoint(x: 1250.5548095703125, y: 298.858154296875)
         
         if abs(node.position.x - billyPosition.x) < 50 {

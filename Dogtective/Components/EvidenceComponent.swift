@@ -210,6 +210,27 @@ extension EvidenceConfig {
                        rewardGroup: rewardGroup,
                        collectedMessage: collectedMessage,
                        keepGroundVisible: true)
+    
+    }
+    
+    static func digFinal (at position: CGPoint,
+                          scale: CGFloat = 0.3,
+                          proximityRadius: CGFloat = 80,
+                          floatingScale: CGFloat = 0.2,
+                          rewardGroup: String? = nil,
+                          collectedMessage: String? = nil) -> EvidenceConfig {
+        EvidenceConfig(type: .digBones,
+                       position: position,
+                       scale: scale,
+                       proximityRadius: proximityRadius,
+                       reward: "dig_bones",
+                       behavior: .remove,
+                       floatingType: .digBones,
+                       floatingScale: floatingScale,
+                       rewardGroup: rewardGroup,
+                       collectedMessage: collectedMessage,
+                       keepGroundVisible: true)
+    
     }
 }
 
@@ -368,5 +389,12 @@ final class EvidenceComponent: GKComponent {
         mainSprite.position = .zero
         glowNode.position = .zero
         glowSprite.alpha = 0
+    }
+    
+    func resetToIdle() {
+        guard state == .collected else { return }
+        state = .idle
+        containerNode?.isHidden = false
+        containerNode?.alpha = 1.0
     }
 }
