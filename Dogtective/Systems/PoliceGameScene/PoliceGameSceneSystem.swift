@@ -22,6 +22,7 @@ extension PoliceGameScene {
     func setupPlayer() {
         guard let playerEntity = playerEntity else { return }
         guard let node = playerEntity.spriteNode else { return }
+        register(playerEntity)
         addEntity(playerEntity, position: CGPoint(x: size.width / 2, y: size.height / 2))
 
         // Player physics body
@@ -75,5 +76,27 @@ extension PoliceGameScene {
     func setupJoystick() {
         guard let joystickSystem = joystickSystem else { return }
         joystickSystem.setupJoystick()
+    }
+
+    // MARK: - Entity registration
+    func register(_ entity: BaseEntity) {
+        ysortSystem?.register(entity)
+    }
+
+    // MARK: - Collider Entities
+    func setupColliderEntities() {
+        for cfg in allColliderConfigs() {
+            let collider = ColliderEntity(config: cfg)
+            addEntity(collider, position: cfg.position)
+        }
+    }
+
+    private func allColliderConfigs() -> [ColliderConfig] {
+        return [
+            .rect(at: CGPoint(x: 266, y: 210), size: CGSize(width: 100, height: 75)),
+            .rect(at: CGPoint(x: 580, y: 210), size: CGSize(width: 100, height: 75)),
+            .rect(at: CGPoint(x: 281, y: 100), size: CGSize(width: 195, height: 100)),
+            .rect(at: CGPoint(x: 713, y: 140), size: CGSize(width: 80, height: 190)),
+        ]
     }
 }
