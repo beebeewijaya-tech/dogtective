@@ -45,13 +45,27 @@ final class NpcSystem {
             node.position = npc.position
             scene.addChild(node)
 
+            // Solid feet body — blocks player walking through NPC
+            let bodyWidth = node.size.width * 0.4
+            let bodyHeight = node.size.height * 0.2
             let bodyOffset = CGPoint(x: 0, y: -node.size.height * 0.35)
             node.applyStaticBody(
-                shape: .circle(node.size.width * 0.7),
+                shape: .rectangle(CGSize(width: bodyWidth, height: bodyHeight)),
                 offset: bodyOffset,
                 category: PhysicsCategory.npc,
                 collidesWith: PhysicsCategory.player
             )
+
+            // Proximity sensor — bigger circle, no collision, triggers bubble
+            let proximity = SKNode()
+            proximity.name = "npc_proximity"
+            proximity.position = bodyOffset
+            proximity.applySensorBody(
+                shape: .circle(node.size.width * 0.7),
+                category: PhysicsCategory.npcProximity,
+                detects: PhysicsCategory.player
+            )
+            node.addChild(proximity)
 
             npc.animation?.playAnimation(state: .idle)
         }
@@ -62,12 +76,14 @@ final class NpcSystem {
         guard let vm = dialogStateViewModel else { return }
         let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
         switch mask {
-        case [PhysicsCategory.player, PhysicsCategory.npc]:
-            let npcBody = contact.bodyA.categoryBitMask == PhysicsCategory.npc
+        case [PhysicsCategory.player, PhysicsCategory.npcProximity]:
+            let proxBody = contact.bodyA.categoryBitMask == PhysicsCategory.npcProximity
                 ? contact.bodyA
                 : contact.bodyB
+            // proximity is a child of the NPC sprite node
+            let npcNode = proxBody.node?.parent
             activeNpc?.animation?.removeBubbleChat()
-            activeNpc = npcs.first { $0.node == npcBody.node }
+            activeNpc = npcs.first { $0.node === npcNode }
             activeNpc?.animation?.playBubbleChat()
             vm.setState(.bubble)
         default:
@@ -79,7 +95,7 @@ final class NpcSystem {
         guard let vm = dialogStateViewModel else { return }
         let mask = Set([contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask])
         switch mask {
-        case [PhysicsCategory.player, PhysicsCategory.npc]:
+        case [PhysicsCategory.player, PhysicsCategory.npcProximity]:
             activeNpc?.animation?.removeBubbleChat()
             activeNpc = nil
             vm.setState(.idle)

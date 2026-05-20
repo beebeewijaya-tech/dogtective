@@ -85,9 +85,12 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         self.npcSystem?.onEvidenceDialogShown = { [weak self] _ in
             self?.checkQuest()
         }
-        self.npcSystem?.setup()
+        self.npcSystem?.setup { [weak self] npc in
+            self?.register(npc)
+        }
 
         self.setupCollisions()
+        self.setupColliderEntities()
         self.setupJoystick()
         
         physicsWorld.contactDelegate = self
