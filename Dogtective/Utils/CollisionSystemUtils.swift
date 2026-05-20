@@ -14,6 +14,7 @@ enum PhysicsCategory {
     static let player: UInt32 = 1 << 0
     static let obstacle: UInt32 = 1 << 1
     static let npc: UInt32 = 1 << 2
+    static let npcProximity: UInt32 = 1 << 3
 }
 
 enum CollisionShape {
@@ -56,6 +57,22 @@ extension SKNode {
         body.categoryBitMask = category
         body.collisionBitMask = collidesWith
         body.contactTestBitMask = collidesWith
+        self.physicsBody = body
+    }
+
+    func applySensorBody(
+        shape: CollisionShape,
+        offset: CGPoint = .zero,
+        category: UInt32,
+        detects: UInt32
+    ) {
+        let body = makeBody(shape: shape, offset: offset)
+        body.isDynamic = false
+        body.affectedByGravity = false
+        body.allowsRotation = false
+        body.categoryBitMask = category
+        body.collisionBitMask = 0
+        body.contactTestBitMask = detects
         self.physicsBody = body
     }
 

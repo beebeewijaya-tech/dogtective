@@ -100,13 +100,13 @@ extension ObstacleConfig {
         )
     }
     
-    static func smallObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false) -> ObstacleConfig {
+    static func smallObstacle(at pos: CGPoint, textureName: String, zOffset: CGFloat = 0, burnTextureName: String? = nil, burnOnly: Bool = false, scale: CGFloat = 0.3, ratio: CGFloat = 0.25) -> ObstacleConfig {
         ObstacleConfig(
             textureName: textureName,
             position: pos,
-            scale: 0.3,
+            scale: scale,
             axis: .vertical,
-            ratio: 0.25,
+            ratio: ratio,
             collisionWidthRatio: 1.0,
             collisionHeightRatio: 1.0,
             ysortEnabled: true,

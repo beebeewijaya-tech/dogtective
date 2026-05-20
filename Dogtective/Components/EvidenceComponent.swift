@@ -165,7 +165,7 @@ extension EvidenceConfig {
                        scale: scale,
                        proximityRadius: proximityRadius,
                        reward: "tissue",
-                       behavior: .persistAs(.dig),
+                       behavior: .persistAs(.digTissue),
                        floatingType: .tissue,
                        floatingScale: floatingScale,
                        rewardGroup: rewardGroup,
