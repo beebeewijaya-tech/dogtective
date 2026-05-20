@@ -57,6 +57,7 @@ struct MainScreen: View {
         .task {
             gameSettingsViewModel.configure(context: context)
         }
+        .buttonStyle(HapticButtonStyle())
         .environmentObject(pageStateViewModel)
         .environmentObject(gameSettingsViewModel)
         .environmentObject(backpackStateViewModel)
