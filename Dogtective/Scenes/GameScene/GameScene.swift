@@ -332,25 +332,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // at the park
             nextQuest()
         }
-        
+
+        if count >= 5 {
+            // set billy dialog
+            if let billy = npcs.first(where: { $0.type == .billy }) {
+                billy.dialogComponent?.dialog = DialogUtils.billyNewDialog()
+            }
+        }
+
         if count >= 8 {
             spawnFinalEvidence()
         }
-        
-        if gameSettingsViewModel?.currentCutscene == 3 && !hasFenceOpened && count >= 7 {
+            
+        if gameSettingsViewModel?.currentCutscene == 3 && !(gameSettingsViewModel?.fenceDialogShown ?? false) && count >= 7 {
+            let dialogFence = { [weak self] in
+                guard let self else { return }
+                self.gameSettingsViewModel?.fenceDialogShown = true
+                self.dialogStateViewModel?.setDialog(
+                      dialog: Dialog(message: "Maybe I should check the apartment behind the cafe.", evidence: false),
+                      npc: "Mr.Bones",
+                      npcImage: "mrbones-idle_00"
+                  ) {
+                      self.nextQuest()
+                      self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
+                      self.setCutscene(cutscene: 3)
+                  }
+            }
             // Fence Cutscene
-            hasFenceOpened = true
-            nextQuest()
-            gameSettingsViewModel?.playerPosition = durantFirstPosition
-            setCutscene(cutscene: 3)
+            if dialogStateViewModel?.dialog != nil {
+                // if there is dialog
+                dialogStateViewModel?.continuation = dialogFence
+            } else {
+                dialogFence()
+            }
+            
         }
         
         if gameSettingsViewModel?.currentCutscene == 4 && !hasCheckedBackyard && count >= 8 {
-            // Culprit Cutscene
-            hasCheckedBackyard = true
-            nextQuest()
-            gameSettingsViewModel?.playerPosition = durantFirstPosition
-            setCutscene(cutscene: 4)
+            gameSettingsViewModel?.hasCheckedBackyard = true
+            if dialogStateViewModel?.dialog != nil {
+                dialogStateViewModel?.continuation = {
+                    self.nextQuest()
+                    self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
+                    self.setCutscene(cutscene: 4)
+                }
+            }               
         }
     }
     

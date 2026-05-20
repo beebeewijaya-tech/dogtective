@@ -20,21 +20,29 @@ class DialogStateViewModel: ObservableObject {
     @Published var npcImage: String?
     @Published var dialog: Dialog?
     @Published var isCinematic: Bool = false
-
+    
+    var dismissAction: (() -> Void)? // when dialog close
+    var continuation: (() -> Void)? // next step running
+        
     func setState(_ state: DialogState) {
         guard isChat != state else { return }
         isChat = state
     }
-
-    func setDialog(dialog: Dialog, npc: String, npcImage: String? = nil) {
+    
+    func setDialog(dialog: Dialog, npc: String, npcImage: String? = nil, action: @escaping () -> Void = {}) {
         self.dialog = dialog
         self.npc = npc
         self.npcImage = npcImage
+        self.dismissAction = action
     }
-
+    
     func resetDialog() {
         self.dialog = nil
         self.npc = nil
         self.npcImage = nil
+        dismissAction?()
+        continuation?()
+        dismissAction = nil
+        continuation = nil
     }
 }
