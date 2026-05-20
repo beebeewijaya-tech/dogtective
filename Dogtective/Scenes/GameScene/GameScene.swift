@@ -164,6 +164,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name: UIApplication.didEnterBackgroundNotification,
             object: nil
         )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSaveRequested),
+            name: .saveGameRequested,
+            object: nil
+        )
         
         if gameSettingsViewModel.currentCutscene == 2 {
             cutScenePoliceExit()
@@ -203,6 +210,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func willMove(from view: SKView) {
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
         burnSubscription?.cancel()
         burnSubscription = nil
     }
@@ -263,6 +271,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setCutscene(cutscene: 2)
     }
     
+    @objc private func handleSaveRequested() {
+        guard let vm = gameSettingsViewModel else { return }
+        if let pos = playerEntity?.node?.position {
+            vm.playerPosition = pos
+        }
+        if let backpack = backpackStateViewModel {
+            vm.numOfEvidence = backpack.collectedKeys.count
+            vm.collectedEvidence = Array(backpack.collectedKeys)
+        }
+        if let quest = questStateViewModel {
+            vm.currentQuest = quest.currentIndex
+        }
+        vm.save()
+    }
+
     // observer for sentry
     @objc private func handleAppBackground() {
         if let transaction = sceneTransaction {
