@@ -96,12 +96,14 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
     }
 
     private func handleDialogDismissedNoReward() {
-        guard lockedForEmptyDialog else { return } 
+        guard scene?.view != nil else { return }
+        guard lockedForEmptyDialog else { return }
         lockedForEmptyDialog = false
         playerEntity?.movement?.isLocked = false
     }
 
     private func handleEvidenceFromDialog(_ note: Notification) {
+        guard scene?.view != nil else { return }
         guard !isInteracting else { return }
         let reward = note.userInfo?[EvidenceFromDialogKey.reward] as? String
         let floating = (note.userInfo?[EvidenceFromDialogKey.floatingType] as? EvidenceType)
@@ -167,6 +169,10 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
 
     // MARK: - Magnifying tap
     private func handleMagnifyingTap() {
+        // Ignore taps if this system's scene is no longer presented
+        // (e.g. previous session's leaked instance still observing).
+        guard scene?.view != nil else { return }
+        if isInteracting || lockedForEmptyDialog { return }
         if let ev = activeEvidence, ev.state == .nearby {
             beginInteraction(ev)
         } else {
