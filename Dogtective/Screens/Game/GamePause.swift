@@ -69,8 +69,8 @@ struct GamePause: View {
                             }
                             
                             Button(action: {
-                                gameSettingsViewModel.save()
-                                
+                                NotificationCenter.default.post(name: .saveGameRequested, object: nil)
+
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isPaused = false
                                     showSaveToast = true
