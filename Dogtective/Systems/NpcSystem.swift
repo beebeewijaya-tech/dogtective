@@ -110,13 +110,25 @@ final class NpcSystem {
 
         if vm.isChat == .chat {
             guard currentDialogState != .chat else { return }
-            currentDialogState = .chat
             let dialog = activeNpc?.dialogComponent?.getDialog()
+
+            // No NPC / no dialog — don't strand the player in a locked chat state.
+            guard let dialog = dialog else {
+                vm.isChat = .bubble
+                return
+            }
+
+            currentDialogState = .chat
+            if let movement = playerEntity?.movement {
+                movement.velocity = .zero
+                playerEntity?.node?.physicsBody?.velocity = .zero
+                movement.isLocked = true
+            }
             vm.dialog = dialog
             vm.npc = activeNpc?.name
             vm.npcImage = activeNpc?.firstIdleFrameName
 
-            if let dialog = dialog, dialog.evidence {
+            if dialog.evidence {
                 onEvidenceDialogShown?(dialog)
             }
 
@@ -124,6 +136,9 @@ final class NpcSystem {
             // can't repeat the reward / quest tick.
             activeNpc?.dialogComponent?.removeEvidenceDialog()
         } else {
+            if currentDialogState == .chat, !vm.isCinematic {
+                playerEntity?.movement?.isLocked = false
+            }
             currentDialogState = nil
         }
     }

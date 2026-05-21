@@ -38,6 +38,13 @@ class DialogComponent: GKComponent {
         // trigger when already talk and get evidence
         dialog.removeAll(where: { $0.evidence })
     }
+
+    func removeCollectedEvidenceDialogs(collected: Set<String>) {
+        dialog.removeAll { dlg in
+            guard dlg.evidence, let reward = dlg.evidenceReward else { return false }
+            return collected.contains(reward)
+        }
+    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError()

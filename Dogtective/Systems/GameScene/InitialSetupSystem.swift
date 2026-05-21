@@ -29,6 +29,13 @@ extension GameScene {
         self.npcSystem?.setup { [weak self] npc in
             self?.register(npc)
         }
+
+        let collected = Set(gameSettingsViewModel?.collectedEvidence ?? [])
+        if !collected.isEmpty {
+            for npc in npcs {
+                npc.dialogComponent?.removeCollectedEvidenceDialogs(collected: collected)
+            }
+        }
     }
     
     func setupInitialQuest() {
