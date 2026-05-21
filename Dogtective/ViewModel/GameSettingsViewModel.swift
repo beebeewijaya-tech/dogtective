@@ -28,10 +28,12 @@ class GameSettingsViewModel: ObservableObject {
     @Published var currentCutscene: Int = 1
     @Published var gameScene: String = "police"
     @Published var collectedEvidence: [String] = []
-    
+
     // MARK: - Non persist
     @Published var fenceDialogShown: Bool = false
     @Published var hasCheckedBackyard: Bool = false
+    @Published var isFinalScene: Bool = false
+    @Published var gameFinished: Bool = false
     
     // MARK: - Action
     
@@ -86,19 +88,24 @@ class GameSettingsViewModel: ObservableObject {
     func reset() {
         guard let context else { return }
                
-        try? context.delete(model: GameSettings.self)
-        
-        isFirstTime = true
-        playerPosition = .zero
-        numOfEvidence = 0
-        currentQuest = 0
-        soundEnabled = true
-        hapticsEnabled = true
-        currentLevel = 0
-        currentCutscene = 1
-        gameScene = "police"
-        collectedEvidence = []
-        save()
+        do {
+            isFirstTime = true
+            playerPosition = .zero
+            numOfEvidence = 0
+            currentQuest = 0
+            soundEnabled = true
+            hapticsEnabled = true
+            currentLevel = 0
+            currentCutscene = 1
+            gameScene = "police"
+            collectedEvidence = []
+            fenceDialogShown = false
+            hasCheckedBackyard = false
+            try context.delete(model: GameSettings.self)
+            save()
+        } catch {
+            print("error when resetting settings: \(error)")
+        }
     }
     
     private func fetchOrCreateSettings() -> GameSettings {

@@ -185,7 +185,6 @@ struct GameScreen: View {
                     .transition(.move(edge: .top).combined(with: .opacity)) 
                     .zIndex(90)
                     .onAppear {
-                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 showSaveToast = false

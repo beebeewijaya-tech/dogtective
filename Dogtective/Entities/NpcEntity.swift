@@ -63,11 +63,11 @@ class NpcEntity: BaseEntity {
         self.type = type
 
         let node = SKSpriteNode(texture: npcIdleAtlas.textureNamed("\(framePrefix)_00"))
-        node.size = CGSize(width: 57, height: 75)
+        node.size = CGSize(width: 50, height: 70)
 
         // chat bubble node
         let bubbleNode = SKSpriteNode(texture: bubbleAtlas.textureNamed("icon-bubble_00"))
-        bubbleNode.size = CGSize(width: 70, height: 40  )
+        bubbleNode.size = CGSize(width: 70, height: 40)
         bubbleNode.name = "bubble"
         bubbleNode.isHidden = true
         bubbleNode.zPosition = 10000
