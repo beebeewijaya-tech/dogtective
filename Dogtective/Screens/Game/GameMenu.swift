@@ -9,15 +9,17 @@ import SwiftUI
 
 struct GameMenu: View {
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
-
+    
     @State private var isBackpackOpen = false
     @Binding var isPaused: Bool
+    
+    private let audioManager = AudioManager.shared
     
     let backpackItems = [
         "tissue", "siluet", "corn", "piece_of_corn",
         "fur", "dig", "billy", "fence"
     ]
-
+    
     var body: some View {
         HStack(spacing: 15) {
             ZStack(alignment: .trailing) {
@@ -30,7 +32,7 @@ struct GameMenu: View {
                                 .scaledToFill()
                                 .frame(width: 350, height: 45)
                                 .offset(x: -5)
-
+                            
                             HStack(spacing: 5) {
                                 ForEach(backpackItems, id: \.self) { item in
                                     let collected = backpackStateViewModel.collectedKeys.contains(item)
@@ -52,10 +54,16 @@ struct GameMenu: View {
                 .frame(width: 400, height: 60, alignment: .trailing)
                 .clipped()
                 .zIndex(1)
-
+                
                 ZStack(alignment: .topTrailing) {
                     AppIcon(icon: "backpackButton", size: .medium) {
                         let wasOpen = isBackpackOpen
+                        
+                        if !wasOpen {
+                            
+                            audioManager.playSFX(fileName: "backpack_sound")
+                        }
+                        
                         withAnimation(.easeInOut(duration: 0.3)) {
                             isBackpackOpen.toggle()
                         }
@@ -64,7 +72,7 @@ struct GameMenu: View {
                             backpackStateViewModel.markSeen()
                         }
                     }
-
+                    
                     if backpackStateViewModel.hasUnseen {
                         Circle()
                             .fill(Color.red)
@@ -82,14 +90,14 @@ struct GameMenu: View {
                 .zIndex(2)
             }
             .frame(width: 430, height: 60, alignment: .trailing)
-
+            
             AppIcon(icon: "pauseButton", size: .medium) {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isPaused = true
                 }
             }
         }
-
+        
         .padding(.top, 20)
         .padding(.trailing, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
