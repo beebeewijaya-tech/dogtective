@@ -61,19 +61,33 @@ extension GameScene {
         register(entity)
         addEntity(entity, position: cfg.position)
         system.addComponent(foundIn: entity)
-        
+
+        let isGate = (cfg.reward ?? cfg.type.defaultBackpackKey) == Self.gatingKey
+        if isGate {
+            tissueMarkerNode = entity.component(ofType: GKSKNodeComponent.self)?.node
+        }
+
         if let ev = entity.evidence {
-            let currentCount = backpackStateViewModel?.collectedKeys.count ?? 0
-            
-            if ev.type == .digBones && currentCount < 8 {
-                ev.containerNode?.isHidden = true
-                ev.markInert()
-            }
-            else if let reward = ev.reward, collected.contains(reward) {
+            if let reward = ev.reward, collected.contains(reward) {
                 ev.markInert()
             }
         }
         return entity
+    }
+
+    func spawnFinalEvidence() {
+        guard !hasSpawnedFinalEvidence else { return }
+        guard let system = evidenceSystem else { return }
+        let collected = backpackStateViewModel?.collectedKeys ?? []
+        if collected.contains("dig_bones") { return }
+        hasSpawnedFinalEvidence = true
+
+        var cfg = EvidenceConfig.digFinal(
+            at: CGPoint(x: 1649.72607421875, y: 722.70361328125),
+            collectedMessage: "This is the bones that were missing. I should go to the police station"
+        )
+        cfg.id = 999
+        spawnEvidence(cfg: cfg, system: system, collected: collected)
     }
 
     func allEvidenceConfigs() -> [EvidenceConfig] {
@@ -88,7 +102,6 @@ extension GameScene {
             .digRawDig (at: CGPoint(x: -1046.8846435546875, y: -500.74884033203125), scale: 0.33, rewardGroup: "dig_raw_dig_key", collectedMessage: "A very clean dig… whoever did this knew exactly what they were looking for."),
             .digRawDig (at: CGPoint(x: 1027.91455078125, y: -544.146484375), scale: 0.33, rewardGroup: "dig_raw_dig_key", collectedMessage: "A very clean dig… whoever did this knew exactly what they were looking for."),
             .item(.brokenFence, at: CGPoint(x: -374, y: 570), proximityRadius: 100, proximityOffset:  CGPoint(x: 0, y: 30), collectedMessage: "A broken fence… hidden by the bushes. If Chichi’s the culprit, she could easily slip through here."),
-            .digFinal(at: CGPoint(x: 1649.72607421875, y: 722.70361328125), collectedMessage: "This is the bones that were missing. I should go to the police station")
        ]
     }
 }

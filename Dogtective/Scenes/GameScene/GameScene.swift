@@ -142,8 +142,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var hasFenceOpened = false
     private var hasCheckedBackyard = false
+
+    weak var tissueMarkerNode: SKNode?
     
-    private var hasSpawnedFinalEvidence = false
+    var hasSpawnedFinalEvidence = false
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
         
@@ -200,9 +202,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.setupBackground()
             }
             self.loadEvidenceFromSave()
-            self.subscribeBurnState()
             initSpan?.finish()
             self.setupEvidences()
+            self.subscribeBurnState()
             self.setupInitialQuest()
             self.logSceneSentry()
             
@@ -324,7 +326,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func applyEvidenceProgression(count: Int) {
-        chunkManager?.setBurned(count >= burnThreshold)
+        let burned = count >= burnThreshold
+        chunkManager?.setBurned(burned)
+        tissueMarkerNode?.isHidden = burned
         relocateDurant()
         
         if count == 1 {
@@ -379,32 +383,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }               
         }
     }
-    
-    private func spawnFinalEvidence() {
-        guard !hasSpawnedFinalEvidence else { return }
-        hasSpawnedFinalEvidence = true
-        
-        var cfg = EvidenceConfig.digFinal(
-            at: CGPoint(x: 1649.72607421875, y: 722.70361328125),
-            collectedMessage: "This is the bones that were missing. I should go to the police station"
-        )
-
-        cfg.id = 999
-        let entity = EvidenceEntity(config: cfg)
-
-        addEntity(entity, position: cfg.position)
-        
-        if let comp = entity.component(ofType: EvidenceComponent.self) {
-            evidenceSystem?.addComponent(comp)
-        }
-        
-        if let node = entity.component(ofType: GKSKNodeComponent.self)?.node {
-            node.isHidden = false
-            node.alpha = 1.0
-            node.zPosition = 1
-        }
-    }
-    
     
     private func relocateDurant() {
         // npc on the fence area
