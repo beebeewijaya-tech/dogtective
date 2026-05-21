@@ -97,7 +97,6 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
 
     private func handleDialogDismissedNoReward() {
         guard scene?.view != nil else { return }
-        guard lockedForEmptyDialog else { return }
         lockedForEmptyDialog = false
         playerEntity?.movement?.isLocked = false
     }
