@@ -21,4 +21,9 @@ class CutsceneViewModel: ObservableObject {
         self.cutscene += 1
         self.cutsceneName = "cutscene_\(self.cutscene)"
     }
+    
+    func reset() {
+        cutscene = 0
+        cutsceneName = ""
+    }
 }

@@ -14,11 +14,13 @@ enum PageState {
     case level
     case loading
     case cutscene
+    case finished
 }
 
 class PageStateViewModel: ObservableObject {
     @Published var state: PageState = .home
     @Published var nextState: PageState?
+    @Published var showOverlay: Bool = false // for game to cutscene
     
     func setState(_ state: PageState, nextState: PageState? = nil) {
         self.state = state
@@ -27,5 +29,9 @@ class PageStateViewModel: ObservableObject {
     
     func navigateToNextState() {
         self.state = nextState!
+    }
+    
+    func setOverlay(isActive: Bool) {
+        self.showOverlay = isActive
     }
 }

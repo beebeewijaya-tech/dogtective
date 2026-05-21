@@ -40,9 +40,11 @@ class DialogStateViewModel: ObservableObject {
         self.dialog = nil
         self.npc = nil
         self.npcImage = nil
-        dismissAction?()
-        continuation?()
+        let completion = dismissAction
+        let continuing = continuation
         dismissAction = nil
         continuation = nil
+        completion?()
+        continuing?()
     }
 }

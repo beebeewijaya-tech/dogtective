@@ -13,6 +13,9 @@ struct DialogUtils {
         return [
             Dialog(message: "The city winds always bring trouble our way.", evidence: false),
             Dialog(message: "Bones missing don't happen by accident, my friend.", evidence: false),
+            Dialog(message: "Some dogs say a ghost is stealing bones. Personally? I think that’s ridiculous.", evidence: false),
+            Dialog(message: "Oh my god, the cafe has a new drink", evidence: false),
+            Dialog(message: "Missing bones? Oh, right… sorry, I was chasing butterflies earlier.", evidence: false),
         ]
     }
     
