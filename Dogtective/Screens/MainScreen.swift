@@ -31,36 +31,60 @@ struct MainScreen: View {
     }
     
     var body: some View {
-        VStack {
-            switch pageStateViewModel.state {
-            case .home:
-                HomeScreen()
-            case .level:
-                LevelScreen()
-            case .loading:
-                LoadingScreen()
-                    .environmentObject(cutsceneViewModel)
-            case .game:
-                GameScreen()
-                    .environmentObject(minimapStateViewModel)
-                    .environmentObject(dialogStateViewModel)
-                    .environmentObject(cutsceneViewModel)
-            case .cutscene:
-                AppLottie(avatarName: cutsceneViewModel.cutsceneName) {
-                    pageStateViewModel.navigateToNextState()
-                    cutsceneViewModel.incrementCutscene()
-                    gameSettingsViewModel.currentCutscene = cutsceneViewModel.cutscene
-                    gameSettingsViewModel.save()
+        ZStack {
+            VStack {
+                switch pageStateViewModel.state {
+                case .home:
+                    HomeScreen()
+                case .level:
+                    LevelScreen()
+                case .loading:
+                    LoadingScreen()
+                case .game:
+                    GameScreen()
+                        .environmentObject(minimapStateViewModel)
+                        .environmentObject(dialogStateViewModel)
+                case .cutscene:
+                    AppLottie(avatarName: cutsceneViewModel.cutsceneName) {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            pageStateViewModel.setOverlay(isActive: true)
+                        }
+                        
+                        Task {
+                            try? await Task.sleep(for: .seconds(0.25))
+                            pageStateViewModel.navigateToNextState()
+                            cutsceneViewModel.incrementCutscene()
+                            gameSettingsViewModel.currentCutscene = cutsceneViewModel.cutscene
+                            gameSettingsViewModel.save()
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                pageStateViewModel.setOverlay(isActive: false)
+                            }
+                        }
+                    }
+                case .finished:
+                    // TODO: adding finished state
+                    VStack {
+                        Text("Finished!")
+                    }
                 }
             }
+            .task {
+                gameSettingsViewModel.configure(context: context)
+            }
+            .buttonStyle(HapticButtonStyle())
+            .environmentObject(pageStateViewModel)
+            .environmentObject(gameSettingsViewModel)
+            .environmentObject(backpackStateViewModel)
+            .environmentObject(questDialogViewModel)
+            .environmentObject(cutsceneViewModel)
+            
+            
+            if pageStateViewModel.showOverlay {
+                Color.black
+                    .ignoresSafeArea(.all)
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
         }
-        .task {
-            gameSettingsViewModel.configure(context: context)
-        }
-        .buttonStyle(HapticButtonStyle())
-        .environmentObject(pageStateViewModel)
-        .environmentObject(gameSettingsViewModel)
-        .environmentObject(backpackStateViewModel)
-        .environmentObject(questDialogViewModel)
     }
 }

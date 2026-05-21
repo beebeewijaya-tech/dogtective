@@ -107,14 +107,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NpcEntity(
             name: "Timmy the kid", type: .npcKid,
             position: CGPoint(x: 705, y: 645),
-            dialog: DialogUtils.dummyDialogs() + [
-                Dialog(
-                    message: "I always play with mr. Billy at the park around here, he always come here",
-                    evidence: true,
-                    evidenceReward: "billy",
-                    evidenceFloating: .billy
-                )
-            ]
+            dialog: DialogUtils.dummyDialogs()
         ),
     ]
     
@@ -142,10 +135,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var hasFenceOpened = false
     private var hasCheckedBackyard = false
-
-    weak var tissueMarkerNode: SKNode?
     
+    weak var tissueMarkerNode: SKNode?
     var hasSpawnedFinalEvidence = false
+    
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
         
@@ -254,6 +247,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         evidenceSystem?.update(deltaTime: dt)
         npcSystem?.update()
         followBillyPosition()
+        endGameMonitoring()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -330,37 +324,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         chunkManager?.setBurned(burned)
         tissueMarkerNode?.isHidden = burned
         relocateDurant()
+        progressionPerCount(count)
         
-        if count == 1 {
-            // if evidence 1 found
-            // at the park
-            nextQuest()
-        }
-
-        if count >= 5 {
-            // set billy dialog
-            if let billy = npcs.first(where: { $0.type == .billy }) {
-                billy.dialogComponent?.dialog = DialogUtils.billyNewDialog()
-            }
-        }
-
-        if count >= 8 {
-            spawnFinalEvidence()
-        }
-            
         if gameSettingsViewModel?.currentCutscene == 3 && !(gameSettingsViewModel?.fenceDialogShown ?? false) && count >= 7 {
             let dialogFence = { [weak self] in
                 guard let self else { return }
                 self.gameSettingsViewModel?.fenceDialogShown = true
                 self.dialogStateViewModel?.setDialog(
-                      dialog: Dialog(message: "Maybe I should check the apartment behind the cafe.", evidence: false),
-                      npc: "Mr.Bones",
-                      npcImage: "mrbones-idle_00"
-                  ) {
-                      self.nextQuest()
-                      self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
-                      self.setCutscene(cutscene: 3)
-                  }
+                    dialog: Dialog(message: "Maybe I should check the apartment behind the cafe.", evidence: false),
+                    npc: "Mr.Bones",
+                    npcImage: "mrbones-idle_00"
+                ) {
+                    self.nextQuest()
+                    self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
+                    self.setCutscene(cutscene: 3)
+                }
             }
             // Fence Cutscene
             if dialogStateViewModel?.dialog != nil {
@@ -380,7 +358,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
                     self.setCutscene(cutscene: 4)
                 }
-            }               
+            }
+        }
+        
+        if gameSettingsViewModel?.currentCutscene == 5 && count >= 9 {
+            gameSettingsViewModel?.isFinalScene = true
         }
     }
     
@@ -420,6 +402,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 gameSettingsViewModel?.currentQuest = questStateViewModel.currentIndex
                 gameSettingsViewModel?.save()
             }
+        }
+    }
+    
+    private func endGameMonitoring() {
+        guard let questStateViewModel, questStateViewModel.isQuestLast else { return }
+        guard let gameSettingsViewModel = gameSettingsViewModel else { return }
+        guard let node = playerEntity?.node else { return }
+        guard node.position.x < -445 else { return }
+        
+        if gameSettingsViewModel.isFinalScene && node.position.x < -445 {
+            gameSettingsViewModel.isFinalScene = false
+            self.setCutscene(cutscene: 5, nextPage: .finished)
+        }
+    }
+    
+    
+    private func progressionPerCount(_ count: Int) {
+        // when evidence progression run we will check this
+        switch count {
+        case 1:
+            nextQuest()
+        case 4:
+            if let timmy = npcs.first(where: { $0.type == .npcKid }) {
+                timmy.dialogComponent?.dialog = DialogUtils.dummyDialogs() + [
+                    Dialog(
+                        message: "I always play with uncle Billy at the park around here, he always come here",
+                        evidence: true,
+                        evidenceReward: "billy",
+                        evidenceFloating: .billy,
+                        collectedMessage: "Billy... this getting more and more interesting"
+                    )
+                ]
+            }
+        case 5:
+            if let billy = npcs.first(where: { $0.type == .billy }) {
+                billy.dialogComponent?.dialog = DialogUtils.billyNewDialog()
+            }
+        case 8:
+            spawnFinalEvidence()
+        case 9:
+            if dialogStateViewModel?.dialog != nil {
+                dialogStateViewModel?.continuation = {
+                    self.nextQuest()
+                }
+            }
+        default:
+            break
         }
     }
 }

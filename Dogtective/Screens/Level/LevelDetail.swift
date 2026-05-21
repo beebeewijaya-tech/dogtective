@@ -14,7 +14,8 @@ struct LevelDetailOverlay: View {
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
     @EnvironmentObject var questStateViewModel: QuestStateViewModel
-    
+    @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
+
     // MARK: - Local Property
     let data: LevelData
     var onClose: () -> Void
@@ -85,15 +86,18 @@ struct LevelDetailOverlay: View {
                             
                             
                             Button(action: {
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    pageStateViewModel.state = .loading
-                                }
                                 print("New game level \(data.id)")
                                 // reset current level
                                 gameSettingsViewModel.reset()
                                 backpackStateViewModel.reset()
                                 questStateViewModel.reset()
-
+                                cutsceneViewModel.reset()
+                                gameSettingsViewModel.load()
+                                
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    pageStateViewModel.state = .loading
+                                }
+                                
                                 // save current level
                                 gameSettingsViewModel.currentLevel = data.id
                                 gameSettingsViewModel.save()

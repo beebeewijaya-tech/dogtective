@@ -35,6 +35,10 @@ class QuestStateViewModel: ObservableObject {
         return questList[currentIndex]
     }
     
+    var isQuestLast: Bool {
+        currentIndex == questList.count - 1
+    }
+    
     var currentQuestDisplay: String {
         guard let q = currentQuest else { return "No quest" }
         if q.doneCondition > 1 {
