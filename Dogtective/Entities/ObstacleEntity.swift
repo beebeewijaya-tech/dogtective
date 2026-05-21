@@ -339,7 +339,9 @@ class ObstacleEntity: BaseEntity {
         )
         split.first.texture = parts.first.texture
         split.first.size = parts.first.size
+        split.first.position = parts.first.position
         split.second.texture = parts.second.texture
         split.second.size = parts.second.size
+        split.second.position = parts.second.position
     }
 }
