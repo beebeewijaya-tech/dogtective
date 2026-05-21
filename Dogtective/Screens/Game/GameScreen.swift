@@ -24,6 +24,7 @@ struct GameScreen: View {
     @State var isDialogAnimate: Bool = true
     @State private var isPaused = false
     @State private var showSaveToast = false
+    private let audioManager = AudioManager.shared
     
     func policeGameScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
@@ -194,10 +195,12 @@ struct GameScreen: View {
                 }
                 
                 if isPaused {
-                    
                     GamePause(isPaused: $isPaused, showSaveToast: $showSaveToast)
                 }
             }
+        }
+        .onChange(of: gameSettingsViewModel.soundEnabled) { oldValue, newValue in
+            audioManager.toggleMusic(isOn: newValue)
         }
         .sentryTrace("Game Screen")
     }

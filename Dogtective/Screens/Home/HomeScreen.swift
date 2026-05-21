@@ -16,7 +16,6 @@ struct HomeScreen: View {
     // State inherited from your settings logic
     @State private var isHapticsOn = true
     @State private var showingLevelScreen = false
-    @State private var isMusicOn = true
     private let audioManager = AudioManager.shared
     
     var body: some View {
@@ -62,16 +61,12 @@ struct HomeScreen: View {
                 
                 // 5. Backsound
                 .onAppear {
-                    if isMusicOn {
+                    if gameSettingsViewModel.soundEnabled {
                         audioManager.playMusic(fileName: "dogtective_song" )
                     }
                 }
-                .onChange(of: isMusicOn) { oldValue, newValue in
-                    if newValue {
-                        audioManager.playMusic(fileName: "dogtective_song" )
-                    } else {
-                        audioManager.stopMusic()
-                    }
+                .onChange(of: gameSettingsViewModel.soundEnabled) { oldValue, newValue in
+                    audioManager.toggleMusic(isOn: newValue)
                 }
                 .fullScreenCover(isPresented: $showingLevelScreen) {
                     LevelScreen()
