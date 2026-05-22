@@ -137,6 +137,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     weak var tissueMarkerNode: SKNode?
     var hasSpawnedFinalEvidence = false
+    private var isBillyQuestRecording = false
     
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
@@ -212,6 +213,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         evidenceGateSubscription?.cancel()
         evidenceGateSubscription = nil
         evidenceSystem = nil
+        resetMemory()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -255,6 +257,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didEnd(_ contact: SKPhysicsContact) {
         npcSystem?.handleContactEnd(contact)
+    }
+    
+    deinit {
+          print("GameScene deinit")
+      }
+    
+    func resetMemory() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
+        burnSubscription?.cancel()
+        burnSubscription = nil
+        evidenceGateSubscription?.cancel()
+        evidenceGateSubscription = nil
+
+        // nil all systems so their deinits fire
+        evidenceSystem = nil
+        npcSystem = nil
+        chunkManager = nil
+        movementSystem = nil
+        ysortSystem = nil
+        joystickSystem = nil
+        dialogStateViewModel?.continuation = nil
+        dialogStateViewModel?.dismissAction = nil
+        entities.removeAll()
+        removeAllChildren()
+        removeAllActions()
     }
     
     
@@ -311,7 +339,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func nextQuest() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             try await questStateViewModel?.recordProgress()
             gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
             gameSettingsViewModel?.save()
@@ -387,6 +416,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func followBillyPosition() {
+        guard !isBillyQuestRecording else { return }
         guard let questStateViewModel = questStateViewModel else { return }
         guard questStateViewModel.currentIndex == 5  else { return } // guard if only "follow billy"
         guard let node = playerEntity?.node else { return }
@@ -395,11 +425,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if abs(node.position.x - billyPosition.x) < 50 {
             // only need to know x position
-            Task {
+            isBillyQuestRecording = true
+            Task { [weak self] in
+                guard let self else { return }
                 try await questStateViewModel.recordProgress()
                 gameSettingsViewModel?.playerPosition = playerParkPosition
                 gameSettingsViewModel?.currentQuest = questStateViewModel.currentIndex
                 gameSettingsViewModel?.save()
+                isBillyQuestRecording = false
             }
         }
     }

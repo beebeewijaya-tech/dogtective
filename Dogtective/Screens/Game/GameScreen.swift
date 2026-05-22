@@ -24,7 +24,9 @@ struct GameScreen: View {
     @State var isDialogAnimate: Bool = true
     @State private var isPaused = false
     @State private var showSaveToast = false
+    @State private var toastMessage = ""
     private let audioManager = AudioManager.shared
+    private var toastDefaultMessage = "GAME SAVED!"
     
     func policeGameScene(size: CGSize) -> SKScene {
         let scene = PoliceGameScene(size: size)
@@ -36,7 +38,6 @@ struct GameScreen: View {
         scene.cutsceneViewModel = cutsceneViewModel
         scene.pageStateViewModel = pageStateViewModel
         return scene
-
     }
     
     func gameScene(size: CGSize) -> SKScene {
@@ -49,9 +50,7 @@ struct GameScreen: View {
         scene.cutsceneViewModel = cutsceneViewModel
         scene.pageStateViewModel = pageStateViewModel
         return scene
-
     }
-    
     
     func makeScene(size: CGSize) -> SKScene {
         var scene: SKScene
@@ -87,6 +86,9 @@ struct GameScreen: View {
                     .onAppear {
                         guard scene == nil else { return }
                         scene = makeScene(size: geo.size)
+                    }
+                    .onDisappear {
+                      scene = nil   // explicitly drop the reference
                     }
                 }
                 .ignoresSafeArea(.all)
@@ -166,7 +168,7 @@ struct GameScreen: View {
                 
                 if showSaveToast {
                     VStack {
-                        Text("GAME SAVED!")
+                        Text(toastMessage)
                             .passerOneStyle(size: 24)
                             .tracking(-1)
                             .foregroundColor(Color(red: 235/255, green: 181/255, blue: 107/255))
@@ -203,8 +205,22 @@ struct GameScreen: View {
                 }
             }
         }
+        .onChange(of: questStateViewModel.currentQuest?.title ?? "") { oldValue, newValue in
+            if newValue != oldValue {
+                Task {
+                    toastMessage = newValue
+                    showSaveToast = true
+                    try? await Task.sleep(for: .seconds(2))
+                    toastMessage = toastDefaultMessage
+                    showSaveToast = false
+                }
+            }
+        }
         .onChange(of: gameSettingsViewModel.soundEnabled) { oldValue, newValue in
             audioManager.toggleMusic(isOn: newValue)
+        }
+        .onAppear {
+            toastMessage = toastDefaultMessage
         }
         .sentryTrace("Game Screen")
     }
