@@ -72,6 +72,12 @@ struct GameScreen: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                     .onTapGesture {
+                        
+                        audioManager.playSFX(
+                            fileName: "selectmenu_sound",
+                            isSoundEnabled: gameSettingsViewModel.soundEnabled
+                        )
+                        
                         gameSettingsViewModel.isFirstTime = false
                         gameSettingsViewModel.save()
                     }
@@ -177,7 +183,7 @@ struct GameScreen: View {
                             .padding(.vertical, 10)
                             .padding(.horizontal, 30)
                             .background(
-                                // Menggunakan style warna papan kayu game kamu
+
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color(red: 65/255, green: 35/255, blue: 18/255))
                                     .overlay(
@@ -186,10 +192,10 @@ struct GameScreen: View {
                                     )
                             )
                             .shadow(radius: 5)
-                            .padding(.top, 30) // Posisi muncul melayang di atas tengah layar
+                            .padding(.top, 30) 
                         Spacer()
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity)) 
+                    .transition(.move(edge: .top).combined(with: .opacity))
                     .zIndex(90)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -217,7 +223,12 @@ struct GameScreen: View {
             }
         }
         .onChange(of: gameSettingsViewModel.soundEnabled) { oldValue, newValue in
-            audioManager.toggleMusic(isOn: newValue)
+            if !newValue {
+                audioManager.stopAllSounds()
+                audioManager.stopMusic()
+            } else {
+                audioManager.playMusic(fileName: "dogtective_song")
+            }
         }
         .onAppear {
             toastMessage = toastDefaultMessage

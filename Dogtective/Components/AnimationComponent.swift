@@ -97,11 +97,16 @@ class AnimationComponent: GKComponent {
         }
     }
 
-    func playBubbleChat() {
-        guard let bubbleNode, bubbleNode.isHidden else { return }
+    func playBubbleChat(isSoundEnabled: Bool) {
+        guard let bubbleNode = bubbleNode, bubbleNode.isHidden else { return }
         bubbleNode.position = CGPoint(x: 0, y: 30)
         bubbleNode.isHidden = false
         bubbleNode.run(bubbleAction)
+        
+        AudioManager.shared.playSFX(
+            fileName: "bubble_sound",
+            isSoundEnabled: isSoundEnabled
+        )
     }
     
     func removeBubbleChat() {

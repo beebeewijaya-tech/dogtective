@@ -22,7 +22,7 @@ struct PlayerInfo {
 class PlayerEntity: BaseEntity {
     let playerIdleAtlas = SKTextureAtlas(named: "player_idle")
     let playerMoveAtlas = SKTextureAtlas(named: "player_walking")
-    let playerSpeed: CGFloat = 0.05 // TODO: tune it
+    let playerSpeed: CGFloat = 0.25 // TODO: tune it
 
     init() {
         let firstFrame = playerIdleAtlas.textureNamed("mrbones-idle_00") // for first render or default
