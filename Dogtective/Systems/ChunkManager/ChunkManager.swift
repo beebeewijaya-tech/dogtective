@@ -42,6 +42,10 @@ final class ChunkManager {
     }
     private var loadedObstacles: [Int: LoadedObstacle] = [:]
 
+    // burnOnly particle emitters, tracked per-chunk so setBurned(false) can tear
+    // them down without touching background/normal particle nodes.
+    private var burnParticleNodes: [ChunkCoord: [SKNode]] = [:]
+
     private var contents: [ChunkCoord: ChunkContent]
     private var active: Set<ChunkCoord> = []
     private var lastCameraCoord: ChunkCoord?
@@ -152,6 +156,19 @@ final class ChunkManager {
                 obstacleCache.release(loaded.textureName)
                 loadedObstacles.removeValue(forKey: id)
             }
+            for coord in self.active {
+                guard let content = contents[coord] else { continue }
+                guard burnParticleNodes[coord] == nil else { continue }
+                for pcfg in content.particleConfigs where pcfg.burnOnly {
+                    if let emitter = spawnParticle(pcfg, in: scene) {
+                        if var c = contents[coord] {
+                            c.loadedNodes.append(emitter)
+                            contents[coord] = c
+                        }
+                        burnParticleNodes[coord, default: []].append(emitter)
+                    }
+                }
+            }
         } else {
             for (id, loaded) in loadedObstacles where loaded.config.burnOnly {
                 loaded.entity.node?.removeFromParent()
@@ -172,6 +189,17 @@ final class ChunkManager {
                     spawnedIds.insert(cfg.id)
                 }
             }
+            // burnOnly particles: tear down across all chunks.
+            for (coord, nodes) in burnParticleNodes {
+                for node in nodes {
+                    node.removeFromParent()
+                    if var c = contents[coord] {
+                        c.loadedNodes.removeAll { $0 === node }
+                        contents[coord] = c
+                    }
+                }
+            }
+            burnParticleNodes.removeAll()
         }
     }
 
@@ -224,18 +252,24 @@ final class ChunkManager {
             spawnObstacle(cfg, in: scene)
         }
 
-        // Particles — cheap.
         for pcfg in content.particleConfigs {
-            if let emitter = SKEmitterNode(fileNamed: pcfg.fileName) {
-                emitter.position = pcfg.position
-                if let s = pcfg.particleSize { emitter.particleSize = s }
-                emitter.zPosition = pcfg.zPosition
-                scene.addChild(emitter)
+            if pcfg.burnOnly && !burnActive { continue }
+            if let emitter = spawnParticle(pcfg, in: scene) {
                 content.loadedNodes.append(emitter)
+                if pcfg.burnOnly { burnParticleNodes[coord, default: []].append(emitter) }
             }
         }
 
         contents[coord] = content
+    }
+
+    private func spawnParticle(_ pcfg: ParticleConfig, in scene: GameScene) -> SKNode? {
+        guard let emitter = SKEmitterNode(fileNamed: pcfg.fileName) else { return nil }
+        emitter.position = pcfg.position
+        if let s = pcfg.particleSize { emitter.particleSize = s }
+        emitter.zPosition = pcfg.zPosition
+        scene.addChild(emitter)
+        return emitter
     }
 
     private func loadBackgroundAsync(coord: ChunkCoord, fileName: String) {
@@ -306,6 +340,7 @@ final class ChunkManager {
         for node in content.loadedNodes { node.removeFromParent() }
         content.loadedNodes.removeAll()
         contents[coord] = content
+        burnParticleNodes.removeValue(forKey: coord)
 
         backgroundNodes.removeValue(forKey: coord)
         backgroundTextures.removeValue(forKey: coord)

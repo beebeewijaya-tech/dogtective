@@ -18,6 +18,7 @@ struct ParticleConfig {
     let position: CGPoint
     let particleSize: CGSize?
     var zPosition: CGFloat = 0
+    var burnOnly: Bool = false
 }
 
 struct ChunkContent {
