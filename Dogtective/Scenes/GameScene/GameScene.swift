@@ -138,7 +138,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     weak var tissueMarkerNode: SKNode?
     var hasSpawnedFinalEvidence = false
     private var isBillyQuestRecording = false
-    private var hasSpawnedFinalEvidence = false
     private let campfireRadius: CGFloat = 200.0
     private var isCampfireSoundPlaying = false
     
