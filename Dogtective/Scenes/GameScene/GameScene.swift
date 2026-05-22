@@ -69,7 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ),
         NpcEntity(
             id: 7, name: "Chester Bones", type: .npc,
-            position: CGPoint(x: 933, y: -70),
+            position: CGPoint(x: 933, y: -57),
             dialog: DialogUtils.dummyDialogs()
         ),
         NpcEntity(
@@ -79,7 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ),
         NpcEntity(
             id: 9, name: "Jasper Collier", type: .npc,
-            position: CGPoint(x: -83, y: 23),
+            position: CGPoint(x: -83, y: 27),
             dialog: DialogUtils.dummyDialogs()
         ),
         NpcEntity(
