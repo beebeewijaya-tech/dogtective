@@ -44,14 +44,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NpcEntity(
             id: 2, name: "Winston Barkley", type: .npc,
             position: CGPoint(x: -808, y: 598),
-            dialog: DialogUtils.dummyDialogs() + [
-                Dialog(
-                    message: "I saw a tall shadow lurking last night near the alley...",
-                    evidence: true,
-                    evidenceReward: "siluet",
-                    evidenceFloating: .siluet
-                )
-            ]
+            dialog: DialogUtils.dummyDialogs()
         ),
         NpcEntity(
             id: 3, name: "Kevin Durant", type: .npc,
@@ -423,6 +416,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         switch count {
         case 1:
             nextQuest()
+            if let winston = npcs.first(where: { $0.id == 2 }) {
+                winston.dialogComponent?.dialog = DialogUtils.dummyDialogs() + [
+                    Dialog(
+                        message: "I saw a tall shadow lurking last night near the alley...",
+                        evidence: true,
+                        evidenceReward: "siluet",
+                        evidenceFloating: .siluet
+                    )
+                ]
+            }
         case 4:
             if let timmy = npcs.first(where: { $0.type == .npcKid }) {
                 timmy.dialogComponent?.dialog = DialogUtils.dummyDialogs() + [
