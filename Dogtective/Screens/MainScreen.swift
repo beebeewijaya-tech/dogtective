@@ -36,7 +36,7 @@ struct MainScreen: View {
                 switch pageStateViewModel.state {
                 case .home:
                     HomeScreen()
-                case .level:
+                case .level, .finished:
                     LevelScreen()
                 case .loading:
                     LoadingScreen()
@@ -60,11 +60,6 @@ struct MainScreen: View {
                                 pageStateViewModel.setOverlay(isActive: false)
                             }
                         }
-                    }
-                case .finished:
-                    // TODO: adding finished state
-                    VStack {
-                        Text("Finished!")
                     }
                 }
             }
