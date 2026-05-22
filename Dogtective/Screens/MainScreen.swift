@@ -72,15 +72,14 @@ struct MainScreen: View {
                             }
                         }
                     }
-                }
-                .onAppear {
-
-                    DispatchQueue.main.async {
-                        let currentName = cutsceneViewModel.cutsceneName
-                        
-                        if gameSettingsViewModel.soundEnabled {
-                            if currentName == "cutscene_1" || currentName == "cutscene_4" {
-                                AudioManager.shared.playCutsceneSound(fileName: "screaming_sound", loop: -1)
+                    .onAppear {
+                        DispatchQueue.main.async {
+                            let currentName = cutsceneViewModel.cutsceneName
+                            
+                            if gameSettingsViewModel.soundEnabled {
+                                if currentName == "cutscene_1" || currentName == "cutscene_4" {
+                                    AudioManager.shared.playCutsceneSound(fileName: "screaming_sound", loop: 0)
+                                }
                             }
                         }
                     }
