@@ -74,6 +74,14 @@ class NpcEntity: BaseEntity {
 
         node.addChild(bubbleNode)
         super.init(node: node)
+        
+        let shadow = SKShapeNode(ellipseOf: CGSize(width: 34, height: 12))
+        shadow.fillColor = .black
+        shadow.strokeColor = .clear
+        shadow.alpha = 0.3
+        shadow.position = CGPoint(x: 0, y: -node.size.height / 2 + 7)
+        shadow.zPosition = -1
+        node.addChild(shadow)
 
         let npcIdleTextures = (0...59).map { i in
             let textureName = String(format: "\(framePrefix)_%02d", i)
