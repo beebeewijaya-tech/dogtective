@@ -22,9 +22,11 @@ struct LevelScreen: View {
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
     
+    @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
     
     // MARK: - State
     @State private var selectedLevel: Int? = nil
+    @State private var unlockedLevels: Int = 1
     
     private let audioManager = AudioManager.shared
     
@@ -65,10 +67,10 @@ struct LevelScreen: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(1...10, id: \.self) { index in
-                                let isOpened = index == 1
+                                let isOpened = index <= unlockedLevels
                                 
                                 Button(action: {
-                                    // 1. Update suara klik poster level
+                                    
                                     audioManager.playSFX(
                                         fileName: "selectmenu_sound",
                                         isSoundEnabled: gameSettingsViewModel.soundEnabled
@@ -80,31 +82,46 @@ struct LevelScreen: View {
                                         }
                                     }
                                 }) {
-                                    
                                     ZStack {
+                                        
                                         Image("poster_level_\(index)")
                                             .resizable()
                                             .scaledToFit()
-                                            .scaleEffect(0.9)
-                                            .colorMultiply(
-                                                isOpened ? .white : lockedColor
+                                            .colorMultiply(isOpened ? .white : lockedColor)
+                                            .shadow(color: .black.opacity(0.3), radius: 3, x: 2, y: 2)
+                                        
+                                        
+                                        // MARK: - Stamp Placement
+                                        if index == 1 && (pageStateViewModel.state == .finished || gameSettingsViewModel.gameFinished) {
+                                            
+                                            StampComponent(
+                                                isJustFinished: pageStateViewModel.state == .finished,
+                                                onAnimationComplete: {
+                                                    
+                                                    pageStateViewModel.state = .level
+                                                    
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                        
+                                                        AudioManager.shared.playSFX(
+                                                            fileName: "cheer_sound",
+                                                            isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                                        )
+                                                        
+                                                        withAnimation(.easeInOut(duration: 1.0)) {
+                                                            unlockedLevels = 2
+                                                        }
+                                                    }
+                                                    
+                                                }
                                             )
-                                            .shadow(
-                                                color: .black.opacity(0.3),
-                                                radius: 3,
-                                                x: 2,
-                                                y: 2
-                                            )
-                                            .rotationEffect(
-                                                .degrees(
-                                                    rotations[index % rotations.count]
-                                                )
-                                            )
-                                            .offset(
-                                                y: yOffsets[index % yOffsets.count]
-                                            )
+                                            .frame(width: 150, height: 150)
+                                            .zIndex(2)
+                                        }
                                     }
                                     .frame(width: 200, height: 280)
+                                    .scaleEffect(0.9)
+                                    .rotationEffect(.degrees(rotations[index % rotations.count]))
+                                    .offset(y: yOffsets[index % yOffsets.count])
                                 }
                             }
                         }
@@ -161,9 +178,16 @@ struct LevelScreen: View {
                 }
             }
         }
+        .onAppear {
+
+            if gameSettingsViewModel.gameFinished && pageStateViewModel.state != .finished {
+                unlockedLevels = 2
+            } else {
+                unlockedLevels = 1
+            }
+        }
     }
 }
-
 
 // MARK: - Preview
 struct LevelScreen_Previews: PreviewProvider {

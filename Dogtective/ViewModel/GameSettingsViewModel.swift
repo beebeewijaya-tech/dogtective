@@ -28,12 +28,12 @@ class GameSettingsViewModel: ObservableObject {
     @Published var currentCutscene: Int = 1
     @Published var gameScene: String = "police"
     @Published var collectedEvidence: [String] = []
+    @Published var gameFinished: Bool = false
 
     // MARK: - Non persist
     @Published var fenceDialogShown: Bool = false
     @Published var hasCheckedBackyard: Bool = false
     @Published var isFinalScene: Bool = false
-    @Published var gameFinished: Bool = false
     
     // MARK: - Action
     
@@ -66,6 +66,8 @@ class GameSettingsViewModel: ObservableObject {
         print("load settings currentCutscene: \(currentCutscene)")
         print("load settings gameScene: \(gameScene)")
         print("load settings collectedEvidence: \(collectedEvidence)")
+        
+        gameFinished = settings.gameFinished
     }
     
     func save() {
@@ -82,6 +84,7 @@ class GameSettingsViewModel: ObservableObject {
         settings.currentCutscene = currentCutscene
         settings.gameScene = gameScene
         settings.collectedEvidence = collectedEvidence
+        settings.gameFinished = gameFinished
         try? context.save()
     }
     
@@ -105,6 +108,7 @@ class GameSettingsViewModel: ObservableObject {
             collectedEvidence = []
             fenceDialogShown = false
             hasCheckedBackyard = false
+            gameFinished = false 
             
             try context.delete(model: GameSettings.self)
             save()
