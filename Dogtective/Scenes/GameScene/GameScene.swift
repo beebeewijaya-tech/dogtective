@@ -449,6 +449,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if gameSettingsViewModel.isFinalScene && node.position.x < -445 {
             gameSettingsViewModel.isFinalScene = false
+            gameSettingsViewModel.gameFinished = true
+            gameSettingsViewModel.save()
+            
             self.setCutscene(cutscene: 5, nextPage: .finished)
         }
     }
