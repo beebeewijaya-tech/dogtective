@@ -24,7 +24,10 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
         super.init()
     }
     
-    func playMusic(fileName: String) {
+    func playMusic(fileName: String, isSoundEnabled: Bool = true) {
+        
+        guard isSoundEnabled else { return }
+        
         guard let url = Bundle.main.url(forResource: fileName, withExtension: "wav") else { return }
         
         do {
@@ -141,10 +144,12 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
         campfirePlayer = nil
     }
     
-    func playCutsceneSound(fileName: String, loop: Int = 0) {
+    func playCutsceneSound(fileName: String, loop: Int = 0, isSoundEnabled: Bool = true) {
+        // BENTENG PENJAGA
+        guard isSoundEnabled else { return }
+        
         guard let url = Bundle.main.url(forResource: fileName, withExtension: "wav") else { return }
         do {
-            
             player?.stop()
             
             cutscenePlayer = try AVAudioPlayer(contentsOf: url)
@@ -157,10 +162,12 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
     
     
-    func fadeOutCutsceneAndResumeMusic(duration: TimeInterval = 1.5) {
+    func fadeOutCutsceneAndResumeMusic(duration: TimeInterval = 1.5, isSoundEnabled: Bool = true) {
+        // BENTENG PENJAGA
+        guard isSoundEnabled else { return }
+        
         guard let csPlayer = cutscenePlayer, csPlayer.isPlaying else {
-            
-            self.playMusic(fileName: self.currentMusicFile)
+            self.playMusic(fileName: self.currentMusicFile, isSoundEnabled: isSoundEnabled)
             return
         }
         
@@ -171,7 +178,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
             csPlayer.stop()
             self.cutscenePlayer = nil
             
-            self.playMusic(fileName: self.currentMusicFile)
+            self.playMusic(fileName: self.currentMusicFile, isSoundEnabled: isSoundEnabled)
         }
     }
     
@@ -189,4 +196,5 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate {
             player.prepareToPlay()
         } catch { }
     }
+    
 }

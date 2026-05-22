@@ -87,20 +87,25 @@ class GameSettingsViewModel: ObservableObject {
     
     func reset() {
         guard let context else { return }
+        
+        let currentSound = soundEnabled
+        let currentHaptics = hapticsEnabled
                
         do {
             isFirstTime = true
             playerPosition = .zero
             numOfEvidence = 0
             currentQuest = 0
-            soundEnabled = true
-            hapticsEnabled = true
+            soundEnabled = currentSound
+            hapticsEnabled = currentHaptics
+            
             currentLevel = 0
             currentCutscene = 1
             gameScene = "police"
             collectedEvidence = []
             fenceDialogShown = false
             hasCheckedBackyard = false
+            
             try context.delete(model: GameSettings.self)
             save()
         } catch {

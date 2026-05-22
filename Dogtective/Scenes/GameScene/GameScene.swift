@@ -498,4 +498,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             break
         }
     }
+    
+    private func checkBonfireProximity() {
+        guard let playerNode = playerEntity?.node else { return }
+        
+        var isNearBonfire = false
+
+        for bonfire in bonfirePositions {
+            let dx = playerNode.position.x - bonfire.position.x
+            let dy = playerNode.position.y - bonfire.position.y
+            let distance = hypot(dx, dy)
+            
+            if distance <= campfireRadius {
+                isNearBonfire = true
+                break
+            }
+        }
+    
+        if isNearBonfire && !isCampfireSoundPlaying {
+            isCampfireSoundPlaying = true
+
+            let soundEnabled = gameSettingsViewModel?.soundEnabled ?? true
+            AudioManager.shared.startCampfireSound(isSoundEnabled: soundEnabled)
+            
+        } else if !isNearBonfire && isCampfireSoundPlaying {
+            isCampfireSoundPlaying = false
+
+            AudioManager.shared.stopCampfireSound()
+        }
+    }
 }
