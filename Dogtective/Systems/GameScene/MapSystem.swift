@@ -538,11 +538,14 @@ extension GameScene {
 
     private func allParticleConfigs() -> [ParticleConfig] {
         var out: [ParticleConfig] = []
-        out.append(ParticleConfig(
-            fileName: "BonFire",
-            position: bonfirePosition,
-            particleSize: CGSize(width: 100, height: 100)
-        ))
+        for bf in bonfirePositions {
+            out.append(ParticleConfig(
+                fileName: "BonFire",
+                position: bf.position,
+                particleSize: CGSize(width: 100, height: 100),
+                burnOnly: bf.burnOnly
+            ))
+        }
         for pos in foodStallPosition {
             out.append(ParticleConfig(fileName: "FoodStallSmoke", position: pos, particleSize: nil))
         }
