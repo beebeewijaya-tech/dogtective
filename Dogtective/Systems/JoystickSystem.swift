@@ -11,7 +11,7 @@ import GameplayKit
 class JoystickSystem: GKComponentSystem<JoystickComponent> {
     var cam: SKCameraNode?
     var joystickEntity: JoystickEntity?
-    var scene: SKScene?
+    weak var scene: SKScene?
     
     init(joystickEntity: JoystickEntity?, cam: SKCameraNode? = nil, scene: SKScene? = nil) {
         self.cam = cam

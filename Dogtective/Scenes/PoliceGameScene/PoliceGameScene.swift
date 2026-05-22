@@ -107,6 +107,27 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
 
     override func willMove(from view: SKView) {
         NotificationCenter.default.removeObserver(self, name: .saveGameRequested, object: nil)
+        resetMemory()
+    }
+    
+    func resetMemory() {
+        removeAllActions()
+        removeAllChildren()
+        movementSystem = nil
+        ysortSystem = nil
+        joystickSystem = nil
+        npcSystem = nil
+        playerEntity = nil
+        joystickEntity = nil
+        minimapStateViewModel = nil
+        dialogStateViewModel = nil
+        questStateViewModel = nil
+        gameSettingsViewModel = nil
+        backpackStateViewModel = nil
+        cutsceneViewModel = nil
+        pageStateViewModel = nil
+        nextScene = nil
+        sceneTransaction = nil
     }
 
     @objc private func handleSaveRequested() {
