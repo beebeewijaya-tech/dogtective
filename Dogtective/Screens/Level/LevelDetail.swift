@@ -20,6 +20,8 @@ struct LevelDetailOverlay: View {
     let data: LevelData
     var onClose: () -> Void
     
+    private let audioManager = AudioManager.shared
+    
     var body: some View {
         ZStack {
             
@@ -72,6 +74,13 @@ struct LevelDetailOverlay: View {
                         // 2 Buttons ( Resume, New Game )
                         HStack(spacing: 12) {
                             Button(action: {
+                                
+                                // Update suara tombol Resume
+                                audioManager.playSFX(
+                                    fileName: "selectmenu_sound",
+                                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                )
+                                
                                 withAnimation(.easeInOut(duration: 0.5)) {
                                     pageStateViewModel.state = .loading
                                 }
@@ -86,6 +95,16 @@ struct LevelDetailOverlay: View {
                             
                             
                             Button(action: {
+                                
+                                // Update suara tombol New Game
+                                audioManager.playSFX(
+                                    fileName: "selectmenu_sound",
+                                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                )
+                                
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    pageStateViewModel.state = .loading
+                                }
                                 print("New game level \(data.id)")
                                 // reset current level
                                 gameSettingsViewModel.reset()
@@ -113,7 +132,12 @@ struct LevelDetailOverlay: View {
                         // IF Game is totally new
                         // Button INVESTIGATE
                         Button(action: {
-                            // render loading
+                 
+                            audioManager.playSFX(
+                                fileName: "selectmenu_sound",
+                                isSoundEnabled: gameSettingsViewModel.soundEnabled
+                            )
+                            
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 pageStateViewModel.state = .loading
                             }

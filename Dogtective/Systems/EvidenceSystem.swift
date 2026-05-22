@@ -254,6 +254,11 @@ final class EvidenceSystem: GKComponentSystem<EvidenceComponent> {
         }
 
         spawnFloatingItem(on: playerNode, type: floatingType, scale: floatingScale)
+        
+        AudioManager.shared.playSFX(
+            fileName: "evidence_found_sound",
+            isSoundEnabled: gameSettingsViewModel?.soundEnabled ?? true
+        )
 
         let foundFrames = loadFrames(
             atlasName: "player_evidence_found",

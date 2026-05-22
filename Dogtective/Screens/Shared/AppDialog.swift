@@ -12,25 +12,37 @@ struct AppDialog: View {
     var text: String
     var image: String? = nil
     var onClose: () -> Void = {}
-
+    
     // MARK: - State
     @State var nameDisplay: String = ""
     @State var textDisplay: String = ""
     @State var isAnimating: Bool = true
-
+    
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
+    private let audioManager = AudioManager.shared
+    
     private func animateName() async {
         for n in name.uppercased() {
+            guard isAnimating else { break }
             nameDisplay += String(n)
             try? await Task.sleep(for: .milliseconds(20))
         }
     }
     
     private func animateText() async {
+        
+        audioManager.playTypingSound(isSoundEnabled: gameSettingsViewModel.soundEnabled)
+        
         for t in text.capitalized {
+            guard isAnimating else { break }
             textDisplay += String(t)
             try? await Task.sleep(for: .milliseconds(20))
         }
-        isAnimating = false
+        
+        if isAnimating {
+            audioManager.stopTypingSound()
+            isAnimating = false
+        }
     }
     
     var body: some View {
@@ -49,7 +61,7 @@ struct AppDialog: View {
                         .offset(x: 20, y: -90)
                         .zIndex(0)
                 }
-
+                
                 // 2) main text bubble.
                 Image("dialog_text_bubble")
                     .resizable()
@@ -67,7 +79,7 @@ struct AppDialog: View {
                     }
                     .padding(.top, 25)
                     .zIndex(1)
-
+                
                 // 3) name plate on top of everything.
                 Image("dialog_head_bubble")
                     .resizable()
@@ -86,14 +98,30 @@ struct AppDialog: View {
         .contentShape(Rectangle())
         .onTapGesture {
             if isAnimating {
+                
                 isAnimating = false
+                nameDisplay = name.uppercased()
+                textDisplay = text.capitalized
+                AudioManager.shared.stopTypingSound()
             } else {
+                
+                AudioManager.shared.stopTypingSound()
                 onClose()
             }
         }
         .task {
+            
+            audioManager.playSFX(
+                fileName: "woof_sound",
+                isSoundEnabled: gameSettingsViewModel.soundEnabled
+            )
+            
             await animateName()
             await animateText()
+        }
+        
+        .onDisappear {
+            AudioManager.shared.stopTypingSound()
         }
     }
 }
