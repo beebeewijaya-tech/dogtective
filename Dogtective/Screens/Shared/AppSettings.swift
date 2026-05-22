@@ -12,6 +12,8 @@ struct AppSettings: View {
     // MARK: - ViewModel
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     
+    private let audioManager = AudioManager.shared
+    
     // MARK: - Props
     var isBack: Bool = false
     var isBackAction: () -> Void = { }
@@ -21,6 +23,11 @@ struct AppSettings: View {
         HStack {
             if isBack {
                 Button(action: {
+                    
+                    audioManager.playSFX(
+                        fileName: "selectmenu_sound",
+                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                    )
                     isBackAction()
                 }) {
                     Image("backButton")
@@ -36,6 +43,11 @@ struct AppSettings: View {
             HStack(spacing: 15) {
                 
                 Button(action: {
+                    
+                    audioManager.playSFX(
+                        fileName: "selectmenu_sound",
+                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                    )
                     gameSettingsViewModel.hapticsEnabled.toggle()
                     gameSettingsViewModel.save()
                 }) {
@@ -50,6 +62,11 @@ struct AppSettings: View {
                 }
                 
                 Button(action: {
+                    
+                    audioManager.playSFX(
+                        fileName: "selectmenu_sound",
+                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                    )
                     gameSettingsViewModel.soundEnabled.toggle()
                     gameSettingsViewModel.save()
                 }) {

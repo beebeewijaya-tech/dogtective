@@ -50,6 +50,9 @@ struct HomeScreen: View {
                 }
                 // 4. Play Button
                 Button(action: {
+                    
+                    audioManager.playSFX(fileName: "selectmenu_sound", isSoundEnabled: gameSettingsViewModel.soundEnabled)
+                    
                     showingLevelScreen = true
                 }) {
                     Image("play_button")

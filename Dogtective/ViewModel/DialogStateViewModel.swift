@@ -37,6 +37,8 @@ class DialogStateViewModel: ObservableObject {
     }
     
     func resetDialog() {
+        AudioManager.shared.stopTypingSound()
+        
         self.dialog = nil
         self.npc = nil
         self.npcImage = nil
