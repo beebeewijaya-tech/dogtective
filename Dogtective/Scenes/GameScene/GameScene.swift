@@ -113,7 +113,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     // TODO: think better way to put global variable
-    var bonfirePosition = CGPoint(x: 1792, y: 492)
+    var bonfirePositions: [(position: CGPoint, burnOnly: Bool)] = [
+        (CGPoint(x: 1792, y: 492), false),
+        // Burn
+        (CGPoint(x: 1652, y: 940), true),
+        (CGPoint(x: 2338, y: 739), true),
+        (CGPoint(x: 2120, y: 949), true),
+    ]
     var foodStallPosition: [CGPoint] = [
         // from left map to right
         CGPoint(x: -124, y: 131),
