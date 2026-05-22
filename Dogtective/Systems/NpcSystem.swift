@@ -11,6 +11,7 @@ final class NpcSystem {
     weak var scene: SKScene?
     weak var playerEntity: PlayerEntity?
     weak var dialogStateViewModel: DialogStateViewModel?
+    var gameSettingsViewModel: GameSettingsViewModel?
 
     let npcs: [NpcEntity]
 
@@ -84,7 +85,7 @@ final class NpcSystem {
             let npcNode = proxBody.node?.parent
             activeNpc?.animation?.removeBubbleChat()
             activeNpc = npcs.first { $0.node === npcNode }
-            activeNpc?.animation?.playBubbleChat()
+            activeNpc?.animation?.playBubbleChat(isSoundEnabled: gameSettingsViewModel?.soundEnabled ?? true)
             vm.setState(.bubble)
         default:
             return

@@ -18,6 +18,8 @@ struct LoadingScreen: View {
     @State private var activePaws = 0
     @State private var navigateToGame = false
     
+    private let audioManager = AudioManager.shared
+    
     let timer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -59,6 +61,12 @@ struct LoadingScreen: View {
                     }
                 }
                 .padding(.bottom, 60)
+            }
+        }
+        .onAppear {
+            if !gameSettingsViewModel.soundEnabled {
+                audioManager.stopAllSounds()
+                audioManager.stopMusic()
             }
         }
         .onReceive(timer) { _ in

@@ -26,6 +26,7 @@ struct LevelScreen: View {
     // MARK: - State
     @State private var selectedLevel: Int? = nil
     
+    private let audioManager = AudioManager.shared
     
     // MARK: - Local immutable property
     let rotations: [Double] = [-5.0, 6.0, -1.0, -8.0, 5.0]
@@ -67,6 +68,12 @@ struct LevelScreen: View {
                                 let isOpened = index == 1
                                 
                                 Button(action: {
+                                    // 1. Update suara klik poster level
+                                    audioManager.playSFX(
+                                        fileName: "selectmenu_sound",
+                                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                    )
+                                    
                                     if isOpened {
                                         withAnimation(.easeInOut(duration: 0.25)) {
                                             selectedLevel = index
@@ -118,6 +125,12 @@ struct LevelScreen: View {
                     LevelDetailOverlay(
                         data: levelInfo
                     ) {
+                        
+                        audioManager.playSFX(
+                            fileName: "selectmenu_sound",
+                            isSoundEnabled: gameSettingsViewModel.soundEnabled
+                        )
+                        
                         withAnimation(.easeInOut(duration: 0.25)) {
                             selectedLevel = nil
                         }
@@ -129,12 +142,21 @@ struct LevelScreen: View {
             
             // MARK: - Fixed Header
             AppSettings(isBack: true) {
-                // When back getting tap
+                
+                audioManager.playSFX(
+                    fileName: "selectmenu_sound",
+                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                )
+                
                 if selectedLevel != nil {
                     withAnimation(.easeInOut(duration: 0.25)) {
                         selectedLevel = nil
                     }
                 } else {
+                    
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        pageStateViewModel.state = .home
+                    }
                     dismiss()
                 }
             }

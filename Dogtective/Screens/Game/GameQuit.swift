@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct GameQuit: View {
-
+    
     @Binding var showQuitConfirmation: Bool
     @Binding var isPaused: Bool
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
+    
+    private let audioManager = AudioManager.shared
     
     var body: some View {
         ZStack {
@@ -24,6 +27,12 @@ struct GameQuit: View {
             HStack(spacing: -5) {
                 
                 Button(action: {
+                    // SUDAH TEPAT!
+                    audioManager.playSFX(
+                        fileName: "selectmenu_sound",
+                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                    )
+                    
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showQuitConfirmation = false
                         isPaused = false
@@ -36,6 +45,12 @@ struct GameQuit: View {
                 }
                 
                 Button(action: {
+
+                    audioManager.playSFX(
+                        fileName: "selectmenu_sound",
+                        isSoundEnabled: gameSettingsViewModel.soundEnabled
+                    )
+                    
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showQuitConfirmation = false
                         isPaused = false

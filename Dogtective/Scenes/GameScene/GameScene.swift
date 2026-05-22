@@ -138,6 +138,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     weak var tissueMarkerNode: SKNode?
     var hasSpawnedFinalEvidence = false
     private var isBillyQuestRecording = false
+    private var hasSpawnedFinalEvidence = false
+    private let campfireRadius: CGFloat = 200.0
+    private var isCampfireSoundPlaying = false
     
     override func didMove(to view: SKView) {
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
@@ -190,6 +193,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.setupPlayer()
             self.setupJoystick()
             self.setupNpcSystem(npcs)
+            
+            self.npcSystem?.gameSettingsViewModel = self.gameSettingsViewModel
+            
             if chunkManager == nil {
                 // we pre-warmed the setupbackground call from police transition scene
                 self.setupBackground()
@@ -249,6 +255,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         npcSystem?.update()
         followBillyPosition()
         endGameMonitoring()
+        checkBonfireProximity()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -356,7 +363,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if gameSettingsViewModel?.currentCutscene == 3 && !(gameSettingsViewModel?.fenceDialogShown ?? false) && count >= 7 {
             let dialogFence = { [weak self] in
-                guard let self else { return }
+                guard let self = self else { return }
                 self.gameSettingsViewModel?.fenceDialogShown = true
                 self.dialogStateViewModel?.setDialog(
                     dialog: Dialog(message: "Maybe I should check the apartment behind the cafe.", evidence: false),
@@ -368,20 +375,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.setCutscene(cutscene: 3)
                 }
             }
-            // Fence Cutscene
             if dialogStateViewModel?.dialog != nil {
-                // if there is dialog
                 dialogStateViewModel?.continuation = dialogFence
             } else {
                 dialogFence()
             }
-            
         }
         
         if gameSettingsViewModel?.currentCutscene == 4 && !hasCheckedBackyard && count >= 8 {
             gameSettingsViewModel?.hasCheckedBackyard = true
             if dialogStateViewModel?.dialog != nil {
-                dialogStateViewModel?.continuation = {
+                dialogStateViewModel?.continuation = { [weak self] in
+                    guard let self = self else { return }
                     self.nextQuest()
                     self.gameSettingsViewModel?.playerPosition = self.durantFirstPosition
                     self.setCutscene(cutscene: 4)

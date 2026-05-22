@@ -52,12 +52,35 @@ struct MainScreen: View {
                         
                         Task {
                             try? await Task.sleep(for: .seconds(0.25))
+
+                            let currentName = cutsceneViewModel.cutsceneName
+                    
+                    if gameSettingsViewModel.soundEnabled {
+                        if currentName == "cutscene_1" || currentName == "cutscene_4" {
+                            AudioManager.shared.fadeOutCutsceneAndResumeMusic(duration: 1.5)
+                        } else {
+                            AudioManager.shared.playMusic(fileName: "dogtective_song")
+                        }
+                    }
+                    
                             pageStateViewModel.navigateToNextState()
                             cutsceneViewModel.incrementCutscene()
                             gameSettingsViewModel.currentCutscene = cutsceneViewModel.cutscene
                             gameSettingsViewModel.save()
                             withAnimation(.easeOut(duration: 0.2)) {
                                 pageStateViewModel.setOverlay(isActive: false)
+                            }
+                        }
+                    }
+                }
+                .onAppear {
+
+                    DispatchQueue.main.async {
+                        let currentName = cutsceneViewModel.cutsceneName
+                        
+                        if gameSettingsViewModel.soundEnabled {
+                            if currentName == "cutscene_1" || currentName == "cutscene_4" {
+                                AudioManager.shared.playCutsceneSound(fileName: "screaming_sound", loop: -1)
                             }
                         }
                     }

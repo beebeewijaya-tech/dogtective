@@ -15,6 +15,8 @@ struct GamePause: View {
     
     @State private var showQuitConfirmation = false
     
+    private let audioManager = AudioManager.shared
+    
     var body: some View {
         ZStack {
             
@@ -48,6 +50,11 @@ struct GamePause: View {
                             HStack(spacing: 20) {
                                 
                                 Button(action: {
+                                    
+                                    audioManager.playSFX(
+                                            fileName: "selectmenu_sound",
+                                            isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                        )
                                     gameSettingsViewModel.hapticsEnabled.toggle()
                                     gameSettingsViewModel.save()
                                 }) {
@@ -56,8 +63,13 @@ struct GamePause: View {
                                         .scaledToFit()
                                         .frame(width: 55, height: 55)
                                 }
-
+                                
                                 Button(action: {
+                                    
+                                    audioManager.playSFX(
+                                            fileName: "selectmenu_sound",
+                                            isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                        )
                                     gameSettingsViewModel.soundEnabled.toggle()
                                     gameSettingsViewModel.save()
                                 }) {
@@ -69,8 +81,13 @@ struct GamePause: View {
                             }
                             
                             Button(action: {
+                                
+                                audioManager.playSFX(
+                                    fileName: "selectmenu_sound",
+                                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                )
                                 NotificationCenter.default.post(name: .saveGameRequested, object: nil)
-
+                                
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isPaused = false
                                     showSaveToast = true
@@ -83,6 +100,11 @@ struct GamePause: View {
                             }
                             
                             Button(action: {
+                                
+                                audioManager.playSFX(
+                                    fileName: "selectmenu_sound",
+                                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                )
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     showQuitConfirmation = true
                                 }
@@ -100,6 +122,12 @@ struct GamePause: View {
                     VStack {
                         HStack {
                             Button(action: {
+                                
+                                // Update suara tombol Back
+                                audioManager.playSFX(
+                                    fileName: "selectmenu_sound",
+                                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                                )
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isPaused = false
                                 }
@@ -118,13 +146,20 @@ struct GamePause: View {
                 .transition(.scale(scale: 0.9).combined(with: .opacity))
                 
             } else {
-               
+                
                 GameQuit(showQuitConfirmation: $showQuitConfirmation, isPaused: $isPaused)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .zIndex(100)
+        .onAppear {
+
+            audioManager.dimBackgroundMusic(isDimmed: true)
+        }
+        .onDisappear {
+
+            audioManager.dimBackgroundMusic(isDimmed: false)
+        }
     }
 }
-

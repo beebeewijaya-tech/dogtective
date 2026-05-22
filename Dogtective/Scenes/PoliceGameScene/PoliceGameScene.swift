@@ -82,6 +82,9 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
             playerEntity: playerEntity,
             dialogStateViewModel: dialogStateViewModel
         )
+
+        self.npcSystem?.gameSettingsViewModel = self.gameSettingsViewModel
+        
         self.npcSystem?.onEvidenceDialogShown = { [weak self] _ in
             self?.checkQuest()
         }

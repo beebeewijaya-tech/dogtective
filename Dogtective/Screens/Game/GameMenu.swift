@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GameMenu: View {
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
+    @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     
     @State private var isBackpackOpen = false
     @Binding var isPaused: Bool
@@ -60,8 +61,11 @@ struct GameMenu: View {
                         let wasOpen = isBackpackOpen
                         
                         if !wasOpen {
-                            
-                            audioManager.playSFX(fileName: "backpack_sound")
+                            // 2. Update suara backpack
+                            audioManager.playSFX(
+                                fileName: "backpack_sound",
+                                isSoundEnabled: gameSettingsViewModel.soundEnabled
+                            )
                         }
                         
                         withAnimation(.easeInOut(duration: 0.3)) {
@@ -92,6 +96,12 @@ struct GameMenu: View {
             .frame(width: 430, height: 60, alignment: .trailing)
             
             AppIcon(icon: "pauseButton", size: .medium) {
+
+                audioManager.playSFX(
+                    fileName: "selectmenu_sound",
+                    isSoundEnabled: gameSettingsViewModel.soundEnabled
+                )
+                
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isPaused = true
                 }
