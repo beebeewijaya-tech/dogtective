@@ -83,12 +83,17 @@ struct GameScreen: View {
                         scene: scene ?? SKScene(),
                         options: [.ignoresSiblingOrder],
                     )
+                    .saturation(0.8)
                     .onAppear {
                         guard scene == nil else { return }
                         scene = makeScene(size: geo.size)
                     }
                 }
                 .ignoresSafeArea(.all)
+                LinearGradient(colors: [.clear, .black.opacity(0.5)], startPoint: .center, endPoint: .bottom)
+                    .ignoresSafeArea(.all)
+                    .allowsHitTesting(false)
+                    .zIndex(1)
                 
                 if dialogStateViewModel.dialog != nil {
                     AppDialog(

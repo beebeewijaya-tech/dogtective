@@ -331,7 +331,7 @@ extension GameScene {
             .smallObstacle(at: CGPoint(x: 1670, y: -74), textureName: "bench_front"),
             .smallObstacle(at: CGPoint(x: 1472, y: -74), textureName: "bench_front"),
             .smallObstacle(at: CGPoint(x: 1161, y: 107), textureName: "big_trash_bin"),
-            .smallObstacle(at: CGPoint(x: 1200, y: 107), textureName: "box_no_open"),
+            .smallObstacle(at: CGPoint(x: 1200, y: 107), textureName: "box_no_open", zOffset: 5),
             .pole(at: CGPoint(x: 1895, y: 143), textureName: "standing_lamp"),
             
             // middle coffe shop section
@@ -391,7 +391,7 @@ extension GameScene {
             .pole(at: CGPoint(x: -1197, y: 289), textureName: "cross_sign"),
             
             // top section
-            .pole(at: CGPoint(x: -618, y: 534), textureName: "cross_sign"),
+            .pole(at: CGPoint(x: -624, y: 514), textureName: "cross_sign"),
             
             // MARK: - Bush detail effect
             .bushObstacle(at: CGPoint(x: -471, y: 663), textureName: "bush_small"),
