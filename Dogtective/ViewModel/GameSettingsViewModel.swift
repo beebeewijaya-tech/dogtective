@@ -35,6 +35,8 @@ class GameSettingsViewModel: ObservableObject {
     @Published var hasCheckedBackyard: Bool = false
     @Published var isFinalScene: Bool = false
     
+    @Published var unlockedLevels: Int = 1
+    
     // MARK: - Action
     
     func configure(context: ModelContext) {
@@ -68,6 +70,8 @@ class GameSettingsViewModel: ObservableObject {
         print("load settings collectedEvidence: \(collectedEvidence)")
         
         gameFinished = settings.gameFinished
+        
+        unlockedLevels = settings.unlockedLevels
     }
     
     func save() {
@@ -85,6 +89,7 @@ class GameSettingsViewModel: ObservableObject {
         settings.gameScene = gameScene
         settings.collectedEvidence = collectedEvidence
         settings.gameFinished = gameFinished
+        settings.unlockedLevels = unlockedLevels
         try? context.save()
     }
     
@@ -108,7 +113,8 @@ class GameSettingsViewModel: ObservableObject {
             collectedEvidence = []
             fenceDialogShown = false
             hasCheckedBackyard = false
-            gameFinished = false 
+            gameFinished = false
+            unlockedLevels = 1
             
             try context.delete(model: GameSettings.self)
             save()
@@ -116,6 +122,23 @@ class GameSettingsViewModel: ObservableObject {
             print("error when resetting settings: \(error)")
         }
     }
+    
+    func restartCurrentLevel() {
+            // Hanya reset posisi, quest, dan barang bawaan untuk level ini
+            playerPosition = .zero
+            numOfEvidence = 0
+            currentQuest = 0
+            currentCutscene = 1
+            gameScene = "police"
+            collectedEvidence = []
+            fenceDialogShown = false
+            hasCheckedBackyard = false
+            
+            // PENTING: Jangan ubah unlockedLevels, gameFinished, atau isFirstTime
+            // dan JANGAN jalankan context.delete()
+            
+            save() // Langsung simpan perubahan state ini
+        }
     
     private func fetchOrCreateSettings() -> GameSettings {
         let descriptor = FetchDescriptor<GameSettings>()
