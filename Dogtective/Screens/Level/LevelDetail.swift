@@ -15,7 +15,7 @@ struct LevelDetailOverlay: View {
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
     @EnvironmentObject var questStateViewModel: QuestStateViewModel
     @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
-
+    
     // MARK: - Local Property
     let data: LevelData
     var onClose: () -> Void
@@ -107,11 +107,11 @@ struct LevelDetailOverlay: View {
                                 }
                                 print("New game level \(data.id)")
                                 // reset current level
-                                gameSettingsViewModel.reset()
+                                gameSettingsViewModel.restartCurrentLevel() // Panggil fungsi baru
                                 backpackStateViewModel.reset()
                                 questStateViewModel.reset()
                                 cutsceneViewModel.reset()
-                                gameSettingsViewModel.load()
+                                // gameSettingsViewModel.load() <--- Hapus baris load() ini karena restartCurrentLevel sudah melakukan save()
                                 
                                 withAnimation(.easeInOut(duration: 0.5)) {
                                     pageStateViewModel.state = .loading
@@ -132,7 +132,7 @@ struct LevelDetailOverlay: View {
                         // IF Game is totally new
                         // Button INVESTIGATE
                         Button(action: {
-                 
+                            
                             audioManager.playSFX(
                                 fileName: "selectmenu_sound",
                                 isSoundEnabled: gameSettingsViewModel.soundEnabled
