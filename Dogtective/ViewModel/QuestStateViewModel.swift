@@ -15,16 +15,7 @@ struct Quest {
 }
 
 class QuestStateViewModel: ObservableObject {
-    @Published var questList: [Quest] = [
-        Quest(title: "Talked to residents", done: false, doneCondition: 3, isLoading: false),
-        Quest(title: "Leave the police office", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Find the first evidence at the park", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Gather more evidence around the city", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Check the backyard", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Follow Billy to the park", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Investigate the burned park", done: false, doneCondition: 1, isLoading: false),
-        Quest(title: "Report to the police", done: false, doneCondition: 1, isLoading: false),
-    ]
+    @Published var questList: [Quest] = []
     @Published var currentProgress: Int = 0
     @Published var currentIndex: Int = 0
     
@@ -45,6 +36,10 @@ class QuestStateViewModel: ObservableObject {
             return "\(q.title) (\(currentProgress)/\(q.doneCondition))"
         }
         return q.title
+    }
+    
+    func setQuestList(_ quests: [Quest]) {
+        self.questList = quests
     }
     
     func recordProgress() async throws {

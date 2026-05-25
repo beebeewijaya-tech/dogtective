@@ -28,7 +28,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var cutsceneViewModel: CutsceneViewModel?
     var pageStateViewModel: PageStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
-    
+    var levelViewModel: LevelViewModel?
+
     // MARK: - Evidence
     var evidenceSystem: EvidenceSystem?
     
@@ -444,10 +445,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func endGameMonitoring() {
         guard let questStateViewModel, questStateViewModel.isQuestLast else { return }
         guard let gameSettingsViewModel = gameSettingsViewModel else { return }
+        guard let levelViewModel = levelViewModel else { return }
         guard let node = playerEntity?.node else { return }
         guard node.position.x < -445 else { return }
         
         if gameSettingsViewModel.isFinalScene && node.position.x < -445 {
+            let finishedLevel = levelViewModel.currentLevel ?? 0
+            levelViewModel.setFinished(ids: [finishedLevel])
+            levelViewModel.currentLevel = nil
             gameSettingsViewModel.isFinalScene = false
             gameSettingsViewModel.gameFinished = true
             gameSettingsViewModel.save()

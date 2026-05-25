@@ -24,7 +24,8 @@ class GameSettings {
     var gameScene: String
     var collectedEvidence: [String]
     var gameFinished: Bool
-    var unlockedLevels: Int = 1
+    var levelFinished: [Int]
+    var currentStarted: Int?
     
     // TODO: add list evidence to save not only playerNumOfEvidence
     
@@ -36,11 +37,13 @@ class GameSettings {
         currentQuest: Int = 0,
         soundEnabled: Bool = true,
         hapticsEnabled: Bool = true,
-        currentLevel: Int = 0,
+        currentLevel: Int = -1,
         currentCutscene: Int = 1,
         gameScene: String = "police", // default police
         collectedEvidence: [String] = [],
-        gameFinished: Bool = false
+        gameFinished: Bool = false,
+        levelFinished: [Int] = [],
+        currentStarted: Int? = nil
     ) {
         self.isFirstTime = isFirstTime
         self.playerPositionX = playerPositionX
@@ -54,6 +57,7 @@ class GameSettings {
         self.gameScene = gameScene
         self.collectedEvidence = collectedEvidence
         self.gameFinished = gameFinished
-        self.unlockedLevels = unlockedLevels
+        self.levelFinished = levelFinished
+        self.currentStarted = currentStarted
     }
 }

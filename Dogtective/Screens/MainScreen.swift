@@ -20,6 +20,7 @@ struct MainScreen: View {
     @StateObject var gameSettingsViewModel: GameSettingsViewModel
     @StateObject var backpackStateViewModel: BackpackStateViewModel = BackpackStateViewModel()
     @StateObject var cutsceneViewModel: CutsceneViewModel
+    @StateObject var levelViewModel: LevelViewModel
     
     init() {
         self._pageStateViewModel = StateObject(wrappedValue: PageStateViewModel())
@@ -28,6 +29,7 @@ struct MainScreen: View {
         self._questDialogViewModel = StateObject(wrappedValue: QuestStateViewModel())
         self._gameSettingsViewModel = StateObject(wrappedValue: GameSettingsViewModel())
         self._cutsceneViewModel = StateObject(wrappedValue: CutsceneViewModel())
+        self._levelViewModel = StateObject(wrappedValue: LevelViewModel())
     }
     
     var body: some View {
@@ -42,8 +44,6 @@ struct MainScreen: View {
                     LoadingScreen()
                 case .game:
                     GameScreen()
-                        .environmentObject(minimapStateViewModel)
-                        .environmentObject(dialogStateViewModel)
                 case .cutscene:
                     AppLottie(avatarName: cutsceneViewModel.cutsceneName) {
                         withAnimation(.easeIn(duration: 0.2)) {
@@ -52,17 +52,14 @@ struct MainScreen: View {
                         
                         Task {
                             try? await Task.sleep(for: .seconds(0.25))
-
                             let currentName = cutsceneViewModel.cutsceneName
-                    
-                    if gameSettingsViewModel.soundEnabled {
-                        if currentName == "cutscene_1" || currentName == "cutscene_4" {
-                            AudioManager.shared.fadeOutCutsceneAndResumeMusic(duration: 1.5)
-                        } else {
-                            AudioManager.shared.playMusic(fileName: "dogtective_song")
-                        }
-                    }
-                    
+                            if gameSettingsViewModel.soundEnabled {
+                                if currentName == "cutscene_1" || currentName == "cutscene_4" {
+                                    AudioManager.shared.fadeOutCutsceneAndResumeMusic(duration: 1.5)
+                                } else {
+                                    AudioManager.shared.playMusic(fileName: "dogtective_song")
+                                }
+                            }
                             pageStateViewModel.navigateToNextState()
                             cutsceneViewModel.incrementCutscene()
                             gameSettingsViewModel.currentCutscene = cutsceneViewModel.cutscene
@@ -87,6 +84,7 @@ struct MainScreen: View {
             }
             .task {
                 gameSettingsViewModel.configure(context: context)
+                levelViewModel.setFinished(ids: gameSettingsViewModel.levelFinished)
             }
             .buttonStyle(HapticButtonStyle())
             .environmentObject(pageStateViewModel)
@@ -94,6 +92,9 @@ struct MainScreen: View {
             .environmentObject(backpackStateViewModel)
             .environmentObject(questDialogViewModel)
             .environmentObject(cutsceneViewModel)
+            .environmentObject(minimapStateViewModel)
+            .environmentObject(dialogStateViewModel)
+            .environmentObject(levelViewModel)
             
             
             if pageStateViewModel.showOverlay {
