@@ -26,7 +26,6 @@ struct LevelScreen: View {
     
     // MARK: - State
     @State private var selectedLevel: Int? = nil
-    @State private var unlockedLevels: Int = 1
     
     private let audioManager = AudioManager.shared
     
@@ -67,7 +66,7 @@ struct LevelScreen: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(1...10, id: \.self) { index in
-                                let isOpened = index <= unlockedLevels
+                                let isOpened = index <= gameSettingsViewModel.unlockedLevels
                                 
                                 Button(action: {
                                     
@@ -108,7 +107,8 @@ struct LevelScreen: View {
                                                         )
                                                         
                                                         withAnimation(.easeInOut(duration: 1.0)) {
-                                                            unlockedLevels = 2
+                                                            gameSettingsViewModel.unlockedLevels = 2
+                                                            gameSettingsViewModel.save() // Wajib save!
                                                         }
                                                     }
                                                     
@@ -179,12 +179,7 @@ struct LevelScreen: View {
             }
         }
         .onAppear {
-
-            if gameSettingsViewModel.gameFinished && pageStateViewModel.state != .finished {
-                unlockedLevels = 2
-            } else {
-                unlockedLevels = 1
-            }
+            
         }
     }
 }

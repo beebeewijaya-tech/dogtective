@@ -24,6 +24,7 @@ class GameSettings {
     var gameScene: String
     var collectedEvidence: [String]
     var gameFinished: Bool
+    var unlockedLevels: Int = 1
     
     // TODO: add list evidence to save not only playerNumOfEvidence
     
@@ -53,5 +54,6 @@ class GameSettings {
         self.gameScene = gameScene
         self.collectedEvidence = collectedEvidence
         self.gameFinished = gameFinished
+        self.unlockedLevels = unlockedLevels
     }
 }
