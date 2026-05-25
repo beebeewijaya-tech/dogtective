@@ -18,6 +18,7 @@ struct GameScreen: View {
     @EnvironmentObject var backpackStateViewModel: BackpackStateViewModel
     @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
+    @EnvironmentObject var levelViewModel: LevelViewModel
 
     // MARK: - State
     @State var scene: SKScene?
@@ -37,6 +38,7 @@ struct GameScreen: View {
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
         scene.pageStateViewModel = pageStateViewModel
+        scene.levelViewModel = levelViewModel
         return scene
     }
     
@@ -49,6 +51,7 @@ struct GameScreen: View {
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
         scene.pageStateViewModel = pageStateViewModel
+        scene.levelViewModel = levelViewModel
         return scene
     }
     

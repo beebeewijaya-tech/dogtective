@@ -28,12 +28,14 @@ class GameSettingsViewModel: ObservableObject {
     @Published var currentCutscene: Int = 1
     @Published var gameScene: String = "police"
     @Published var collectedEvidence: [String] = []
-    @Published var gameFinished: Bool = false
-
+    @Published var levelFinished: [Int] = []
+    @Published var currentStarted: Int? = nil
+    
     // MARK: - Non persist
     @Published var fenceDialogShown: Bool = false
     @Published var hasCheckedBackyard: Bool = false
     @Published var isFinalScene: Bool = false
+    @Published var gameFinished: Bool = false
     
     @Published var unlockedLevels: Int = 1
     
@@ -58,6 +60,9 @@ class GameSettingsViewModel: ObservableObject {
         currentCutscene = settings.currentCutscene
         gameScene = settings.gameScene
         collectedEvidence = settings.collectedEvidence
+        levelFinished = settings.levelFinished
+        currentStarted = settings.currentStarted
+        gameFinished = settings.gameFinished
         print("load settings isFirstTime: \(isFirstTime)")
         print("load settings playerPosition: \(playerPosition)")
         print("load settings numOfEvidence: \(numOfEvidence)")
@@ -68,10 +73,9 @@ class GameSettingsViewModel: ObservableObject {
         print("load settings currentCutscene: \(currentCutscene)")
         print("load settings gameScene: \(gameScene)")
         print("load settings collectedEvidence: \(collectedEvidence)")
-        
-        gameFinished = settings.gameFinished
-        
-        unlockedLevels = settings.unlockedLevels
+        print("load settings levelFinished: \(levelFinished)")
+        print("load settings currentStarted: \(currentStarted)")
+        print("load settings gameFinished: \(gameFinished)")
     }
     
     func save() {
@@ -89,7 +93,8 @@ class GameSettingsViewModel: ObservableObject {
         settings.gameScene = gameScene
         settings.collectedEvidence = collectedEvidence
         settings.gameFinished = gameFinished
-        settings.unlockedLevels = unlockedLevels
+        settings.levelFinished = levelFinished
+        settings.currentStarted = currentStarted
         try? context.save()
     }
     
@@ -98,7 +103,7 @@ class GameSettingsViewModel: ObservableObject {
         
         let currentSound = soundEnabled
         let currentHaptics = hapticsEnabled
-               
+        
         do {
             isFirstTime = true
             playerPosition = .zero
@@ -106,8 +111,7 @@ class GameSettingsViewModel: ObservableObject {
             currentQuest = 0
             soundEnabled = currentSound
             hapticsEnabled = currentHaptics
-            
-            currentLevel = 0
+            currentLevel = -1
             currentCutscene = 1
             gameScene = "police"
             collectedEvidence = []
@@ -115,6 +119,7 @@ class GameSettingsViewModel: ObservableObject {
             hasCheckedBackyard = false
             gameFinished = false
             unlockedLevels = 1
+            currentStarted = nil
             
             try context.delete(model: GameSettings.self)
             save()
@@ -124,21 +129,21 @@ class GameSettingsViewModel: ObservableObject {
     }
     
     func restartCurrentLevel() {
-            // Hanya reset posisi, quest, dan barang bawaan untuk level ini
-            playerPosition = .zero
-            numOfEvidence = 0
-            currentQuest = 0
-            currentCutscene = 1
-            gameScene = "police"
-            collectedEvidence = []
-            fenceDialogShown = false
-            hasCheckedBackyard = false
-            
-            // PENTING: Jangan ubah unlockedLevels, gameFinished, atau isFirstTime
-            // dan JANGAN jalankan context.delete()
-            
-            save() // Langsung simpan perubahan state ini
-        }
+        // Hanya reset posisi, quest, dan barang bawaan untuk level ini
+        playerPosition = .zero
+        numOfEvidence = 0
+        currentQuest = 0
+        currentCutscene = 1
+        gameScene = "police"
+        collectedEvidence = []
+        fenceDialogShown = false
+        hasCheckedBackyard = false
+        
+        // PENTING: Jangan ubah unlockedLevels, gameFinished, atau isFirstTime
+        // dan JANGAN jalankan context.delete()
+        
+        save() // Langsung simpan perubahan state ini
+    }
     
     private func fetchOrCreateSettings() -> GameSettings {
         let descriptor = FetchDescriptor<GameSettings>()

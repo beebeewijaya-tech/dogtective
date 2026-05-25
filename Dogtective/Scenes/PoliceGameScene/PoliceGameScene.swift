@@ -25,7 +25,8 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
     var backpackStateViewModel: BackpackStateViewModel?
     var cutsceneViewModel: CutsceneViewModel?
     var pageStateViewModel: PageStateViewModel?
-    
+    var levelViewModel: LevelViewModel?
+
     // MARK: - NPC system
     var npcSystem: NpcSystem?
 
@@ -205,6 +206,7 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         scene.backpackStateViewModel = backpackStateViewModel
         scene.cutsceneViewModel = cutsceneViewModel
         scene.pageStateViewModel = pageStateViewModel
+        scene.levelViewModel = levelViewModel
         scene.setupBackground() // setup background
         nextScene = scene
      }
