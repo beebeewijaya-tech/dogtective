@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Level Info
-struct LevelData: Identifiable {
-    let id: Int
-    let title: String
-    let description: String
-}
-
 struct LevelScreen: View {
     // MARK: - Environment
     @Environment(\.dismiss) var dismiss
@@ -21,11 +14,12 @@ struct LevelScreen: View {
     // MARK: - ViewModel
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     @EnvironmentObject var pageStateViewModel: PageStateViewModel
-    
+    @EnvironmentObject var levelViewModel: LevelViewModel
     @EnvironmentObject var cutsceneViewModel: CutsceneViewModel
     
     // MARK: - State
     @State private var selectedLevel: Int? = nil
+    @State private var unlockedLevels: Int = 1
     
     private let audioManager = AudioManager.shared
     
@@ -37,18 +31,6 @@ struct LevelScreen: View {
         green: 24/255,
         blue: 0/255
     )
-    let allLevels: [LevelData] = [
-        LevelData(id: 1, title: "The Missing Bones", description: "Something happens in a quiet sunny days in Pawland district. Bones that are safely kept are suddenly missing..."),
-        LevelData(id: 2, title: "The Barking Ghost", description: "Rumors say a spooky figure is haunting the backyard. It's time to investigate what's really going on!"),
-        LevelData(id: 3, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 4, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 5, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 6, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 7, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 8, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 9, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-        LevelData(id: 10, title: "Slippery Tracks", description: "Mysterious wet paw prints lead towards the pond. Is someone trying to hide something underwater?"),
-    ]
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -66,10 +48,9 @@ struct LevelScreen: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(1...10, id: \.self) { index in
-                                let isOpened = index <= gameSettingsViewModel.unlockedLevels
-                                
+                                let isOpened = index <= unlockedLevels
+                                let level = levelViewModel.getLevelById(id: index)
                                 Button(action: {
-                                    
                                     audioManager.playSFX(
                                         fileName: "selectmenu_sound",
                                         isSoundEnabled: gameSettingsViewModel.soundEnabled
@@ -77,7 +58,7 @@ struct LevelScreen: View {
                                     
                                     if isOpened {
                                         withAnimation(.easeInOut(duration: 0.25)) {
-                                            selectedLevel = index
+                                            levelViewModel.currentLevel = index
                                         }
                                     }
                                 }) {
@@ -91,24 +72,22 @@ struct LevelScreen: View {
                                         
                                         
                                         // MARK: - Stamp Placement
-                                        if index == 1 && (pageStateViewModel.state == .finished || gameSettingsViewModel.gameFinished) {
-                                            
+                                        if level.finished {
                                             StampComponent(
                                                 isJustFinished: pageStateViewModel.state == .finished,
                                                 onAnimationComplete: {
-                                                    
                                                     pageStateViewModel.state = .level
-                                                    
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                        
                                                         AudioManager.shared.playSFX(
                                                             fileName: "cheer_sound",
                                                             isSoundEnabled: gameSettingsViewModel.soundEnabled
                                                         )
-                                                        
                                                         withAnimation(.easeInOut(duration: 1.0)) {
-                                                            gameSettingsViewModel.unlockedLevels = 2
-                                                            gameSettingsViewModel.save() // Wajib save!
+                                                            if !gameSettingsViewModel.levelFinished.contains(index) {
+                                                                gameSettingsViewModel.levelFinished.append(index)
+                                                                gameSettingsViewModel.save()
+                                                                unlockedLevels = index + 1
+                                                            }
                                                         }
                                                     }
                                                     
@@ -130,15 +109,14 @@ struct LevelScreen: View {
                     
                     Spacer()
                 }
-                .opacity(selectedLevel == nil ? 1 : 0)
-                .allowsHitTesting(selectedLevel == nil)
+                .opacity(levelViewModel.currentLevel == nil ? 1 : 0)
+                .allowsHitTesting(levelViewModel.currentLevel == nil)
                 .animation(
                     .easeInOut(duration: 0.2),
-                    value: selectedLevel
+                    value: levelViewModel.currentLevel
                 )
                 
-                if let index = selectedLevel,
-                   let levelInfo = allLevels.first(where: { $0.id == index }) {
+                if let levelInfo = levelViewModel.getCurrentLevel() {
                     LevelDetailOverlay(
                         data: levelInfo
                     ) {
@@ -149,7 +127,7 @@ struct LevelScreen: View {
                         )
                         
                         withAnimation(.easeInOut(duration: 0.25)) {
-                            selectedLevel = nil
+                            levelViewModel.currentLevel = nil
                         }
                     }
                     .zIndex(10)
@@ -164,13 +142,11 @@ struct LevelScreen: View {
                     fileName: "selectmenu_sound",
                     isSoundEnabled: gameSettingsViewModel.soundEnabled
                 )
-                
-                if selectedLevel != nil {
+                if levelViewModel.getCurrentLevel() != nil {
                     withAnimation(.easeInOut(duration: 0.25)) {
-                        selectedLevel = nil
+                        levelViewModel.currentLevel = nil // set to empty
                     }
                 } else {
-                    
                     withAnimation(.easeInOut(duration: 0.3)) {
                         pageStateViewModel.state = .home
                     }
@@ -179,7 +155,10 @@ struct LevelScreen: View {
             }
         }
         .onAppear {
-            
+            unlockedLevels = gameSettingsViewModel.levelFinished.count + 1
+            if gameSettingsViewModel.currentLevel >= 0 {
+                levelViewModel.startLevel(id: gameSettingsViewModel.currentLevel)
+            }
         }
     }
 }
