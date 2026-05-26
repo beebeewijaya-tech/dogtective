@@ -29,7 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var pageStateViewModel: PageStateViewModel?
     var gameSettingsViewModel: GameSettingsViewModel?
     var levelViewModel: LevelViewModel?
-
+    
     // MARK: - Evidence
     var evidenceSystem: EvidenceSystem?
     
@@ -267,8 +267,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     deinit {
-          print("GameScene deinit")
-      }
+        print("GameScene deinit")
+    }
     
     func resetMemory() {
         NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -277,7 +277,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         burnSubscription = nil
         evidenceGateSubscription?.cancel()
         evidenceGateSubscription = nil
-
+        
         // nil all systems so their deinits fire
         evidenceSystem = nil
         npcSystem = nil
@@ -477,7 +477,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     )
                 ]
             }
-        case 4:
+        case 8:
+            spawnFinalEvidence()
+        case 9:
+            if dialogStateViewModel?.dialog != nil {
+                dialogStateViewModel?.continuation = {
+                    self.nextQuest()
+                }
+            }
+        case let x where x > 5:
+            if let billy = npcs.first(where: { $0.type == .billy }) {
+                billy.dialogComponent?.dialog = DialogUtils.billyNewDialog()
+            }
+        case let x where x > 4:
             if let timmy = npcs.first(where: { $0.type == .npcKid }) {
                 timmy.dialogComponent?.dialog = DialogUtils.dummyDialogs() + [
                     Dialog(
@@ -489,18 +501,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     )
                 ]
             }
-        case 5:
-            if let billy = npcs.first(where: { $0.type == .billy }) {
-                billy.dialogComponent?.dialog = DialogUtils.billyNewDialog()
-            }
-        case 8:
-            spawnFinalEvidence()
-        case 9:
-            if dialogStateViewModel?.dialog != nil {
-                dialogStateViewModel?.continuation = {
-                    self.nextQuest()
-                }
-            }
         default:
             break
         }
@@ -510,7 +510,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let playerNode = playerEntity?.node else { return }
         
         var isNearBonfire = false
-
+        
         for bonfire in bonfirePositions {
             let dx = playerNode.position.x - bonfire.position.x
             let dy = playerNode.position.y - bonfire.position.y
@@ -521,16 +521,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 break
             }
         }
-    
+        
         if isNearBonfire && !isCampfireSoundPlaying {
             isCampfireSoundPlaying = true
-
+            
             let soundEnabled = gameSettingsViewModel?.soundEnabled ?? true
             AudioManager.shared.startCampfireSound(isSoundEnabled: soundEnabled)
             
         } else if !isNearBonfire && isCampfireSoundPlaying {
             isCampfireSoundPlaying = false
-
+            
             AudioManager.shared.stopCampfireSound()
         }
     }

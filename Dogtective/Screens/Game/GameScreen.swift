@@ -90,6 +90,7 @@ struct GameScreen: View {
                     SpriteView(
                         scene: scene ?? SKScene(),
                         options: [.ignoresSiblingOrder],
+                        debugOptions: [.showsPhysics]
                     )
                     .saturation(0.8)
                     .onAppear {
