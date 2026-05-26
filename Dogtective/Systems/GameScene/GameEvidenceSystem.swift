@@ -101,7 +101,7 @@ extension GameScene {
             .digRawDig (at: CGPoint(x: -491.4983215332031, y: 796.5868530273438), scale: 0.33, rewardGroup: "dig_raw_dig_key", collectedMessage: "A very clean dig… whoever did this knew exactly what they were looking for."),
             .digRawDig (at: CGPoint(x: -1046.8846435546875, y: -500.74884033203125), scale: 0.33, rewardGroup: "dig_raw_dig_key", collectedMessage: "A very clean dig… whoever did this knew exactly what they were looking for."),
             .digRawDig (at: CGPoint(x: 1027.91455078125, y: -544.146484375), scale: 0.33, rewardGroup: "dig_raw_dig_key", collectedMessage: "A very clean dig… whoever did this knew exactly what they were looking for."),
-            .item(.brokenFence, at: CGPoint(x: -374, y: 570), proximityRadius: 100, proximityOffset:  CGPoint(x: 0, y: 30), collectedMessage: "A broken fence… hidden by the bushes. If Chichi’s the culprit, she could easily slip through here."),
+            .item(.brokenFence, at: CGPoint(x: -374, y: 570), proximityRadius: 50, proximityOffset:  CGPoint(x: 0, y: 70), collectedMessage: "A broken fence… hidden by the bushes. If Chichi’s the culprit, she could easily slip through here."),
        ]
     }
 }

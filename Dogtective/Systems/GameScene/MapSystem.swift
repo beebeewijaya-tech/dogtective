@@ -451,7 +451,10 @@ extension GameScene {
     
     // MARK: - Collider Entity
     private func setupColliders() {
-          let configs: [ColliderConfig] = allColliderConfigs()
+          var configs: [ColliderConfig] = allColliderConfigs()
+          if (gameSettingsViewModel?.currentCutscene ?? 0) < 4 {
+              configs.append(.circle(at: CGPoint(x: 196, y: 780), radius: 40))
+          }
           for cfg in configs {
               let collider = ColliderEntity(config: cfg)
               register(collider)
@@ -507,7 +510,7 @@ extension GameScene {
              .circle(at: CGPoint(x: 1790, y: 490), radius: 65),
              
              // bottom right
-             .rect(at: CGPoint(x: 985, y: -410), size: CGSize(width: 35 , height: 360)),
+             .rect(at: CGPoint(x: 985, y: -450 ), size: CGSize(width: 35 , height: 415)),
              .rect(at: CGPoint(x: 1582, y: -580), size: CGSize(width: 1200 , height: 30)),
              .rect(at: CGPoint(x: 2291, y: -580), size: CGSize(width: 300 , height: 30)),
              .rect(at: CGPoint(x: 1578, y: -410), size: CGSize(width: 35 , height: 360)),
