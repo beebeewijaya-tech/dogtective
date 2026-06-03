@@ -11,11 +11,11 @@ import SwiftUI
 struct DialogUtils {
     static func dummyDialogs() -> [Dialog] {
         return [
-            Dialog(message: "The city winds always bring trouble our way.", evidence: false),
-            Dialog(message: "Bones missing don't happen by accident, my friend.", evidence: false),
-            Dialog(message: "Some dogs say a ghost is stealing bones. Personally? I think that’s ridiculous.", evidence: false),
-            Dialog(message: "Oh my god, the cafe has a new drink", evidence: false),
-            Dialog(message: "Missing bones? Oh, right… sorry, I was chasing butterflies earlier.", evidence: false),
+            Dialog(message: "There's a patch of dirt near the police station that keeps getting disturbed. Strange.", evidence: false),
+            Dialog(message: "That Billy fella sure eats a lot of corn for someone who's supposedly not nervous.", evidence: false),
+            Dialog(message: "My nose has been twitching near the north-west side all week. Don't know why.", evidence: false),
+            Dialog(message: "This doesn't feel random. Someone planned this.", evidence: false),
+            Dialog(message: "That corn stall area smells like more than just corn lately.", evidence: false)
         ]
     }
     
@@ -50,6 +50,15 @@ struct DialogUtils {
             Dialog(message: "Those clues don’t prove anything… right? They could belong to anyone!", evidence: false),
             Dialog(message: "I only wanted to scare them a little… I didn’t think things would go this far…", evidence: false),
             Dialog(message: "No… no, this can’t be happening. You’re not seriously blaming me, are you?", evidence: false),
+        ]
+    }
+    
+    static func timmyDialogs() -> [Dialog] {
+        return [
+            Dialog(message: "There's something fluffy stuck near the house around post office. I tried to reach it but I'm too small.", evidence: false),
+            Dialog(message: "This doesn't feel random. Someone planned this.", evidence: false),
+            Dialog(message: "Maybe mrs. Milo is doing gardening at her house", evidence: false),
+            Dialog(message: "I'm not supposed to be out late but... I saw someone carrying a bag to the trash", evidence: false)
         ]
     }
 }
