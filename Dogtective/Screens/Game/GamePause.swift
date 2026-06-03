@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct GamePause: View {
-    // MARK: - Bindings & Environment
+    // MARK: - Bindings
     @Binding var isPaused: Bool
     @Binding var showSaveToast: Bool
+    @Binding var showTutorial: Bool
+    
+    // MARK: - ViewModel
     @EnvironmentObject var gameSettingsViewModel: GameSettingsViewModel
     
+    // MARK: - State
     @State private var showQuitConfirmation = false
-    
     private let audioManager = AudioManager.shared
     
     var body: some View {
@@ -74,6 +77,15 @@ struct GamePause: View {
                                     gameSettingsViewModel.save()
                                 }) {
                                     Image(gameSettingsViewModel.soundEnabled ? "music_on" : "music_off")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 55, height: 55)
+                                }
+                                
+                                Button(action: {
+                                    showTutorial = true
+                                }) {
+                                    Image("tutorial_btn_preview")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 55, height: 55)

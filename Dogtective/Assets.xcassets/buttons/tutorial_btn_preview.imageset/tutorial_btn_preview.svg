@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <!-- Drop shadow -->
+  <circle cx="145" cy="148" r="122" fill="#3C1E0E" opacity="0.2"/>
+
+  <!-- Outer dark brown border -->
+  <circle cx="140" cy="140" r="132" fill="#3C1E0E"/>
+
+  <!-- Main golden background -->
+  <circle cx="140" cy="140" r="120" fill="#F5A523"/>
+
+  <!-- Shadow patch (lower-right) -->
+  <path d="M140 140 Q210 145 215 205 Q170 260 100 245 Q50 225 45 175 Q80 215 140 215Z"
+        fill="#D98E15" opacity="0.45"/>
+
+  <!-- Highlight (upper-left) -->
+  <ellipse cx="105" cy="108" rx="58" ry="42" fill="#FFCA45" opacity="0.45"/>
+
+  <!-- LEFT PAGE -->
+  <path d="M68 108
+           Q72  96  96  91
+           Q118 87 134  94
+           L134 186
+           Q118 180  96 182
+           Q72  184  68 186 Z"
+        fill="#F5E2BE" stroke="#3C1E0E" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- RIGHT PAGE -->
+  <path d="M212 108
+           Q208  96 184  91
+           Q162  87 146  94
+           L146 186
+           Q162 180 184 182
+           Q208 184 212 186 Z"
+        fill="#F5E2BE" stroke="#3C1E0E" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Spine / binding -->
+  <path d="M134 94 Q140 88 146 94 L146 186 Q140 192 134 186 Z"
+        fill="#3C1E0E"/>
+
+  <!-- Text lines — left page -->
+  <line x1="83"  y1="120" x2="125" y2="116" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="83"  y1="136" x2="125" y2="133" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="83"  y1="152" x2="125" y2="150" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="83"  y1="168" x2="116" y2="166" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Text lines — right page -->
+  <line x1="155" y1="116" x2="197" y2="120" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="155" y1="133" x2="197" y2="136" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="155" y1="150" x2="197" y2="152" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+  <line x1="155" y1="166" x2="190" y2="168" stroke="#3C1E0E" stroke-width="7" stroke-linecap="round"/>
+</svg>
