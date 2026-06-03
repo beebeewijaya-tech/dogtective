@@ -61,7 +61,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NpcEntity(
             id: 5, name: "Milo Hound", type: .npc,
             position: CGPoint(x: 1510, y: -309),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(message: "That kid Timmy is always playing at Playground. Kids notice things adults don't.", evidence: false),
+            ]
         ),
         NpcEntity(
             id: 6, name: "Oliver Sniff", type: .npc,
@@ -71,22 +73,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NpcEntity(
             id: 7, name: "Chester Bones", type: .npc,
             position: CGPoint(x: 933, y: -57),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(message: "Whoever took those bones... it feels personal. Like they wanted to scare someone specific.", evidence: false),
+            ]
         ),
         NpcEntity(
             id: 8, name: "Archie Tailor", type: .npc,
             position: CGPoint(x: 523, y: 419),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(message: "Someone was sneaking around near the trash cans last night. Couldn't make out who it was.", evidence: false),
+            ]
         ),
         NpcEntity(
             id: 9, name: "Jasper Collier", type: .npc,
             position: CGPoint(x: -83, y: 27),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(message: "I walked past the blue house this morning. Something felt off about the fence.", evidence: false)
+            ]
         ),
         NpcEntity(
             id: 10, name: "Felix Waggins", type: .npc,
             position: CGPoint(x: -1209, y: 47),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.dummyDialogs() + [
+                Dialog(message: "I heard rustling behind the police office around midnight. Thought it was raccoons at first", evidence: false),
+            ]
         ),
         NpcEntity(
             name: "Billy Gates", type: .billy,
@@ -101,7 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         NpcEntity(
             name: "Timmy the kid", type: .npcKid,
             position: CGPoint(x: 705, y: 645),
-            dialog: DialogUtils.dummyDialogs()
+            dialog: DialogUtils.timmyDialogs()
         ),
     ]
     
