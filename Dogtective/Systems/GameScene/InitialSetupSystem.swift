@@ -20,6 +20,10 @@ extension GameScene {
     }
     
     func setupNpcSystem(_ npcs: [NpcEntity]) {
+        var npcs = npcs
+        if (gameSettingsViewModel?.currentCutscene ?? 0) >= 5 {
+            npcs.removeAll { $0.type == .billy }
+        }
         self.npcSystem = NpcSystem(
             scene: self,
             npcs: npcs,

@@ -27,8 +27,19 @@ class MovementSystem: GKComponentSystem<MovementComponent> {
         emitter.particleBirthRate = 0
         emitter.particleScale = 0.24
         emitter.position = CGPoint(x: 0, y: -playerNode.frame.height / 2 + 4)
-        emitter.zPosition = -2
-        emitter.targetNode = playerNode.parent
+        guard let world = playerNode.parent else { return }
+        
+        let layerName = "footstepLayer"
+        let layer = world.childNode(withName: layerName) ?? {
+            let node = SKNode()
+            node.name = layerName
+            node.zPosition = -9000
+            world.addChild(node)
+            return node
+        }()
+
+        emitter.zPosition = 0
+        emitter.targetNode = layer
         playerNode.addChild(emitter)
         footsteps = emitter
     }

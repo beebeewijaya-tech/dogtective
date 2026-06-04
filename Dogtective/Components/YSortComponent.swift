@@ -12,9 +12,11 @@ import GameplayKit
 // `zOffset` lets overlapping entities (e.g. two trees at same Y) have a deterministic order.
 class YSortComponent: GKComponent {
     var zOffset: CGFloat
+    var yOffset: CGFloat
 
-    init(zOffset: CGFloat = 0) {
+    init(zOffset: CGFloat = 0, yOffset: CGFloat = 0) {
         self.zOffset = zOffset
+        self.yOffset = yOffset
         super.init()
     }
 
@@ -32,6 +34,6 @@ class YSortComponent: GKComponent {
         if let sprite = node as? SKSpriteNode {
             return sprite.position.y - sprite.size.height * sprite.anchorPoint.y
         }
-        return node.position.y
+        return node.position.y - yOffset
     }
 }
