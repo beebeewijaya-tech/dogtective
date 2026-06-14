@@ -148,6 +148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     weak var tissueMarkerNode: SKNode?
     var hasSpawnedFinalEvidence = false
+    private var lastProcessedEvidenceCount = 0
     private var isBillyQuestRecording = false
     private let campfireRadius: CGFloat = 200.0
     private var isCampfireSoundPlaying = false
@@ -255,7 +256,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let dt = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         movementSystem?.update(deltaTime: dt)
-        cameraFollowPlayer()
         setMapPosition()
         ysortSystem?.update(deltaTime: dt)
         if let cam = self.cam {
@@ -266,6 +266,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         followBillyPosition()
         endGameMonitoring()
         checkBonfireProximity()
+    }
+
+    override func didFinishUpdate() {
+        cameraFollowPlayer()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -345,13 +349,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func subscribeBurnState() {
         guard let vm = backpackStateViewModel else { return }
+        // Seed the baseline from the save: every count up to here was already
+        // collected (and its quest/spawn reactions already ran) in a prior
+        // session. Treat them as processed so resume doesn't replay them.
+        lastProcessedEvidenceCount = vm.collectedKeys.count
         // Apply current state immediately so a save above threshold already
-        // shows burn chunks + relocated NPCs on first frame.
-        applyEvidenceProgression(count: vm.collectedKeys.count)
+        // shows burn chunks + relocated NPCs on first frame. isNewCollection:
+        // false → idempotent world/dialog state only, no one-time reactions.
+        applyEvidenceProgression(count: vm.collectedKeys.count, isNewCollection: false)
         burnSubscription = vm.$collectedKeys
             .receive(on: DispatchQueue.main)
             .sink { [weak self] keys in
-                self?.applyEvidenceProgression(count: keys.count)
+                guard let self else { return }
+                let count = keys.count
+                // A genuine new pickup is one that pushes past every count we've
+                // already processed. Only then do the one-time reactions fire.
+                let isNew = count > self.lastProcessedEvidenceCount
+                if isNew { self.lastProcessedEvidenceCount = count }
+                self.applyEvidenceProgression(count: count, isNewCollection: isNew)
             }
     }
     
@@ -364,12 +379,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    private func applyEvidenceProgression(count: Int) {
+    private func applyEvidenceProgression(count: Int, isNewCollection: Bool) {
         let burned = count >= burnThreshold
         chunkManager?.setBurned(burned)
         tissueMarkerNode?.isHidden = burned
         relocateDurant()
-        progressionPerCount(count)
+        progressionPerCount(count, isNewCollection: isNewCollection)
         
         if gameSettingsViewModel?.currentCutscene == 3 && !(gameSettingsViewModel?.fenceDialogShown ?? false) && count >= 7 {
             let dialogFence = { [weak self] in
@@ -474,11 +489,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    private func progressionPerCount(_ count: Int) {
+    // `isNewCollection` is true only for a genuine new pickup during play. On
+    // resume it is false: the idempotent NPC dialog wiring still re-applies (so
+    // the world is consistent), but the one-time reactions — quest advance,
+    // final-evidence spawn, dialog continuation — are skipped so they don't
+    // replay and double-advance the quest.
+    private func progressionPerCount(_ count: Int, isNewCollection: Bool) {
         // when evidence progression run we will check this
         switch count {
         case 1:
-            nextQuest()
+            if isNewCollection { nextQuest() }
             if let winston = npcs.first(where: { $0.id == 2 }) {
                 winston.dialogComponent?.dialog = DialogUtils.dummyDialogs() + [
                     Dialog(
@@ -490,9 +510,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ]
             }
         case 8:
-            spawnFinalEvidence()
+            if isNewCollection { spawnFinalEvidence() }
         case 9:
-            if dialogStateViewModel?.dialog != nil {
+            if isNewCollection, dialogStateViewModel?.dialog != nil {
                 dialogStateViewModel?.continuation = {
                     self.nextQuest()
                 }
