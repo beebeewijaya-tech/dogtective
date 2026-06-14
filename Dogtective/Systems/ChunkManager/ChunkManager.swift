@@ -318,13 +318,10 @@ final class ChunkManager {
     private func attachBackgroundNode(coord: ChunkCoord, texture: SKTexture) {
         guard let scene = scene, backgroundNodes[coord] == nil else { return }
         let node = SKSpriteNode(texture: texture)
-        // Integer-snap size to kill sub-pixel seams between chunks.
         // Nearest filtering (set on texture) handles the bilinear-bleed case.
-        let cs = registry.chunkSize
-        node.size = CGSize(width: cs.width.rounded(),
-                           height: cs.height.rounded())
-        let c = registry.chunkCenter(for: coord)
-        node.position = CGPoint(x: c.x.rounded(), y: c.y.rounded())
+        let rect = registry.chunkRect(for: coord)
+        node.size = rect.size
+        node.position = CGPoint(x: rect.midX, y: rect.midY)
         node.zPosition = -10000
         scene.addChild(node)
         backgroundNodes[coord] = node

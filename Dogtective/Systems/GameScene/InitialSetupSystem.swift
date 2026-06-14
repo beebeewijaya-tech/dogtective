@@ -44,13 +44,5 @@ extension GameScene {
     
     func setupInitialQuest() {
         questStateViewModel?.currentIndex = gameSettingsViewModel?.currentQuest ?? 0
-
-        if questStateViewModel?.currentIndex == 1 {
-            Task {
-                try await questStateViewModel?.recordProgress()
-                gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
-                gameSettingsViewModel?.save()
-            }
-        }
     }
 }
