@@ -14,6 +14,7 @@ struct Quest {
     var isLoading: Bool
 }
 
+@MainActor
 class QuestStateViewModel: ObservableObject {
     @Published var questList: [Quest] = []
     @Published var currentProgress: Int = 0

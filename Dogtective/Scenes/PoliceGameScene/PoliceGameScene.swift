@@ -107,6 +107,9 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
         )
 
         initSpan?.finish()
+        
+        
+        prepareGameScene()
     }
 
     override func willMove(from view: SKView) {
@@ -245,10 +248,6 @@ class PoliceGameScene: SKScene, SKPhysicsContactDelegate {
 
     private func checkQuest() {
         Task {
-            if questStateViewModel?.currentProgress == 2 {
-                prepareGameScene()
-            }
-            
             try await questStateViewModel?.recordProgress()
             gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
             gameSettingsViewModel?.save()
