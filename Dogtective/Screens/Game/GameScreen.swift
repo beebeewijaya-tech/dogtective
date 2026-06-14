@@ -93,7 +93,6 @@ struct GameScreen: View {
                     scene: scene ?? SKScene(),
                     options: [.ignoresSiblingOrder],
                 )
-                .saturation(0.8)
                 .onAppear {
                     guard scene == nil else { return }
                     scene = makeScene(size: geo.size)

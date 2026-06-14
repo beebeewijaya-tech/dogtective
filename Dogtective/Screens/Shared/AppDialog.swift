@@ -70,7 +70,6 @@ struct AppDialog: View {
                         VStack(alignment: .leading) {
                             Text(isAnimating ? textDisplay : text.capitalized)
                                 .foregroundStyle(.black)
-                                .font(.default)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
                                 .multilineTextAlignment(.leading)
