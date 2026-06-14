@@ -42,10 +42,13 @@ extension GameScene {
         // so we will clamp it
         // if the player go to left like a lot, camera will stay at cameraMinX ( maximum )
         // if the player go to right like a lot, camera will stay at cameraMaxX ( maximum )
-        cam.position = CGPoint(
-            x: min(max(node.position.x, cameraMinX), cameraMaxX), // if player is too far left ( almost black area ), choose cameraMinX, otherwise keep player.x
-            y: min(max(node.position.y, cameraMinY), cameraMaxY)
-        )
+        let scale = view?.contentScaleFactor ?? 1
+        func snapToPixel(_ value: CGFloat) -> CGFloat {
+            scale > 0 ? (value * scale).rounded() / scale : value
+        }
+        let clampedX = min(max(node.position.x, cameraMinX), cameraMaxX) // if player is too far left ( almost black area ), choose cameraMinX,
+        let clampedY = min(max(node.position.y, cameraMinY), cameraMaxY)
+        cam.position = CGPoint(x: snapToPixel(clampedX), y: snapToPixel(clampedY))
         
         playerEntity.node?.position = CGPoint(
             x: min(max(node.position.x, mapLeftEdge), mapRightEdge), // player will clamp to use mapLeftEdge if it try to go past the value
