@@ -510,7 +510,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ]
             }
         case 8:
-            if isNewCollection { spawnFinalEvidence() }
+            spawnFinalEvidence()
         case 9:
             if isNewCollection, dialogStateViewModel?.dialog != nil {
                 dialogStateViewModel?.continuation = {
