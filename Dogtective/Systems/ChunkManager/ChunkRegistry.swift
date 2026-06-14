@@ -46,6 +46,16 @@ struct ChunkRegistry {
                        y: mapOriginBottomLeft.y + yFromBottom)
     }
 
+    func chunkRect(for coord: ChunkCoord) -> CGRect {
+        let cs = chunkSize
+        let rowFromBottom = (gridRows - 1) - coord.row
+        let x0 = (mapOriginBottomLeft.x + CGFloat(coord.col) * cs.width).rounded()
+        let x1 = (mapOriginBottomLeft.x + CGFloat(coord.col + 1) * cs.width).rounded()
+        let y0 = (mapOriginBottomLeft.y + CGFloat(rowFromBottom) * cs.height).rounded()
+        let y1 = (mapOriginBottomLeft.y + CGFloat(rowFromBottom + 1) * cs.height).rounded()
+        return CGRect(x: x0, y: y0, width: x1 - x0, height: y1 - y0)
+    }
+
     /// All chunks whose scene-space rect intersects `rect`. Used to bucket
     /// obstacles whose visual bounds span chunk boundaries.
     func chunks(overlapping rect: CGRect) -> [ChunkCoord] {
