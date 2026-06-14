@@ -44,5 +44,18 @@ extension GameScene {
     
     func setupInitialQuest() {
         questStateViewModel?.currentIndex = gameSettingsViewModel?.currentQuest ?? 0
+        
+        if questStateViewModel?.currentIndex == 1 && gameSettingsViewModel?.policeExited == false {
+            // only run when
+            // quest 2nd ( after police )
+            // police exited
+            // if quest 2nd ( after police ) and player
+            Task {
+                try await questStateViewModel?.recordProgress()
+                gameSettingsViewModel?.currentQuest = questStateViewModel?.currentIndex ?? 0
+                gameSettingsViewModel?.policeExited = true
+                gameSettingsViewModel?.save()
+            }
+        }
     }
 }
