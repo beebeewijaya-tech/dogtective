@@ -39,6 +39,9 @@ class GameSettingsViewModel: ObservableObject {
     
     @Published var unlockedLevels: Int = 1
     
+    // MARK: - Userdefault
+    @AppStorage("policeExited") var policeExited = false
+    
     // MARK: - Action
     
     func configure(context: ModelContext) {
@@ -120,6 +123,7 @@ class GameSettingsViewModel: ObservableObject {
             gameFinished = false
             unlockedLevels = 1
             currentStarted = nil
+            policeExited = false
             
             try context.delete(model: GameSettings.self)
             save()
